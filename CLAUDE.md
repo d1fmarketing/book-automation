@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a professional eBook automation pipeline that generates high-quality PDF and EPUB files from Markdown chapters. The system includes automated builds, validation, word counting, and CI/CD integration.
 
 ### Key Features
+
 - **Automated PDF generation** (6×9" professional book format)
 - **EPUB creation** with validation
 - **Word count tracking** with progress monitoring
@@ -17,7 +18,7 @@ This is a professional eBook automation pipeline that generates high-quality PDF
 
 ## 📁 Project Structure
 
-```
+```text
 ebook-project/
 ├── chapters/          # Markdown files for book chapters
 ├── assets/           # Resources (CSS, fonts, images)
@@ -43,11 +44,13 @@ ebook-project/
 ## 🛠️ Common Development Tasks
 
 ### Initial Setup
+
 ```bash
 make init          # Install all dependencies and configure environment
 ```
 
 ### Building the Book
+
 ```bash
 make pdf           # Generate PDF (6×9" format)
 make epub          # Generate EPUB with validation
@@ -56,6 +59,7 @@ make clean         # Clean build artifacts
 ```
 
 ### Development Workflow
+
 ```bash
 make wordcount     # Update word count in chapter frontmatter
 make test          # Run linting and validation
@@ -64,6 +68,7 @@ npm run lint       # Fix markdown issues automatically
 ```
 
 ### Advanced Commands
+
 ```bash
 make stats         # Generate readability statistics (if implemented)
 make preview       # Live preview with hot reload (if implemented)
@@ -94,6 +99,7 @@ Section content...
 ```
 
 ### Frontmatter Fields
+
 - `chap`: Chapter number (for ordering)
 - `title`: Chapter title
 - `words_target`: Target word count
@@ -103,13 +109,16 @@ Section content...
 ## 🔧 Configuration Files
 
 ### metadata.yaml
+
 Contains book metadata and build settings:
+
 - Title, author, ISBN, publisher info
 - PDF settings (page size, margins, fonts)
 - EPUB settings (cover image, stylesheet)
 - Build options (TOC, page numbers, etc.)
 
 ### package.json Scripts
+
 - `prepare`: Setup Husky hooks
 - `lint`: Auto-fix markdown issues
 - `lint:check`: Check markdown without fixing
@@ -124,6 +133,7 @@ Contains book metadata and build settings:
 ## 🏗️ Architecture Details
 
 ### PDF Generation (Puppeteer)
+
 - Uses `scripts/generate-pdf-puppeteer.js`
 - Converts Markdown → HTML → PDF
 - Professional 6×9" book format
@@ -132,6 +142,7 @@ Contains book metadata and build settings:
 - Chapter start formatting
 
 ### EPUB Generation
+
 - Uses `scripts/build-epub.js`
 - Creates valid EPUB 2.0 format
 - Includes TOC (toc.ncx)
@@ -140,6 +151,7 @@ Contains book metadata and build settings:
 - Image embedding
 
 ### Word Count System
+
 - Python script: `scripts/wordcount.py`
 - Updates frontmatter automatically
 - Excludes Markdown syntax from count
@@ -147,6 +159,7 @@ Contains book metadata and build settings:
 - Rich terminal output with tables
 
 ### CI/CD Pipeline
+
 - GitHub Actions workflow in `.github/workflows/build-ebook.yml`
 - Triggers on push to main/develop
 - Runs tests and validations
@@ -157,6 +170,7 @@ Contains book metadata and build settings:
 ## 🚀 Advanced Features
 
 ### Available Enhancements
+
 1. **Docker Support**: Containerized build environment
 2. **Live Preview**: Hot-reload development server
 3. **Grammar Check**: LanguageTool integration
@@ -167,6 +181,7 @@ Contains book metadata and build settings:
 8. **Marketing**: Auto-generate promotional materials
 
 ### Git Hooks (Husky)
+
 - **pre-commit**: Runs linting and word count
 - **pre-push**: Ensures builds are updated
 - **commit-msg**: Validates conventional commits
@@ -174,17 +189,20 @@ Contains book metadata and build settings:
 ## 📋 Important Notes
 
 ### File Naming Convention
+
 - Chapters: `chapter-XX-slug.md` (e.g., `chapter-01-introduction.md`)
 - Images: Descriptive names in `assets/images/`
 - Keep filenames URL-safe (no spaces, special chars)
 
 ### Image Guidelines
+
 - Cover: 1600×2400px minimum for `cover.jpg`
 - Interior images: Max 1600px width
 - Use `npm run optimize:images` before building
 - Supported formats: JPG, PNG
 
 ### Markdown Best Practices
+
 - Use ATX headers (`#` style)
 - Indent paragraphs will be added by CSS
 - Scene breaks: Use `---` or `* * *`
@@ -192,6 +210,7 @@ Contains book metadata and build settings:
 - Keep line length readable (80-100 chars)
 
 ### Build Performance
+
 - First build may be slow (Puppeteer setup)
 - Subsequent builds use cached dependencies
 - Clean builds with `make clean` if issues arise
@@ -200,6 +219,7 @@ Contains book metadata and build settings:
 ## 🐛 Troubleshooting
 
 ### Common Issues
+
 1. **PDF generation fails**: Check Node.js version (20+)
 2. **EPUB validation errors**: Run `npm run validate:epub`
 3. **Word count not updating**: Check Python installation
@@ -207,6 +227,7 @@ Contains book metadata and build settings:
 5. **Images too large**: Use `npm run optimize:images`
 
 ### Debug Mode
+
 ```bash
 DEBUG=1 npm run build:pdf    # Saves debug HTML
 ```
