@@ -1,0 +1,11 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Executar linting
+npm run lint:check
+
+# Atualizar contagem de palavras
+npm run wordcount
+
+# Adicionar arquivos modificados
+git add chapters/*.md

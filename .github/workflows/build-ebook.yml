@@ -1,0 +1,132 @@
+name: Build eBook
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      formats:
+        description: 'Formatos para gerar'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - pdf
+          - epub
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  build:
+    name: Build eBook
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout código
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        lfs: true
+
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: 📦 Instalar dependências do sistema
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          pandoc \
+          fonts-liberation \
+          fonts-noto \
+          fonts-dejavu-core
+
+    - name: 📦 Instalar dependências Node.js
+      run: npm ci
+
+    - name: 📦 Instalar dependências Python
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: 🧪 Executar testes
+      run: |
+        npm run lint:check
+        python scripts/wordcount.py
+
+    - name: 📚 Build PDF
+      if: github.event.inputs.formats == 'pdf' || github.event.inputs.formats == 'all' || github.event.inputs.formats == ''
+      run: npm run build:pdf
+
+    - name: 📖 Build EPUB
+      if: github.event.inputs.formats == 'epub' || github.event.inputs.formats == 'all' || github.event.inputs.formats == ''
+      run: npm run build:epub
+
+    - name: 📤 Upload artefatos
+      uses: actions/upload-artifact@v4
+      with:
+        name: ebook-builds-${{ github.sha }}
+        path: |
+          build/dist/*.pdf
+          build/dist/*.epub
+        retention-days: 30
+
+    - name: 📊 Relatório de build
+      if: always()
+      run: |
+        echo "## 📊 Relatório de Build" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Arquivos gerados:" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        ls -lh build/dist/ || echo "Nenhum arquivo gerado" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  release:
+    name: Criar Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: 📥 Download artefatos
+      uses: actions/download-artifact@v4
+      with:
+        name: ebook-builds-${{ github.sha }}
+        path: ./dist
+
+    - name: 🏷️ Criar Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: Release ${{ github.run_number }}
+        draft: false
+        prerelease: false
+        files: |
+          dist/*.pdf
+          dist/*.epub
+        body: |
+          ## 📚 Nova versão do eBook
+          
+          Build automático #${{ github.run_number }}
+          
+          ### Arquivos disponíveis:
+          - PDF: Formato profissional 6x9"
+          - EPUB: Compatível com todos os leitores
+          
+          ---
+          *Gerado automaticamente pelo pipeline de CI/CD*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
