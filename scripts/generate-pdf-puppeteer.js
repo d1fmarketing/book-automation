@@ -4,8 +4,15 @@ const fs = require('fs-extra');
 const path = require('path');
 const yaml = require('js-yaml');
 const marked = require('marked');
-const chalk = require('chalk');
-const ora = require('ora');
+// Both chalk and ora are ESM-only in newer versions, use simple console.log
+const chalk = {
+    green: (text) => `✅ ${text}`,
+    red: (text) => `❌ ${text}`,
+    yellow: (text) => `⚠️  ${text}`,
+    blue: (text) => `ℹ️  ${text}`,
+    bold: (text) => text
+};
+let ora = () => ({ start: () => ({ stop: () => {}, succeed: () => {}, fail: () => {} }) });
 const { glob } = require('glob');
 
 // Configurar marked
@@ -16,6 +23,7 @@ marked.setOptions({
 });
 
 async function generatePDF() {
+    console.log('🚀 Gerando PDF profissional...');
     const spinner = ora('Gerando PDF profissional...').start();
     
     try {

@@ -1,0 +1,39 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Pre-push hook: Last line of defense against continuity errors
+echo "🛡️  Running pre-push continuity check..."
+
+# Check if Python is available
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "❌ Python3 not found. Please install Python to run pre-push checks."
+    exit 1
+fi
+
+# Check if scripts exist
+if [ ! -f "scripts/continuity-check.py" ]; then
+    echo "⚠️  Continuity check script not found. Skipping pre-push check."
+    exit 0
+fi
+
+# Run continuity check
+echo "🔍 Checking for continuity errors before push..."
+python3 scripts/continuity-check.py
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ PUSH BLOCKED: Continuity errors detected!"
+    echo "📝 Fix the errors above before pushing."
+    echo ""
+    echo "⚠️  To bypass (NOT RECOMMENDED):"
+    echo "   git push --no-verify"
+    echo ""
+    echo "💡 Better solution:"
+    echo "   1. Fix the continuity errors"
+    echo "   2. Run 'make session-end' to update context"
+    echo "   3. Commit the fixes"
+    echo "   4. Push normally"
+    exit 1
+fi
+
+echo "✅ Continuity check passed. Proceeding with push..."

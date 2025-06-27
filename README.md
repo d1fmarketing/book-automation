@@ -1,0 +1,127 @@
+# 📚 Ebook Pipeline & Context Guardian
+
+[![Build Status](https://github.com/yourusername/yourrepo/workflows/Build%20eBook%20Pipeline/badge.svg)](https://github.com/yourusername/yourrepo/actions)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Professional ebook automation pipeline with AI-powered context management to ensure perfect writing continuity, featuring emotion-based color palettes for AI-generated images.
+
+## 🚀 Quick Start
+
+```bash
+# 1. Install dependencies
+make init
+
+# 2. Start writing session
+make session-start
+
+# 3. Write your chapters in chapters/
+# 4. End session (updates context & runs checks)
+make session-end
+
+# 5. Generate ebook
+make pdf    # or make epub
+```
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest
+
+# Run specific test suites
+python3 tests/test_continuity.py      # Continuity checks
+python3 tests/test_agent_validation.py # Agent setup validation
+```
+
+## 📋 Key Commands
+
+| Command | Description |
+|---------|-------------|
+| `make init` | Install all dependencies |
+| `make session-start` | Begin writing session |
+| `make session-end` | Finalize session, update context |
+| `make analyze` | Analyze all chapters |
+| `make check-continuity` | Check for continuity errors |
+| `make pdf` | Generate PDF |
+| `make epub` | Generate EPUB |
+| `make all` | Generate all formats |
+| `make wordcount` | Update word counts |
+| `make clean` | Clean build artifacts |
+
+## 🤖 Context Guardian
+
+The Context Guardian ensures writing consistency across chapters:
+
+1. **Pre-commit hooks**: Block commits with continuity errors
+2. **CI/CD checks**: Fail builds on inconsistencies
+3. **Agent directive**: AI enforces rules during writing
+
+See `context/AGENT-DIRECTIVE.md` for the complete AI system prompt.
+
+## 📁 Project Structure
+
+```
+.
+├── chapters/          # Your book chapters (Markdown)
+├── context/           # Context management files
+│   ├── CONTEXT.md     # Current writing state
+│   ├── story-bible.yaml # Characters, world, plot
+│   └── WRITING-RULES.md # Style guidelines
+├── scripts/           # Automation scripts
+├── tests/             # Test suite
+└── build/             # Generated output
+```
+
+## 🔧 CI/CD
+
+GitHub Actions automatically:
+- Validates all chapters
+- Runs continuity checks
+- Executes test suite
+- Builds PDF/EPUB on success
+
+Workflow: `.github/workflows/build-ebook.yml`
+
+## 🎨 New: EmotionPaletteEngine
+
+Automatically detects emotions in image descriptions and applies appropriate color palettes:
+
+```bash
+# Generate images with emotion-based colors
+python scripts/generate-images.py
+
+# Use higher resolution
+python scripts/generate-images.py --size 2048x2048
+
+# Enable post-processing (coming soon)
+python scripts/generate-images.py --enhance-images
+```
+
+See `docs/EMOTION-PALETTE-ENGINE.md` for full documentation.
+
+## 📖 Documentation
+
+- **Quick reference**: `context/QUICK-REFERENCE.md`
+- **Full documentation**: `CLAUDE.md`
+- **Agent scenarios**: `tests/test_agent_scenario.md`
+- **Emotion palette guide**: `docs/EMOTION-PALETTE-ENGINE.md`
+
+## ⚠️ Important Notes
+
+- Always run `make session-end` before committing
+- The system blocks commits with continuity errors
+- Use `git commit --no-verify` to bypass (not recommended)
+- CI will catch any errors that slip through
+
+## 🚀 Getting Started
+
+1. Configure your book metadata in `metadata.yaml`
+2. Set up your story bible in `context/story-bible.yaml`
+3. Run `make init` to install dependencies
+4. Start writing with `make session-start`
+5. Write chapters in `chapters/chapter-XX-title.md`
+6. End session with `make session-end`
+7. Generate your book with `make pdf`
+
+Happy writing! 📝

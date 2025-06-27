@@ -3,6 +3,7 @@
 Checks for continuity errors and inconsistencies across chapters
 """
 import os
+import sys
 import re
 import yaml
 import json
@@ -36,6 +37,12 @@ class ContinuityChecker:
         """Run all continuity checks"""
         console.print("[bold blue]🔍 Running continuity checks...[/bold blue]\n")
         
+        # Ensure context directory exists
+        self.context_dir.mkdir(exist_ok=True)
+        
+        # Create initial empty report to ensure file exists
+        self.save_detailed_report()
+        
         chapters = self.load_all_chapters()
         
         # Run various checks
@@ -47,7 +54,7 @@ class ContinuityChecker:
         self.check_pov_consistency(chapters)
         self.check_repeated_information(chapters)
         
-        # Generate report
+        # Generate and save final report
         self.generate_report()
         
     def load_all_chapters(self):
@@ -393,6 +400,12 @@ class ContinuityChecker:
 def main():
     checker = ContinuityChecker()
     checker.check_all_chapters()
+    
+    # Exit with error code if errors found
+    if checker.errors:
+        sys.exit(1)
+    else:
+        sys.exit(0)
     
 if __name__ == "__main__":
     main()

@@ -1,0 +1,123 @@
+{
+  "generated_images": {
+    "a_mystical_ancient_l_1ad99155.png": {
+      "description": "A mystical ancient library with floating books, golden light streaming through tall stained glass windows, magical particles in the air, fantasy art style",
+      "prompt": "A mystical ancient library with floating books, golden light streaming through tall stained glass windows, magical particles in the air, fantasy art style. High quality, detailed illustration.",
+      "generated_at": "2025-06-26T20:34:26.876049",
+      "cost_usd": 0.04
+    },
+    "a_wise_elderly_wizar_e8b3ca91.png": {
+      "description": "A wise elderly wizard reading an ancient tome by candlelight, surrounded by scrolls and mystical artifacts",
+      "prompt": "A wise elderly wizard reading an ancient tome by candlelight, surrounded by scrolls and mystical artifacts. High quality, detailed illustration.",
+      "generated_at": "2025-06-26T20:34:42.705981",
+      "cost_usd": 0.04
+    },
+    "a_futuristic_crystal_cdd40877.png": {
+      "description": "A futuristic crystal city floating in clouds at sunset, with gleaming spires and bridges made of pure light connecting the buildings",
+      "prompt": "A futuristic crystal city floating in clouds at sunset, with gleaming spires and bridges made of pure light connecting the buildings. style: cinematic ultra-detail, 4K quality, photorealistic lighting",
+      "model": "dall-e-3",
+      "size": "1024x1024",
+      "generated_at": "2025-06-26T21:12:38.621029",
+      "cost_usd": 0.08
+    },
+    "a_magical_phoenix_ri_770b738d.png": {
+      "description": "A magical phoenix rising from golden flames against a starry night sky, ethereal and majestic",
+      "prompt": "A magical phoenix rising from golden flames against a starry night sky, ethereal and majestic. High quality, detailed illustration",
+      "model": "ideogram-v3",
+      "size": "1024x1024",
+      "generated_at": "2025-06-26T22:02:46.212627",
+      "cost_usd": 0.01
+    },
+    "an_ultra_detailed_fa_ba2bbeec.png": {
+      "description": "An ultra-detailed fantasy dragon perched on a crystalline mountain peak, breathing prismatic fire into a aurora-filled sky, with intricate scales reflecting starlight, cinematic composition, photorealistic rendering",
+      "prompt": "An ultra-detailed fantasy dragon perched on a crystalline mountain peak, breathing prismatic fire into a aurora-filled sky, with intricate scales reflecting starlight, cinematic composition, photorealistic rendering. High quality, detailed illustration",
+      "model": "ideogram-v3",
+      "size": "1536x640",
+      "generated_at": "2025-06-26T22:05:21.138013",
+      "cost_usd": 0.08
+    },
+    "book_cover_promotion_3e48fc13.png": {
+      "description": "Book cover promotional image with bold title \"CHRONICLES OF THE ETERNAL FLAME\" in elegant golden serif font at the top, subtitle \"A Journey Beyond Time\" in smaller silver text below, author name \"A.R. Phoenix\" at bottom in white text, mystical fantasy background with swirling galaxies and ancient glowing runes, ethereal mist effects, professional book marketing design, Instagram ad format, high contrast for text readability",
+      "prompt": "Book cover promotional image with bold title \"CHRONICLES OF THE ETERNAL FLAME\" in elegant golden serif font at the top, subtitle \"A Journey Beyond Time\" in smaller silver text below, author name \"A.R. Phoenix\" at bottom in white text, mystical fantasy background with swirling galaxies and ancient glowing runes, ethereal mist effects, professional book marketing design, Instagram ad format, high contrast for text readability. High quality, detailed illustration",
+      "model": "ideogram-v3",
+      "size": "1024x1024",
+      "generated_at": "2025-06-26T22:08:21.679491",
+      "cost_usd": 0.08
+    },
+    "brand_futuristic_cre_7d649f22.png": {
+      "raw_desc": "brand futuristic credit-card floating in neon grid, holographic security features, premium metallic finish",
+      "final_prompt": "brand futuristic credit-card floating in neon grid, holographic security features, premium metallic finish. color:#1A237E color:#45B3E7 color:#863DFF. vivid, ultra-detail.",
+      "model": "ideogram-v3",
+      "size": "1024x1024",
+      "generated_at": "2025-06-26T22:17:16.702093",
+      "cost_usd": 0.08
+    },
+    "brand_neon_phoenix_l_3ce9b353.png": {
+      "raw_desc": "brand neon phoenix logo, glowing wings spread wide, cyberpunk aesthetic",
+      "final_prompt": "brand neon phoenix logo, glowing wings spread wide, cyberpunk aesthetic. color:#1A237E color:#45B3E7 color:#863DFF. vivid, ultra-detail",
+      "model": "ideogram-v3",
+      "size": "1024x1024",
+      "generated_at": "2025-06-26T22:22:29.819486",
+      "cost_usd": 0.08
+    },
+    "a_peaceful_zen_garde_c3d10c52.png": {
+      "raw_desc": "A peaceful zen garden with smooth stones and raked sand patterns in soft morning light",
+      "final_prompt": "A peaceful zen garden with smooth stones and raked sand patterns in soft morning light. color:#E3F2FD, color:#90CAF9, color:#1E88E5. vivid, ultra-detail",
+      "emotion_detected": "peaceful",
+      "palette_used": [
+        "#E3F2FD",
+        "#90CAF9",
+        "#1E88E5"
+      ],
+      "mood": "contemplative",
+      "model": "ideogram-v3",
+      "size": "1024x1024",
+      "enhanced": false,
+      "generated_at": "2025-06-26T23:53:17.457884",
+      "cost_usd": 0.08
+    },
+    "futuristic_space_sta_69b46397.png": {
+      "raw_desc": "futuristic space station with Earth in background",
+      "final_prompt": "HEADLINE TEXT: \"SPACE ETF 14% GROWTH\" | bold, centered, #FFFFFF on contrasting background.\nfuturistic space station with Earth in background. color:#E8F5E9, color:#81C784, color:#2E7D32. vivid, ultra-detail",
+      "emotion_detected": "natural",
+      "palette_used": [
+        "#E8F5E9",
+        "#81C784",
+        "#2E7D32"
+      ],
+      "mood": "grounding",
+      "provider": "openai",
+      "model": "dall-e-3",
+      "size": "1024x1024",
+      "enhanced": false,
+      "generated_at": "2025-06-27T00:15:24.442073",
+      "cost_usd": 0.04,
+      "overlay_text": "SPACE ETF 14% GROWTH",
+      "text_color": "#FFFFFF",
+      "text_method": "ideogram"
+    },
+    "minimalist_financial_f1e90bdd.png": {
+      "raw_desc": "minimalist financial chart showing upward trend",
+      "final_prompt": "HEADLINE TEXT: \"INVEST IN THE FUTURE\" | bold, centered, #1A237E on contrasting background.\nminimalist financial chart showing upward trend. color:#FAFAFA, color:#9E9E9E, color:#424242. vivid, ultra-detail",
+      "emotion_detected": "neutral",
+      "palette_used": [
+        "#FAFAFA",
+        "#9E9E9E",
+        "#424242"
+      ],
+      "mood": "balanced",
+      "provider": "openai",
+      "model": "dall-e-3",
+      "size": "1024x1024",
+      "enhanced": false,
+      "generated_at": "2025-06-27T00:15:47.616391",
+      "cost_usd": 0.04,
+      "overlay_text": "INVEST IN THE FUTURE",
+      "text_color": "#1A237E",
+      "text_method": "ideogram"
+    }
+  },
+  "total_cost_usd": 0.65,
+  "last_updated": "2025-06-27T01:20:17.529628",
+  "schema_version": "2.1"
+}

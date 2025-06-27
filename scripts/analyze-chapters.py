@@ -3,6 +3,7 @@
 Analyzes all chapters to extract context information for AI awareness
 """
 import os
+import sys
 import json
 import yaml
 import re
@@ -263,9 +264,27 @@ class ChapterAnalyzer:
             console.print(f"  • {character}: Chapters {', '.join(chapters)}")
             
 def main():
-    analyzer = ChapterAnalyzer()
-    analyzer.analyze_all_chapters()
-    analyzer.generate_report()
+    try:
+        analyzer = ChapterAnalyzer()
+        
+        # Check if chapters directory exists
+        if not analyzer.chapters_dir.exists():
+            console.print(f"[red]Error: Chapters directory '{analyzer.chapters_dir}' not found![/red]")
+            sys.exit(1)
+            
+        # Check if there are any chapters
+        chapter_files = list(analyzer.chapters_dir.glob("*.md"))
+        if not chapter_files:
+            console.print("[yellow]Warning: No chapter files found![/yellow]")
+            sys.exit(0)  # Not an error, just no work to do
+            
+        analyzer.analyze_all_chapters()
+        analyzer.generate_report()
+        sys.exit(0)
+        
+    except Exception as e:
+        console.print(f"[red]Error during analysis: {e}[/red]")
+        sys.exit(1)
     
 if __name__ == "__main__":
     main()

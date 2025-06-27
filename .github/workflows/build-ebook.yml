@@ -1,152 +1,114 @@
-name: Build eBook
+name: Build eBook Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, master, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
-    inputs:
-      formats:
-        description: 'Formatos para gerar'
-        required: false
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - pdf
-          - epub
 
 env:
   NODE_VERSION: '20'
   PYTHON_VERSION: '3.11'
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 jobs:
   build:
-    name: Build eBook
     runs-on: ubuntu-latest
     
     steps:
-    - name: 📥 Checkout código
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v5
       with:
-        fetch-depth: 0
-        lfs: true
-
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: 📦 Install Python dependencies
+      run: |
+        set -euo pipefail
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
     - name: 🔧 Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
-
-    - name: 🐍 Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-        cache: 'pip'
-
-    - name: 📦 Instalar dependências do sistema
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          pandoc \
-          fonts-liberation \
-          fonts-noto \
-          fonts-dejavu-core
-
-    - name: 📦 Instalar dependências Node.js
+        
+    - name: 📦 Install Node dependencies
       run: npm ci
-
-    - name: 📦 Instalar dependências Python
+      
+    - name: 🧪 Run Python Tests
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: 🧪 Executar testes
+        set -euo pipefail
+        pytest -v tests/
+        
+    - name: 📊 Analyze Chapters
       run: |
-        npm run lint:check
-        python scripts/wordcount.py
-
-    - name: 🔍 Verificar Contexto e Continuidade
-      run: |
-        echo "Analisando capítulos..."
+        set -euo pipefail
+        echo "📊 Analyzing all chapters..."
         python scripts/analyze-chapters.py
+        echo "✅ Chapter analysis complete!"
         
-        echo "Verificando continuidade..."
+    - name: 🔍 Check Continuity
+      run: |
+        set -euo pipefail
+        echo "🔍 Running continuity checks..."
         python scripts/continuity-check.py
+        echo "✅ All continuity checks passed!"
         
-        # Fail if continuity errors found
-        if [ -f context/continuity-report.json ]; then
-          ERROR_COUNT=$(python -c "import json; data=json.load(open('context/continuity-report.json')); print(data['summary']['errors'])")
-          if [ "$ERROR_COUNT" -gt 0 ]; then
-            echo "❌ Encontrados $ERROR_COUNT erros de continuidade!"
-            cat context/continuity-report.json
-            exit 1
-          fi
-        fi
+    - name: 🎨 Generate Images
+      if: env.OPENAI_API_KEY != ''
+      run: |
+        set -euo pipefail
+        echo "🎨 Generating AI images..."
+        python scripts/generate-images.py --skip-existing
+        echo "✅ Image generation complete!"
         
-        echo "✅ Verificações de contexto passaram!"
-
-    - name: 📚 Build PDF
-      if: github.event.inputs.formats == 'pdf' || github.event.inputs.formats == 'all' || github.event.inputs.formats == ''
-      run: npm run build:pdf
-
-    - name: 📖 Build EPUB
-      if: github.event.inputs.formats == 'epub' || github.event.inputs.formats == 'all' || github.event.inputs.formats == ''
-      run: npm run build:epub
-
-    - name: 📤 Upload artefatos
+    - name: 📖 Build PDF
+      run: |
+        set -euo pipefail
+        npm run build:pdf
+        
+    - name: 📚 Build EPUB
+      run: |
+        set -euo pipefail
+        npm run build:epub
+        npm run validate:epub
+        
+    - name: 📈 Word Count Report
+      run: |
+        set -euo pipefail
+        python scripts/wordcount.py
+        
+    - name: 📦 Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ebook-builds-${{ github.sha }}
+        name: ebook-build-${{ github.sha }}
         path: |
           build/dist/*.pdf
           build/dist/*.epub
+          context/continuity-report.json
+          context/chapter-summaries.json
         retention-days: 30
-
-    - name: 📊 Relatório de build
-      if: always()
-      run: |
-        echo "## 📊 Relatório de Build" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Arquivos gerados:" >> $GITHUB_STEP_SUMMARY
-        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-        ls -lh build/dist/ || echo "Nenhum arquivo gerado" >> $GITHUB_STEP_SUMMARY
-        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
-  release:
-    name: Criar Release
+        
+  security-check:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
     steps:
-    - name: 📥 Download artefatos
-      uses: actions/download-artifact@v4
+    - uses: actions/checkout@v4
+    
+    - name: 🔐 Security Scan
+      uses: aquasecurity/trivy-action@master
       with:
-        name: ebook-builds-${{ github.sha }}
-        path: ./dist
-
-    - name: 🏷️ Criar Release
-      uses: softprops/action-gh-release@v1
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: 📤 Upload Security Results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
       with:
-        tag_name: v${{ github.run_number }}
-        name: Release ${{ github.run_number }}
-        draft: false
-        prerelease: false
-        files: |
-          dist/*.pdf
-          dist/*.epub
-        body: |
-          ## 📚 Nova versão do eBook
-          
-          Build automático #${{ github.run_number }}
-          
-          ### Arquivos disponíveis:
-          - PDF: Formato profissional 6x9"
-          - EPUB: Compatível com todos os leitores
-          
-          ---
-          *Gerado automaticamente pelo pipeline de CI/CD*
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        sarif_file: 'trivy-results.sarif'

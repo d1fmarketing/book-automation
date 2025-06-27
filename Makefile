@@ -81,6 +81,11 @@ generate-images:
 all: clean wordcount generate-images pdf epub
 	@echo "$(GREEN)[BUILD]$(NC) Todos os formatos gerados!"
 
+.PHONY: omnicreator
+omnicreator:
+	@echo "$(BLUE)🚀 Running OmniCreator-X Pipeline...$(NC)"
+	@python3 omnicreator_run.py
+
 .PHONY: test
 test:
 	@npm run test

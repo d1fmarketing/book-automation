@@ -664,8 +664,24 @@ class ContextGenerator:
         return session
 
 def main():
-    generator = ContextGenerator()
-    generator.generate_context()
+    try:
+        generator = ContextGenerator()
+        
+        # Validate directories exist
+        if not generator.chapters_dir.exists():
+            console.print(f"[red]Error: Chapters directory '{generator.chapters_dir}' not found![/red]")
+            sys.exit(1)
+            
+        if not generator.context_dir.exists():
+            console.print(f"[red]Error: Context directory '{generator.context_dir}' not found![/red]")
+            sys.exit(1)
+            
+        generator.generate_context()
+        sys.exit(0)
+        
+    except Exception as e:
+        console.print(f"[red]Error generating context: {e}[/red]")
+        sys.exit(1)
     
 if __name__ == "__main__":
     main()

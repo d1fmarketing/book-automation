@@ -346,6 +346,8 @@ The complete Context Guardian prompt is available at:
 - Automatically runs continuity checks
 - Forces `make session-end` after chapter changes
 
+⚠️ **Note**: Developers can bypass hooks with `git commit --no-verify`. While this bypasses local checks, CI/CD will still catch errors. Always review PRs carefully and ensure all checks pass before merging.
+
 #### CI/CD Integration 🚨
 
 - GitHub Actions runs context checks on every push
