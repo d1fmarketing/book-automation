@@ -1,0 +1,45 @@
+# Ultra Image Generation Addition to Makefile
+
+# Default values for ultra image generation
+SIZE ?= 1024x1024
+QUALITY ?= ultra
+STYLE ?= raw
+STYLIZE ?= 1200
+
+# Generate ultra-quality image with Sora
+generate-image:
+	@echo "$(BLUE)🎨 Generating ULTRA image for Chapter $(CHAP) - $(NUM)...$(NC)"
+	@python3 scripts/gen_sora_ultra.py \
+		--chapter $(CHAP) \
+		--number $(NUM) \
+		--prompt "$(PROMPT)" \
+		--size $(SIZE) \
+		--quality $(QUALITY) \
+		--style $(STYLE) \
+		--stylize $(STYLIZE) \
+		--auto-replace
+
+# Generate all images for chapters with placeholders
+generate-all-images:
+	@echo "$(BLUE)🎨 Scanning for HERO_IMG placeholders...$(NC)"
+	@for file in chapters/*.md; do \
+		if grep -q "<HERO_IMG" "$$file"; then \
+			chap=$$(echo $$file | sed -E 's/.*chapter-([0-9]+)-.*/\1/' | sed 's/^0*//'); \
+			num=$$(grep -o '<HERO_IMG [0-9]\+>' "$$file" | sed -E 's/.*HERO_IMG ([0-9]+).*/\1/'); \
+			echo "  → Found placeholder in Chapter $$chap for number $$num"; \
+			$(MAKE) generate-image CHAP=$$chap NUM=$$num; \
+		fi \
+	done
+
+# Validate no placeholders remain
+validate-images:
+	@echo "$(BLUE)🔍 Checking for remaining placeholders...$(NC)"
+	@if grep -r "<HERO_IMG" chapters/*.md > /dev/null 2>&1; then \
+		echo "$(RED)❌ Found HERO_IMG placeholders:$(NC)"; \
+		grep -n "<HERO_IMG" chapters/*.md | sed 's/^/    /'; \
+		exit 1; \
+	else \
+		echo "$(GREEN)✅ No placeholders found!$(NC)"; \
+	fi
+
+.PHONY: generate-image generate-all-images validate-images

@@ -23,10 +23,23 @@
       "generated_at": "2024-12-27T12:00:00Z",
       "status": "placeholder",
       "notes": "Visual placeholder with complete style guide. Ready for DALL-E 3 HD generation."
+    },
+    "chap02-hero.png": {
+      "chapter": 2,
+      "number": "111",
+      "type": "hero_ultra",
+      "prompt": "Ultra-HD 3-D golden number 111 hovering over a cosmic nebula, include the text MAGNETIC NEW BEGINNING in elegant serif lettering beneath the digits, sacred-geometry halo, gold light particles forming angel wings, deep violet to electric-blue gradient, volumetric god-rays, hyper-realistic, cinematic depth-of-field, octane render",
+      "provider": "openai",
+      "model": "gpt-image-1",
+      "quality": "ultra",
+      "size": "1024x1024",
+      "cost_usd": 0.08,
+      "generated_at": "2025-06-27T13:22:37.372947Z",
+      "status": "completed"
     }
   },
-  "total_cost_usd": 0.0,
-  "last_updated": "2025-06-27T13:04:45.040011Z",
+  "total_cost_usd": 0.08,
+  "last_updated": "2025-06-27T13:22:37.372967Z",
   "schema_version": "2.1",
   "notes": {
     "api_costs": {

@@ -17,7 +17,7 @@ What you do in the next 11 minutes will determine whether you step through it...
 
 **The door is open NOW.**
 
-![Hero](../assets/chap02-hero.webp)
+![Hero](../assets/chap02-hero.png)
 
 ## You're Not Imagining It
 
