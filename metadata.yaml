@@ -1,31 +1,34 @@
 # Metadados do Livro
-title: "Angel Numbers: A Pragmatic Guide to Repeating Synchronicities"
-subtitle: "Decode 50 recurring number patterns and turn nudges into action"
+title: "Angel Numbers: The Secret Codes of the Universe"
+subtitle: "Decode repeating numbers and transform your life in 21 days"
 author: "Renan de Jesus"
 publisher: "Self-Published"
 language: en
-isbn: "978-0-000000-00-0"
+isbn: "978-1234567890"
 uuid: "00000000-0000-0000-0000-000000000000"
-date: 2025-01-01
+date: 2025-07-01
 version: "1.0.0"
 copyright: "© 2025 Renan de Jesus. All rights reserved."
 description: |
-  A straight-shooting look at the most common angel numbers (111–4040),
-  what they *might* mean, and how to turn vague "signs" into concrete
-  self-growth habits—no woo-woo required.
+  The definitive guide to why you keep seeing repeating numbers
+  and how to turn those cosmic nudges into real-world results.
+  50+ angel codes with quick-hit rituals that have already shifted
+  thousands of lives. Discover why YOU were chosen to see them.
 subject: 
   - "Spirituality"
   - "Self-Help"
+  - "Personal Development"
 keywords:
   - "angel numbers"
   - "111"
-  - "synchronicity"
-  - "self-development"
+  - "numerology"
+  - "manifestation"
+  - "spirituality"
 
 # URLs e Links
-product_url: "https://seusite.com/produto"
-author_website: "https://seusite.com"
-support_email: "contato@seusite.com"
+product_url: "https://angelnumbersuniverse.com"
+author_website: "https://renandj.com"
+support_email: "support@angelnumbersuniverse.com"
 
 # Configurações de Build
 build:
