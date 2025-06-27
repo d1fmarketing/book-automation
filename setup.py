@@ -9,14 +9,14 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
-    name="ebook-pipeline",
+    name="book-automation",
     version="0.10.0",
     author="Your Name",
     author_email="your.email@example.com",
     description="Professional eBook automation pipeline",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/ebook-pipeline",
+    url="https://github.com/d1fmarketing/book-automation",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     classifiers=[

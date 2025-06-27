@@ -1,5 +1,5 @@
 {
-  "name": "ebook-automation-pipeline",
+  "name": "book-automation",
   "version": "1.0.0",
   "description": "Professional eBook automation pipeline",
   "main": "index.js",

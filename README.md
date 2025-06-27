@@ -1,4 +1,4 @@
-# 📚 FIRST E-BOOK - Professional eBook Automation Pipeline
+# 📚 book-automation - Professional eBook Automation Pipeline
 
 A comprehensive automation pipeline for generating professional-quality eBooks from Markdown chapters, with AI-powered image generation, context management, and multi-format output support.
 
@@ -43,8 +43,8 @@ A comprehensive automation pipeline for generating professional-quality eBooks f
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/first-ebook.git
-cd first-ebook
+git clone https://github.com/d1fmarketing/book-automation.git
+cd book-automation
 
 # Install dependencies
 make init
