@@ -9,8 +9,11 @@ on:
 
 env:
   NODE_VERSION: '20'
-  PYTHON_VERSION: '3.11'
+  PYTHON_VERSION: '3.9'
+  PYTHONPATH: 'src'
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  IDEOGRAM_API_KEY: ${{ secrets.IDEOGRAM_API_KEY }}
+  IMAGE_PROVIDER: 'ideogram'  # or 'openai'
 
 jobs:
   build:
@@ -29,6 +32,9 @@ jobs:
         set -euo pipefail
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install -e .
+      env:
+        PYTHONPATH: src
         
     - name: 🔧 Setup Node.js
       uses: actions/setup-node@v4
@@ -42,28 +48,30 @@ jobs:
     - name: 🧪 Run Python Tests
       run: |
         set -euo pipefail
-        pytest -v tests/
+        PYTHONPATH=src pytest -v tests/
+      env:
+        PYTHONPATH: src
         
     - name: 📊 Analyze Chapters
       run: |
         set -euo pipefail
         echo "📊 Analyzing all chapters..."
-        python scripts/analyze-chapters.py
+        python -m ebook_pipeline.context.analyzer
         echo "✅ Chapter analysis complete!"
         
     - name: 🔍 Check Continuity
       run: |
         set -euo pipefail
         echo "🔍 Running continuity checks..."
-        python scripts/continuity-check.py
+        python -m ebook_pipeline.context.continuity_checker
         echo "✅ All continuity checks passed!"
         
     - name: 🎨 Generate Images
-      if: env.OPENAI_API_KEY != ''
+      if: env.OPENAI_API_KEY != '' || env.IDEOGRAM_API_KEY != ''
       run: |
         set -euo pipefail
         echo "🎨 Generating AI images..."
-        python scripts/generate-images.py --skip-existing
+        python -m ebook_pipeline.generators.generate_images --skip-existing
         echo "✅ Image generation complete!"
         
     - name: 📖 Build PDF
@@ -80,7 +88,7 @@ jobs:
     - name: 📈 Word Count Report
       run: |
         set -euo pipefail
-        python scripts/wordcount.py
+        python -m ebook_pipeline.utils.wordcount
         
     - name: 📦 Upload Artifacts
       uses: actions/upload-artifact@v4
