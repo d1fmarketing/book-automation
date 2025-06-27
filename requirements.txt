@@ -1,11 +1,18 @@
-PyYAML==6.0.1
-click==8.1.7
-rich==13.7.0
-markdown==3.5.2
-python-frontmatter==1.0.1
-black==24.1.1
-flake8==7.0.0
-mypy==1.8.0
-pytest==7.4.4
-mdformat==0.7.17
-matplotlib==3.8.2
+# Core dependencies
+PyYAML==6.0.2
+python-frontmatter==1.1.0
+
+# CLI and display
+click==8.1.8
+rich==14.0.0
+
+# Rich sub-dependencies
+markdown-it-py==3.0.0
+mdurl==0.1.2
+
+# Testing
+pytest==8.3.4
+
+# Image generation
+tenacity==8.2.3
+requests==2.32.2

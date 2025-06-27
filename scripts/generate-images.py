@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 RENDER Image-Slinger: Automated image generation for ebook chapters
-Scans for ![AI-IMAGE: description]() tags and generates images via OpenAI
+Scans for ![AI-IMAGE: description]() tags and generates images via Ideogram 3.0
 """
 import os
 import re
@@ -16,34 +16,28 @@ from rich.console import Console
 from rich.progress import track
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
-try:
-    from openai import OpenAI
-except ImportError:
-    print("Error: openai package not installed. Run: pip install openai")
-    sys.exit(1)
-
 console = Console()
 
 # Constants
+BRAND_COLORS = ["#1A237E", "#45B3E7", "#863DFF"]
 TAG_PATTERN = r'!\[AI-IMAGE:\s*(.+?)\s*\]\(\)'
-COST_PER_IMAGE = 0.04  # GPT-IMAGE-1 pricing
-DEFAULT_SIZE = "1024x1024"  # DALL-E 3 supports 1024x1024, 1792x1024, or 1024x1792
-DEFAULT_MODEL = "gpt-image-1"
+IDEOGRAM_ENDPOINT = "https://api.ideogram.ai/v1/ideogram-v3/generate"
+COST_PER_IMAGE = 0.08  # Quality mode pricing
+DEFAULT_SIZE = "1024x1024"  # Square format for social media
+DEFAULT_MODEL = "ideogram-v3"
 MANIFEST_FILE = "context/image-manifest.json"
 
 
 class ImageGenerator:
     def __init__(self, skip_existing=False):
         self.skip_existing = skip_existing
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.api_key = os.getenv("IDEOGRAM_API_KEY")
         if not self.api_key:
-            console.print("[red]Error: OPENAI_API_KEY environment variable not set![/red]")
-            console.print("Set it with: export OPENAI_API_KEY=sk-...")
+            console.print("[red]Error: IDEOGRAM_API_KEY environment variable not set![/red]")
+            console.print("Set it with: export IDEOGRAM_API_KEY=ideogram_sk_live_...")
             sys.exit(1)
         
-        # Initialize OpenAI client
-        from openai import OpenAI
-        self.client = OpenAI(api_key=self.api_key)
+        self.headers = {"Api-Key": self.api_key}
         
         # Load manifest
         self.manifest_path = Path(MANIFEST_FILE)
@@ -102,6 +96,22 @@ class ImageGenerator:
         
         return f"{prefix}_{hash_suffix}.png"
     
+    def craft_prompt(self, raw, size="1024x1024"):
+        """
+        Generate final prompt for Ideogram 3.0 without using GPT.
+        Rules:
+        • If 'brand' in description → inject colors
+        • Ensure style 'vivid, ultra-detail'
+        • Remove line breaks, double period if missing
+        """
+        clean = " ".join(raw.strip().split())
+        if "brand" in clean.lower():
+            palette = " ".join([f"color:{c}" for c in BRAND_COLORS])
+            clean = f"{clean}. {palette}."
+        if "vivid" not in clean.lower():
+            clean += " vivid, ultra-detail."
+        return clean
+    
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
@@ -109,24 +119,43 @@ class ImageGenerator:
         reraise=True
     )
     def generate_image(self, prompt):
-        """Generate image via OpenAI API with retry logic"""
+        """Generate image via Ideogram API with retry logic"""
         try:
-            response = self.client.images.generate(
-                model=DEFAULT_MODEL,
-                prompt=prompt,
-                n=1,
-                size=DEFAULT_SIZE
+            # Prepare multipart form data
+            files = {
+                'prompt': (None, prompt),
+                'num_images': (None, '1'),
+                'rendering_speed': (None, 'QUALITY'),
+                'resolution': (None, DEFAULT_SIZE)
+            }
+            
+            response = requests.post(
+                IDEOGRAM_ENDPOINT,
+                headers=self.headers,
+                files=files,
+                timeout=60
             )
-            return response.data[0].url
-        except Exception as e:
-            if "rate_limit" in str(e).lower():
+            response.raise_for_status()
+            
+            # Extract image URL from response
+            data = response.json()
+            if 'data' in data and len(data['data']) > 0:
+                return data['data'][0]['url']
+            else:
+                raise ValueError("No image URL in response")
+                
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 429:
                 console.print(f"[yellow]Rate limit hit, retrying...[/yellow]")
             else:
-                console.print(f"[red]API Error: {e}[/red]")
+                console.print(f"[red]API Error {e.response.status_code}: {e.response.text}[/red]")
+            raise
+        except Exception as e:
+            console.print(f"[red]Error: {e}[/red]")
             raise
     
     def download_image(self, url, filename):
-        """Download image with content-type validation"""
+        """Download image from Ideogram (ephemeral link)"""
         response = requests.get(url, timeout=30)
         response.raise_for_status()
         
@@ -139,29 +168,6 @@ class ImageGenerator:
         image_path = self.images_dir / filename
         image_path.write_bytes(response.content)
         return image_path
-    
-    def create_prompt(self, description):
-        """Create detailed prompt with style guide context for gpt-image-1"""
-        base_prompt = description.strip()
-        
-        # Extract key style elements from writing rules
-        style_elements = []
-        if self.style_guide:
-            # Look for specific style directives
-            if "tone:" in self.style_guide.lower():
-                style_elements.append("maintaining consistent tone")
-            if "genre:" in self.style_guide.lower():
-                style_elements.append("fitting the genre aesthetic")
-        
-        # Build enhanced prompt
-        style_suffix = ""
-        if style_elements:
-            style_suffix = f". Style context: {', '.join(style_elements)}"
-        
-        # Simple, clear prompt for gpt-image-1
-        prompt = f"{base_prompt}. High quality, detailed illustration{style_suffix}"
-        
-        return prompt
     
     def process_file(self, filepath):
         """Process a single markdown file for image placeholders"""
@@ -190,7 +196,7 @@ class ImageGenerator:
             
             try:
                 # Create prompt and generate
-                prompt = self.create_prompt(description)
+                prompt = self.craft_prompt(description, DEFAULT_SIZE)
                 image_url = self.generate_image(prompt)
                 
                 # Download and save
@@ -199,8 +205,8 @@ class ImageGenerator:
                 
                 # Update manifest
                 self.manifest["generated_images"][slug] = {
-                    "description": description,
-                    "prompt": prompt,
+                    "raw_desc": description,
+                    "final_prompt": prompt,
                     "model": DEFAULT_MODEL,
                     "size": DEFAULT_SIZE,
                     "generated_at": datetime.now().isoformat(),
@@ -233,7 +239,7 @@ class ImageGenerator:
     
     def run(self):
         """Process all chapter files"""
-        console.print("[bold blue]🎨 RENDER Image-Slinger Starting...[/bold blue]\n")
+        console.print("[bold blue]🎨 RENDER Image-Slinger Starting (Ideogram 3.0 QUALITY MODE)...[/bold blue]\n")
         
         chapters_dir = Path("chapters")
         if not chapters_dir.exists():

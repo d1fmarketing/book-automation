@@ -16,11 +16,12 @@ ifeq ($(OS),Windows_NT)
     RED = 
     NC = 
 else
-    GREEN = \033[0;32m
-    BLUE = \033[0;34m
-    YELLOW = \033[1;33m
-    RED = \033[0;31m
-    NC = \033[0m
+    # Use tput if available, fallback to ANSI codes, or empty if neither work
+    GREEN = $(shell tput setaf 2 2>/dev/null || printf '\033[0;32m' 2>/dev/null || echo "")
+    BLUE = $(shell tput setaf 4 2>/dev/null || printf '\033[0;34m' 2>/dev/null || echo "")
+    YELLOW = $(shell tput setaf 3 2>/dev/null || printf '\033[1;33m' 2>/dev/null || echo "")
+    RED = $(shell tput setaf 1 2>/dev/null || printf '\033[0;31m' 2>/dev/null || echo "")
+    NC = $(shell tput sgr0 2>/dev/null || printf '\033[0m' 2>/dev/null || echo "")
 endif
 
 .PHONY: help
@@ -36,6 +37,7 @@ help:
 	@echo "  $(BLUE)make clean$(NC)      - Limpar arquivos gerados"
 	@echo "  $(BLUE)make wordcount$(NC)  - Atualizar contagem de palavras"
 	@echo "  $(BLUE)make serve$(NC)      - Preview local do livro"
+	@echo "  $(BLUE)make generate-images$(NC) - Gerar imagens AI"
 	@echo ""
 	@echo "Comandos de contexto:"
 	@echo "  $(BLUE)make session-start$(NC)  - Iniciar sessão de escrita"
@@ -65,8 +67,18 @@ pdf:
 epub:
 	@npm run build:epub
 
+.PHONY: generate-images
+generate-images:
+	@echo "$(BLUE)🎨 Ideogram v3 image pass...$(NC)"
+	@if [ -z "$$IDEOGRAM_API_KEY" ]; then \
+		echo "$(RED)❌ Error: IDEOGRAM_API_KEY not set!$(NC)"; \
+		echo "$(YELLOW)Set it with: export IDEOGRAM_API_KEY=ideogram_sk_live_...$(NC)"; \
+		exit 1; \
+	fi
+	@IDEOGRAM_API_KEY=$(IDEOGRAM_API_KEY) python3 $(SCRIPTS_DIR)/generate-images.py --skip-existing
+
 .PHONY: all
-all: clean wordcount pdf epub
+all: clean wordcount generate-images pdf epub
 	@echo "$(GREEN)[BUILD]$(NC) Todos os formatos gerados!"
 
 .PHONY: test
