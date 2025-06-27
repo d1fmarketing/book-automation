@@ -4,11 +4,24 @@ DIST_DIR = $(BUILD_DIR)/dist
 TEMP_DIR = $(BUILD_DIR)/temp
 DATE = $(shell date +%Y-%m-%d)
 BOOK_NAME = ebook
+SCRIPTS_DIR = scripts
+CONTEXT_DIR = context
+CHAPTERS_DIR = chapters
 
-# Cores para output
-GREEN = \033[0;32m
-BLUE = \033[0;34m
-NC = \033[0m
+# Cores para output (compatível cross-platform)
+ifeq ($(OS),Windows_NT)
+    GREEN = 
+    BLUE = 
+    YELLOW = 
+    RED = 
+    NC = 
+else
+    GREEN = \033[0;32m
+    BLUE = \033[0;34m
+    YELLOW = \033[1;33m
+    RED = \033[0;31m
+    NC = \033[0m
+endif
 
 .PHONY: help
 help:
@@ -77,11 +90,11 @@ serve:
 # ===== COMANDOS DE CONTEXTO =====
 
 .PHONY: session-start
-session-start:
+session-start: validate-setup
 	@echo "$(GREEN)[SESSION]$(NC) Iniciando sessão de escrita..."
-	@python scripts/analyze-chapters.py
-	@python scripts/generate-context.py
-	@echo "$(GREEN)✓ Contexto atualizado! Leia context/CONTEXT.md antes de escrever.$(NC)"
+	@python $(SCRIPTS_DIR)/analyze-chapters.py
+	@python $(SCRIPTS_DIR)/generate-context.py
+	@echo "$(GREEN)✓ Contexto atualizado! Leia $(CONTEXT_DIR)/CONTEXT.md antes de escrever.$(NC)"
 
 .PHONY: session-end
 session-end:
@@ -131,5 +144,22 @@ context-update:
 context-backup:
 	@echo "$(BLUE)[BACKUP]$(NC) Fazendo backup do contexto..."
 	@mkdir -p backups
-	@tar -czf backups/context-$(DATE).tar.gz context/
-	@echo "$(GREEN)✓ Backup salvo em backups/context-$(DATE).tar.gz$(NC)"
+	@tar -czf backups/context-$(DATE)-$(shell date +%H%M%S).tar.gz $(CONTEXT_DIR)/
+	@echo "$(GREEN)✓ Backup salvo$(NC)"
+	@# Manter apenas os últimos 5 backups
+	@ls -t backups/context-*.tar.gz 2>/dev/null | tail -n +6 | xargs -r rm -f
+	@echo "$(BLUE)Backups mantidos: $(shell ls backups/context-*.tar.gz 2>/dev/null | wc -l)$(NC)"
+
+# ===== VALIDAÇÃO E SETUP =====
+
+.PHONY: validate-setup
+validate-setup:
+	@# Verificar se diretórios existem
+	@test -d $(SCRIPTS_DIR) || (echo "$(RED)❌ Diretório $(SCRIPTS_DIR) não encontrado$(NC)" && exit 1)
+	@test -d $(CONTEXT_DIR) || (echo "$(RED)❌ Diretório $(CONTEXT_DIR) não encontrado$(NC)" && exit 1)
+	@test -d $(CHAPTERS_DIR) || (echo "$(RED)❌ Diretório $(CHAPTERS_DIR) não encontrado$(NC)" && exit 1)
+	@# Verificar se scripts Python existem
+	@test -f $(SCRIPTS_DIR)/analyze-chapters.py || (echo "$(RED)❌ Script analyze-chapters.py não encontrado$(NC)" && exit 1)
+	@test -f $(SCRIPTS_DIR)/continuity-check.py || (echo "$(RED)❌ Script continuity-check.py não encontrado$(NC)" && exit 1)
+	@# Verificar Python
+	@which python3 > /dev/null || which python > /dev/null || (echo "$(RED)❌ Python não encontrado$(NC)" && exit 1)

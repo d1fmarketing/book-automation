@@ -67,6 +67,26 @@ jobs:
         npm run lint:check
         python scripts/wordcount.py
 
+    - name: 🔍 Verificar Contexto e Continuidade
+      run: |
+        echo "Analisando capítulos..."
+        python scripts/analyze-chapters.py
+        
+        echo "Verificando continuidade..."
+        python scripts/continuity-check.py
+        
+        # Fail if continuity errors found
+        if [ -f context/continuity-report.json ]; then
+          ERROR_COUNT=$(python -c "import json; data=json.load(open('context/continuity-report.json')); print(data['summary']['errors'])")
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            echo "❌ Encontrados $ERROR_COUNT erros de continuidade!"
+            cat context/continuity-report.json
+            exit 1
+          fi
+        fi
+        
+        echo "✅ Verificações de contexto passaram!"
+
     - name: 📚 Build PDF
       if: github.event.inputs.formats == 'pdf' || github.event.inputs.formats == 'all' || github.event.inputs.formats == ''
       run: npm run build:pdf

@@ -313,4 +313,67 @@ make session-end      # Analyzes changes and updates all context
 4. **Run continuity checks** after major plot points
 5. **Use find-references** to avoid repetition
 
+## 🤖 Context Guardian Agent
+
+This project includes an AI agent directive system to ensure perfect consistency throughout your book.
+
+### Agent System Prompt
+
+The complete Context Guardian prompt is available at:
+
+- **`context/AGENT-DIRECTIVE.md`** - Full system prompt for AI agents
+
+### How to Use with AI Assistants
+
+1. **Copy the entire content** of `context/AGENT-DIRECTIVE.md`
+2. **Paste as system prompt** when starting a new AI session
+3. **The agent will automatically**:
+   - Run `make session-start` before writing
+   - Check continuity during writing
+   - Enforce all rules from WRITING-RULES.md
+   - Prevent contradictions and inconsistencies
+
+### Agent Configuration
+
+- **`context/agent-config.yaml`** - Operational parameters
+- **`context/QUICK-REFERENCE.md`** - Command cheat sheet
+
+### Enforcement Mechanisms
+
+#### Git Hooks 🔒
+
+- Pre-commit hook blocks commits without context updates
+- Automatically runs continuity checks
+- Forces `make session-end` after chapter changes
+
+#### CI/CD Integration 🚨
+
+- GitHub Actions runs context checks on every push
+- Build fails if continuity errors exist
+- Ensures consistency across all contributors
+
+#### Safety Net Features
+
+- Context must be updated when chapters change
+- Continuity errors block commits
+- CI/CD catches any missed issues
+- Backups auto-prune to save space
+
+### Quick Start for Writing Session
+
+```bash
+# 1. Start session (agent should run this)
+make session-start
+
+# 2. Write with agent assistance
+# Agent will use find/track commands as needed
+
+# 3. End session (agent should run this)
+make session-end
+
+# 4. Commit your work
+git add .
+git commit -m "feat: complete chapter X"
+```
+
 Remember: This pipeline is designed for professional ebook production. All commands ensure quality output suitable for commercial distribution.
