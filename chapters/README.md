@@ -17,4 +17,4 @@ Use the `chapter-template.md` as a starting point for new chapters.
 
 - Keep chapters in sequential order
 - Use frontmatter for metadata (word count, status, etc.)
-- Images will be auto-generated from `![AI-IMAGE: description]()` tags
+- Images will be auto-generated from `![description](../assets/images/description_67daf92c.png)` tags
