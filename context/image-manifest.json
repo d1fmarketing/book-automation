@@ -1,6 +1,39 @@
 {
-  "generated_images": {},
+  "generated_images": {
+    "chap01-hero.webp": {
+      "chapter": 1,
+      "type": "hero",
+      "prompt": "Ethereal cosmic clock with multiple glowing number sequences in golden light, spiral galaxy background with sacred geometry overlays, divine light rays penetrating from above through mystical fog, hyper-realistic digital art, cinematic lighting, 8k quality render",
+      "provider": "placeholder",
+      "model": "visual-mockup",
+      "size": "1024x1280",
+      "cost_usd": 0.0,
+      "generated_at": "2024-12-27T12:00:00Z",
+      "status": "placeholder",
+      "notes": "Visual placeholder showing exact design requirements. Replace with OpenAI DALL-E 3 when API key available."
+    },
+    "chap02-hero.webp": {
+      "chapter": 2,
+      "type": "hero",
+      "prompt": "Hyper-realistic 3D golden number 111 floating in cosmic void, surrounded by intricate sacred geometry mandala, thousands of golden light particles forming ethereal angel wings, deep purple to electric blue gradient nebula background, divine light rays, mystical atmosphere, octane render, cinematic lens flare",
+      "provider": "placeholder",
+      "model": "visual-mockup",
+      "size": "1024x1280",
+      "cost_usd": 0.0,
+      "generated_at": "2024-12-27T12:00:00Z",
+      "status": "placeholder",
+      "notes": "Visual placeholder with complete style guide. Ready for DALL-E 3 HD generation."
+    }
+  },
   "total_cost_usd": 0.0,
-  "last_updated": null,
-  "schema_version": "2.1"
+  "last_updated": "2024-12-27T12:00:00Z",
+  "schema_version": "2.1",
+  "notes": {
+    "api_costs": {
+      "openai_dalle3_hd": 0.08,
+      "openai_dalle3_standard": 0.04,
+      "ideogram_v3": 0.08
+    },
+    "planned_generation": "55 hero images at $0.08 each = $4.40 total budget"
+  }
 }
