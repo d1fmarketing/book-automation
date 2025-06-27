@@ -16,20 +16,24 @@ providers:
 # Style settings for Angel Numbers
 style:
   # Base style for all images
-  base_prompt_suffix: "minimalist celestial backdrop, ethereal atmosphere, 4:5 aspect ratio"
+  base_prompt_suffix: "hyper-realistic 3D floating in cosmic nebula, cinematic lighting, 4:5 aspect ratio, octane render, 8k quality"
   
   # Color palette
   colors:
     primary: "#863DFF"  # Violet-indigo
-    secondary: "#45B3E7"  # Picton blue
+    secondary: "#45B3E7"  # Electric blue
     accent: "#FFD700"   # Golden
+    glow: "#FFFFFF"     # Pure white divine light
     
   # Visual elements
   elements:
-    - "soft vignette"
-    - "ethereal light leaks"
-    - "subtle golden Fibonacci spirals"
-    - "luminous geometric style"
+    - "sacred geometry halo"
+    - "golden light particles forming angel wings"
+    - "deep violet to electric-blue gradient"
+    - "divine rays from above"
+    - "cinematic lens flare"
+    - "mystical fog at base"
+    - "thousands of light particles"
     
   # Specific styles for different chapter types
   chapter_styles:
