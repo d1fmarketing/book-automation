@@ -30,6 +30,36 @@ A comprehensive automation pipeline for generating professional-quality eBooks f
 └── scripts/                 # Build and utility scripts
 ```
 
+## 📚 Multi-Book Workflow
+
+This pipeline supports multiple books using Git branches:
+
+### Starting a New Book
+
+```bash
+# Create a new branch for your book
+git checkout -b book/my-awesome-book
+
+# Copy the chapter template
+cp chapters/chapter-template.md chapters/chapter-01-introduction.md
+
+# Start writing!
+```
+
+### Branch Structure
+
+- `main` - Clean pipeline without book content
+- `book/book-name` - Individual book branches
+- `feature/*` - Pipeline improvements
+
+### Syncing Pipeline Updates
+
+```bash
+# In your book branch
+git checkout book/my-book
+git merge main  # Get latest pipeline updates
+```
+
 ## 🛠️ Installation
 
 ### Prerequisites
