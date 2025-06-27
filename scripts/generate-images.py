@@ -16,10 +16,14 @@ from rich.console import Console
 from rich.progress import track
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from agents.image_prompt_agent import ImagePromptAgent
+
 console = Console()
 
-# Constants
-BRAND_COLORS = ["#1A237E", "#45B3E7", "#863DFF"]
+# Initialize prompt agent
+prompt_agent = ImagePromptAgent()
 TAG_PATTERN = r'!\[AI-IMAGE:\s*(.+?)\s*\]\(\)'
 IDEOGRAM_ENDPOINT = "https://api.ideogram.ai/v1/ideogram-v3/generate"
 COST_PER_IMAGE = 0.08  # Quality mode pricing
@@ -98,19 +102,9 @@ class ImageGenerator:
     
     def craft_prompt(self, raw, size="1024x1024"):
         """
-        Generate final prompt for Ideogram 3.0 without using GPT.
-        Rules:
-        • If 'brand' in description → inject colors
-        • Ensure style 'vivid, ultra-detail'
-        • Remove line breaks, double period if missing
+        Use ImagePromptAgent to generate prompt dict
         """
-        clean = " ".join(raw.strip().split())
-        if "brand" in clean.lower():
-            palette = " ".join([f"color:{c}" for c in BRAND_COLORS])
-            clean = f"{clean}. {palette}."
-        if "vivid" not in clean.lower():
-            clean += " vivid, ultra-detail."
-        return clean
+        return prompt_agent.build_prompt(raw, size)
     
     @retry(
         stop=stop_after_attempt(3),
@@ -118,15 +112,15 @@ class ImageGenerator:
         retry=retry_if_exception_type(Exception),
         reraise=True
     )
-    def generate_image(self, prompt):
+    def generate_image(self, prompt_data):
         """Generate image via Ideogram API with retry logic"""
         try:
-            # Prepare multipart form data
+            # Prepare multipart form data from agent output
             files = {
-                'prompt': (None, prompt),
+                'prompt': (None, prompt_data['prompt']),
                 'num_images': (None, '1'),
-                'rendering_speed': (None, 'QUALITY'),
-                'resolution': (None, DEFAULT_SIZE)
+                'rendering_speed': (None, prompt_data['rendering_speed']),
+                'resolution': (None, prompt_data['resolution'])
             }
             
             response = requests.post(
@@ -196,8 +190,9 @@ class ImageGenerator:
             
             try:
                 # Create prompt and generate
-                prompt = self.craft_prompt(description, DEFAULT_SIZE)
-                image_url = self.generate_image(prompt)
+                prompt_data = self.craft_prompt(description, DEFAULT_SIZE)
+                prompt = prompt_data["prompt"]
+                image_url = self.generate_image(prompt_data)
                 
                 # Download and save
                 image_path = self.download_image(image_url, slug)
