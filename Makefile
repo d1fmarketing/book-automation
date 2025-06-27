@@ -23,6 +23,15 @@ help:
 	@echo "  $(BLUE)make clean$(NC)      - Limpar arquivos gerados"
 	@echo "  $(BLUE)make wordcount$(NC)  - Atualizar contagem de palavras"
 	@echo "  $(BLUE)make serve$(NC)      - Preview local do livro"
+	@echo ""
+	@echo "Comandos de contexto:"
+	@echo "  $(BLUE)make session-start$(NC)  - Iniciar sessão de escrita"
+	@echo "  $(BLUE)make session-end$(NC)    - Finalizar sessão e atualizar contexto"
+	@echo "  $(BLUE)make analyze$(NC)        - Analisar todos os capítulos"
+	@echo "  $(BLUE)make check-continuity$(NC) - Verificar continuidade"
+	@echo "  $(BLUE)make find$(NC) QUERY=\"texto\" - Buscar referências"
+	@echo "  $(BLUE)make track-character$(NC) NAME=\"Nome\" - Rastrear personagem"
+	@echo "  $(BLUE)make context-update$(NC) - Atualizar arquivos de contexto"
 
 .PHONY: init
 init:
@@ -64,3 +73,63 @@ clean:
 serve:
 	@echo "$(GREEN)[SERVE]$(NC) Iniciando servidor local..."
 	@cd $(DIST_DIR) && python -m http.server 8000
+
+# ===== COMANDOS DE CONTEXTO =====
+
+.PHONY: session-start
+session-start:
+	@echo "$(GREEN)[SESSION]$(NC) Iniciando sessão de escrita..."
+	@python scripts/analyze-chapters.py
+	@python scripts/generate-context.py
+	@echo "$(GREEN)✓ Contexto atualizado! Leia context/CONTEXT.md antes de escrever.$(NC)"
+
+.PHONY: session-end
+session-end:
+	@echo "$(BLUE)[SESSION]$(NC) Finalizando sessão..."
+	@python scripts/analyze-chapters.py
+	@python scripts/continuity-check.py
+	@python scripts/generate-context.py
+	@git add context/*.json context/CONTEXT.md
+	@git commit -m "chore: atualizar contexto da sessão" || true
+	@echo "$(GREEN)✓ Sessão finalizada e contexto salvo!$(NC)"
+
+.PHONY: analyze
+analyze:
+	@echo "$(BLUE)[ANALYZE]$(NC) Analisando capítulos..."
+	@python scripts/analyze-chapters.py
+
+.PHONY: check-continuity
+check-continuity:
+	@echo "$(BLUE)[CHECK]$(NC) Verificando continuidade..."
+	@python scripts/continuity-check.py
+
+.PHONY: find
+find:
+	@echo "$(BLUE)[FIND]$(NC) Buscando: $(QUERY)"
+	@python scripts/find-references.py "$(QUERY)"
+
+.PHONY: track-character
+track-character:
+	@echo "$(BLUE)[TRACK]$(NC) Rastreando personagem: $(NAME)"
+	@python scripts/character-tracker.py "$(NAME)"
+
+.PHONY: track-all-characters
+track-all-characters:
+	@echo "$(BLUE)[TRACK]$(NC) Rastreando todos os personagens..."
+	@python scripts/character-tracker.py --all
+
+.PHONY: context-update
+context-update:
+	@echo "$(BLUE)[CONTEXT]$(NC) Atualizando todos os arquivos de contexto..."
+	@python scripts/analyze-chapters.py
+	@python scripts/continuity-check.py
+	@python scripts/character-tracker.py --all
+	@python scripts/generate-context.py
+	@echo "$(GREEN)✓ Contexto completamente atualizado!$(NC)"
+
+.PHONY: context-backup
+context-backup:
+	@echo "$(BLUE)[BACKUP]$(NC) Fazendo backup do contexto..."
+	@mkdir -p backups
+	@tar -czf backups/context-$(DATE).tar.gz context/
+	@echo "$(GREEN)✓ Backup salvo em backups/context-$(DATE).tar.gz$(NC)"

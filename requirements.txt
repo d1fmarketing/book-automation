@@ -8,3 +8,4 @@ flake8==7.0.0
 mypy==1.8.0
 pytest==7.4.4
 mdformat==0.7.17
+matplotlib==3.8.2

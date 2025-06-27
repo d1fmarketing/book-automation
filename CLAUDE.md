@@ -247,4 +247,70 @@ DEBUG=1 npm run build:pdf    # Saves debug HTML
 4. **Use branches** for major edits (develop branch)
 5. **Tag releases** for version tracking
 
+## 📚 Context Management System
+
+This project includes a comprehensive context management system to maintain consistency and prevent errors across chapters.
+
+### Key Context Files
+
+- **`context/story-bible.yaml`** - Master reference for characters, world, plot
+- **`context/CONTEXT.md`** - Current writing state (ALWAYS read before writing)
+- **`context/WRITING-RULES.md`** - Your specific style guidelines
+- **`context/chapter-summaries.json`** - Auto-generated chapter summaries
+- **`context/continuity-report.json`** - Continuity check results
+
+### Essential Context Commands
+
+#### Before Writing Session
+
+```bash
+make session-start    # Updates context and prepares for writing
+```
+
+#### During Writing
+
+```bash
+make find QUERY="blue dress"         # Search for specific references
+make track-character NAME="Alice"     # Track character journey
+make check-continuity                 # Check for inconsistencies
+```
+
+#### After Writing Session
+
+```bash
+make session-end      # Analyzes changes and updates all context
+```
+
+### Context Management Workflow
+
+1. **Start Session**: Run `make session-start`
+2. **Read Context**: Always read `context/CONTEXT.md`
+3. **Check Bible**: Review `context/story-bible.yaml` for details
+4. **Write Chapter**: Follow guidelines in `context/WRITING-RULES.md`
+5. **Verify**: Run `make check-continuity` periodically
+6. **End Session**: Run `make session-end` to save context
+
+### Advanced Context Tools
+
+- **`make analyze`** - Deep analysis of all chapters
+- **`make track-all-characters`** - Complete character tracking
+- **`make context-update`** - Full context regeneration
+- **`make context-backup`** - Backup context files
+
+### Context Scripts
+
+- **`scripts/analyze-chapters.py`** - Extracts key information from chapters
+- **`scripts/continuity-check.py`** - Identifies continuity errors
+- **`scripts/generate-context.py`** - Updates CONTEXT.md
+- **`scripts/find-references.py`** - Search across all chapters
+- **`scripts/character-tracker.py`** - Track character development
+
+### Tips for Context-Aware Writing
+
+1. **Always run `make session-start`** before writing
+2. **Keep CONTEXT.md open** in a split screen while writing
+3. **Update story-bible.yaml** when adding new elements
+4. **Run continuity checks** after major plot points
+5. **Use find-references** to avoid repetition
+
 Remember: This pipeline is designed for professional ebook production. All commands ensure quality output suitable for commercial distribution.
