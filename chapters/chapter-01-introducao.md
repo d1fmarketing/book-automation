@@ -1,9 +1,9 @@
 ---
-chap: 01
-title: "Introdução"
-words_target: 2000
-words: 0
+chap: 1
 status: draft
+title: Introdução
+words: 240
+words_target: 2000
 ---
 
 Este é um capítulo de exemplo. Substitua este conteúdo com sua introdução.

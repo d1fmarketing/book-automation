@@ -1,6 +1,9 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+# Configurar PYTHONPATH para encontrar o módulo ebook_pipeline
+export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
+
 # Executar linting
 npm run lint:check
 
@@ -24,16 +27,16 @@ if [ -n "$CHAPTER_CHANGES" ]; then
     
     # Executar verificação de continuidade
     echo "🔍 Verificando continuidade..."
-    python scripts/continuity-check.py
+    python3 -m ebook_pipeline.context.continuity_checker
     
     # Verificar se há erros no relatório
     if [ -f "context/continuity-report.json" ]; then
-        ERROR_COUNT=$(python -c "import json; data=json.load(open('context/continuity-report.json')); print(data['summary']['errors'])" 2>/dev/null || echo "0")
+        ERROR_COUNT=$(python3 -c "import json; data=json.load(open('context/continuity-report.json')); print(data['summary']['errors'])" 2>/dev/null || echo "0")
         
         if [ "$ERROR_COUNT" -gt "0" ]; then
             echo "❌ ERRO: Encontrados $ERROR_COUNT erros de continuidade!"
             echo "👉 Corrija os problemas e execute 'make session-end' novamente"
-            python -c "import json; data=json.load(open('context/continuity-report.json')); [print(f\"  - {e['message']}\") for e in data['errors'][:5]]" 2>/dev/null
+            python3 -c "import json; data=json.load(open('context/continuity-report.json')); [print(f\"  - {e['message']}\") for e in data['errors'][:5]]" 2>/dev/null
             exit 1
         fi
     fi
