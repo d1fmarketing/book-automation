@@ -1,0 +1,2 @@
+[console_scripts]
+ebook-pipeline = ebook_pipeline.cli:main

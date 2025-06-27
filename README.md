@@ -1,27 +1,169 @@
-# 📚 Ebook Pipeline & Context Guardian
+# 📚 FIRST E-BOOK - Professional eBook Automation Pipeline
 
-[![Build Status](https://github.com/yourusername/yourrepo/workflows/Build%20eBook%20Pipeline/badge.svg)](https://github.com/yourusername/yourrepo/actions)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+A comprehensive automation pipeline for generating professional-quality eBooks from Markdown chapters, with AI-powered image generation, context management, and multi-format output support.
 
-Professional ebook automation pipeline with AI-powered context management to ensure perfect writing continuity, featuring emotion-based color palettes for AI-generated images.
+## 🚀 Features
 
-## 🚀 Quick Start
+- **📖 Multi-format Output**: Generate PDF (6×9" professional format) and EPUB
+- **🎨 AI Image Generation**: Automated image creation with Ideogram 3.0 and OpenAI Sora
+- **🧠 Emotion-aware Styling**: EmotionPaletteEngine for context-appropriate imagery
+- **📝 Context Management**: Maintain consistency across chapters with story bible
+- **✅ Quality Control**: Automated linting, word counting, and continuity checks
+- **🔄 CI/CD Pipeline**: GitHub Actions for automated builds and releases
+- **🎯 Git Hooks**: Pre-commit and pre-push hooks for quality assurance
+
+## 📁 Project Structure
+
+```
+.
+├── src/ebook_pipeline/      # Main Python package
+│   ├── agents/              # AI agents for content generation
+│   ├── generators/          # Image and PDF generators
+│   ├── context/             # Context management tools
+│   └── utils/               # Utility functions
+├── chapters/                # Book content (Markdown files)
+├── context/                 # Story bible and writing rules
+├── assets/                  # Images, fonts, and styles
+├── tests/                   # Test suite
+├── config/                  # Configuration files
+├── docs/                    # Documentation
+└── scripts/                 # Build and utility scripts
+```
+
+## 🛠️ Installation
+
+### Prerequisites
+
+- Python 3.9+
+- Node.js 20+
+- Pandoc 2.0+
+- Git
+
+### Setup
 
 ```bash
-# 1. Install dependencies
+# Clone the repository
+git clone https://github.com/yourusername/first-ebook.git
+cd first-ebook
+
+# Install dependencies
 make init
 
-# 2. Start writing session
-make session-start
-
-# 3. Write your chapters in chapters/
-# 4. End session (updates context & runs checks)
-make session-end
-
-# 5. Generate ebook
-make pdf    # or make epub
+# Or manually:
+npm install
+pip install -r requirements.txt
+pip install -e .
 ```
+
+## 🎯 Quick Start
+
+### 1. Write Your Chapter
+
+Create a new chapter in `chapters/`:
+
+```markdown
+---
+chap: 01
+title: "Introduction"
+words_target: 2000
+words: 0
+status: draft
+---
+
+# Chapter 1: Introduction
+
+Your content here...
+
+![AI-IMAGE: A mystical library with floating books]()
+```
+
+### 2. Generate Images
+
+```bash
+# With Ideogram (default)
+export IDEOGRAM_API_KEY=your_key
+make generate-images
+
+# With Sora/OpenAI
+export IMAGE_PROVIDER=openai
+export OPENAI_API_KEY=your_key
+python -m ebook_pipeline.generators.generate_images
+```
+
+### 3. Build Your Book
+
+```bash
+# Generate PDF
+make pdf
+
+# Generate EPUB
+make epub
+
+# Generate all formats
+make all
+```
+
+## 🎨 Image Generation
+
+### Supported Providers
+
+1. **Ideogram 3.0** (default)
+   - High-quality illustrations
+   - Text overlay support
+   - Cost: $0.08/image
+
+2. **OpenAI Sora** (gpt-image-1)
+   - Photorealistic images
+   - Advanced text rendering
+   - Cost: $0.04/image
+
+### Text Overlay
+
+Add text to images using the `text=""` attribute:
+
+```markdown
+![AI-IMAGE: Premium business card on marble text="EXCLUSIVE OFFER"]()
+```
+
+### Emotion-Based Styling
+
+The EmotionPaletteEngine automatically detects emotions and applies appropriate color palettes:
+
+- 🎉 Joyful → Warm, bright colors
+- 😢 Sad → Cool, muted tones
+- 😨 Tense → Dark, high contrast
+- 💜 Luxurious → Rich, sophisticated hues
+
+## 📖 Context Management
+
+### Before Writing
+
+```bash
+make session-start
+```
+
+This updates context files and prepares your writing environment.
+
+### During Writing
+
+```bash
+# Find references
+make find QUERY="blue dress"
+
+# Track character
+make track-character NAME="Alice"
+
+# Check continuity
+make check-continuity
+```
+
+### After Writing
+
+```bash
+make session-end
+```
+
+Updates all context files and commits changes.
 
 ## 🧪 Testing
 
@@ -29,99 +171,71 @@ make pdf    # or make epub
 # Run all tests
 pytest
 
-# Run specific test suites
-python3 tests/test_continuity.py      # Continuity checks
-python3 tests/test_agent_validation.py # Agent setup validation
+# Run specific test suite
+pytest tests/unit/test_sora_prompts.py -v
+
+# With coverage
+pytest --cov=ebook_pipeline
 ```
 
-## 📋 Key Commands
+## 📋 Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `make init` | Install all dependencies |
-| `make session-start` | Begin writing session |
-| `make session-end` | Finalize session, update context |
-| `make analyze` | Analyze all chapters |
-| `make check-continuity` | Check for continuity errors |
-| `make pdf` | Generate PDF |
-| `make epub` | Generate EPUB |
-| `make all` | Generate all formats |
-| `make wordcount` | Update word counts |
-| `make clean` | Clean build artifacts |
+### Build Commands
+- `make pdf` - Generate PDF
+- `make epub` - Generate EPUB
+- `make all` - Generate all formats
+- `make clean` - Clean build artifacts
 
-## 🤖 Context Guardian
+### Development Commands
+- `make wordcount` - Update word counts
+- `make test` - Run tests and linting
+- `make serve` - Local preview server
 
-The Context Guardian ensures writing consistency across chapters:
+### Context Commands
+- `make session-start` - Begin writing session
+- `make session-end` - End writing session
+- `make analyze` - Analyze all chapters
+- `make context-update` - Full context refresh
 
-1. **Pre-commit hooks**: Block commits with continuity errors
-2. **CI/CD checks**: Fail builds on inconsistencies
-3. **Agent directive**: AI enforces rules during writing
+## 🔧 Configuration
 
-See `context/AGENT-DIRECTIVE.md` for the complete AI system prompt.
+### Book Metadata
 
-## 📁 Project Structure
+Edit `metadata.yaml`:
 
-```
-.
-├── chapters/          # Your book chapters (Markdown)
-├── context/           # Context management files
-│   ├── CONTEXT.md     # Current writing state
-│   ├── story-bible.yaml # Characters, world, plot
-│   └── WRITING-RULES.md # Style guidelines
-├── scripts/           # Automation scripts
-├── tests/             # Test suite
-└── build/             # Generated output
+```yaml
+title: "Your Book Title"
+author: "Your Name"
+isbn: "978-0-000000-00-0"
+language: en
 ```
 
-## 🔧 CI/CD
+### Image Generation
 
-GitHub Actions automatically:
-- Validates all chapters
-- Runs continuity checks
-- Executes test suite
-- Builds PDF/EPUB on success
-
-Workflow: `.github/workflows/build-ebook.yml`
-
-## 🎨 New: EmotionPaletteEngine
-
-Automatically detects emotions in image descriptions and applies appropriate color palettes:
+Configure in environment:
 
 ```bash
-# Generate images with emotion-based colors
-python scripts/generate-images.py
+# Provider selection
+export IMAGE_PROVIDER=ideogram  # or openai
 
-# Use higher resolution
-python scripts/generate-images.py --size 2048x2048
+# API Keys
+export IDEOGRAM_API_KEY=your_key
+export OPENAI_API_KEY=your_key
 
-# Enable post-processing (coming soon)
-python scripts/generate-images.py --enhance-images
+# Default size
+export IMAGE_SIZE=1024x1024
 ```
 
-See `docs/EMOTION-PALETTE-ENGINE.md` for full documentation.
+## 🤝 Contributing
 
-## 📖 Documentation
+See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
 
-- **Quick reference**: `context/QUICK-REFERENCE.md`
-- **Full documentation**: `CLAUDE.md`
-- **Agent scenarios**: `tests/test_agent_scenario.md`
-- **Emotion palette guide**: `docs/EMOTION-PALETTE-ENGINE.md`
+## 📄 License
 
-## ⚠️ Important Notes
+MIT License - see LICENSE file for details.
 
-- Always run `make session-end` before committing
-- The system blocks commits with continuity errors
-- Use `git commit --no-verify` to bypass (not recommended)
-- CI will catch any errors that slip through
+## 🙏 Acknowledgments
 
-## 🚀 Getting Started
-
-1. Configure your book metadata in `metadata.yaml`
-2. Set up your story bible in `context/story-bible.yaml`
-3. Run `make init` to install dependencies
-4. Start writing with `make session-start`
-5. Write chapters in `chapters/chapter-XX-title.md`
-6. End session with `make session-end`
-7. Generate your book with `make pdf`
-
-Happy writing! 📝
+- Powered by Claude Code integration
+- EmotionPaletteEngine for intelligent image generation
+- Ideogram and OpenAI for image generation APIs

@@ -116,9 +116,9 @@ session-start: validate-setup
 .PHONY: session-end
 session-end:
 	@echo "$(BLUE)[SESSION]$(NC) Finalizando sessão..."
-	@python scripts/analyze-chapters.py
-	@python scripts/continuity-check.py
-	@python scripts/generate-context.py
+	@python -m ebook_pipeline.context.analyzer
+	@python -m ebook_pipeline.context.continuity_checker
+	@python -m ebook_pipeline.utils.context_generator
 	@git add context/*.json context/CONTEXT.md
 	@git commit -m "chore: atualizar contexto da sessão" || true
 	@echo "$(GREEN)✓ Sessão finalizada e contexto salvo!$(NC)"
@@ -126,35 +126,35 @@ session-end:
 .PHONY: analyze
 analyze:
 	@echo "$(BLUE)[ANALYZE]$(NC) Analisando capítulos..."
-	@python scripts/analyze-chapters.py
+	@python -m ebook_pipeline.context.analyzer
 
 .PHONY: check-continuity
 check-continuity:
 	@echo "$(BLUE)[CHECK]$(NC) Verificando continuidade..."
-	@python scripts/continuity-check.py
+	@python -m ebook_pipeline.context.continuity_checker
 
 .PHONY: find
 find:
 	@echo "$(BLUE)[FIND]$(NC) Buscando: $(QUERY)"
-	@python scripts/find-references.py "$(QUERY)"
+	@python -m ebook_pipeline.context.reference_finder "$(QUERY)"
 
 .PHONY: track-character
 track-character:
 	@echo "$(BLUE)[TRACK]$(NC) Rastreando personagem: $(NAME)"
-	@python scripts/character-tracker.py "$(NAME)"
+	@python -m ebook_pipeline.context.character_tracker "$(NAME)"
 
 .PHONY: track-all-characters
 track-all-characters:
 	@echo "$(BLUE)[TRACK]$(NC) Rastreando todos os personagens..."
-	@python scripts/character-tracker.py --all
+	@python -m ebook_pipeline.context.character_tracker --all
 
 .PHONY: context-update
 context-update:
 	@echo "$(BLUE)[CONTEXT]$(NC) Atualizando todos os arquivos de contexto..."
-	@python scripts/analyze-chapters.py
-	@python scripts/continuity-check.py
-	@python scripts/character-tracker.py --all
-	@python scripts/generate-context.py
+	@python -m ebook_pipeline.context.analyzer
+	@python -m ebook_pipeline.context.continuity_checker
+	@python -m ebook_pipeline.context.character_tracker --all
+	@python -m ebook_pipeline.utils.context_generator
 	@echo "$(GREEN)✓ Contexto completamente atualizado!$(NC)"
 
 .PHONY: context-backup

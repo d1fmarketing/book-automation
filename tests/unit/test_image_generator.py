@@ -9,10 +9,8 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 
-# Add parent directory to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from scripts.generate_images import ImageGenerator
+# Import from new structure
+from ebook_pipeline.generators.generate_images import ImageGenerator
 
 
 def test_slug_generation():

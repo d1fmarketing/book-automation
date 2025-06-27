@@ -22,7 +22,7 @@ import os
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from agents.emotion_palette_engine import EmotionPaletteEngine
+from ebook_pipeline.agents.emotion_palette import EmotionPaletteEngine
 
 BRAND_COLORS = ["#1A237E", "#45B3E7", "#863DFF"]
 
