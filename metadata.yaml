@@ -1,22 +1,26 @@
 # Metadados do Livro
-title: "Título do Seu Livro"
-subtitle: "Subtítulo Opcional"
-author: "Seu Nome"
-publisher: "Sua Editora"
-language: pt-BR
+title: "Angel Numbers: A Pragmatic Guide to Repeating Synchronicities"
+subtitle: "Decode 50 recurring number patterns and turn nudges into action"
+author: "Renan de Jesus"
+publisher: "Self-Published"
+language: en
 isbn: "978-0-000000-00-0"
 uuid: "00000000-0000-0000-0000-000000000000"
 date: 2025-01-01
 version: "1.0.0"
-copyright: "© 2025 Seu Nome. Todos os direitos reservados."
-description: "Uma breve descrição do seu livro que aparecerá nos metadados"
+copyright: "© 2025 Renan de Jesus. All rights reserved."
+description: |
+  A straight-shooting look at the most common angel numbers (111–4040),
+  what they *might* mean, and how to turn vague "signs" into concrete
+  self-growth habits—no woo-woo required.
 subject: 
-  - "Categoria Principal"
-  - "Categoria Secundária"
+  - "Spirituality"
+  - "Self-Help"
 keywords:
-  - "palavra-chave1"
-  - "palavra-chave2"
-  - "palavra-chave3"
+  - "angel numbers"
+  - "111"
+  - "synchronicity"
+  - "self-development"
 
 # URLs e Links
 product_url: "https://seusite.com/produto"
