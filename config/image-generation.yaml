@@ -1,0 +1,54 @@
+# Image Generation Configuration for Angel Numbers Book
+
+# Default provider
+default_provider: ideogram
+
+# Provider-specific settings
+providers:
+  ideogram:
+    model: V_3
+    api_key_env: IDEOGRAM_API_KEY
+    
+  openai:
+    model: gpt-image-1
+    api_key_env: OPENAI_API_KEY
+
+# Style settings for Angel Numbers
+style:
+  # Base style for all images
+  base_prompt_suffix: "minimalist celestial backdrop, ethereal atmosphere, 4:5 aspect ratio"
+  
+  # Color palette
+  colors:
+    primary: "#863DFF"  # Violet-indigo
+    secondary: "#45B3E7"  # Picton blue
+    accent: "#FFD700"   # Golden
+    
+  # Visual elements
+  elements:
+    - "soft vignette"
+    - "ethereal light leaks"
+    - "subtle golden Fibonacci spirals"
+    - "luminous geometric style"
+    
+  # Specific styles for different chapter types
+  chapter_styles:
+    intro:
+      additional: "clock faces overlapping, mystical atmosphere"
+    number:
+      additional: "number prominently featured, sacred geometry elements"
+    wrap_up:
+      additional: "constellation patterns, transformation theme"
+    resources:
+      additional: "ancient meets modern, library aesthetic"
+
+# Image specifications
+specifications:
+  size: "1024x1280"  # 4:5 ratio
+  format: "webp"
+  quality: 95
+  
+# Cost tracking
+cost_per_image:
+  ideogram: 0.08
+  openai: 0.04
