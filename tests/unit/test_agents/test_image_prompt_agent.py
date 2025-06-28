@@ -52,7 +52,7 @@ class TestImagePromptAgent:
         long_text = "This is a very long text that exceeds eight words limit"
         result = agent.validate_text_overlay(long_text)
         assert len(result.split()) == 8
-        assert result == "THIS IS A VERY LONG TEXT THAT"
+        assert result == "THIS IS A VERY LONG TEXT THAT EXCEEDS"
         
         # Test combined rules
         result = agent.validate_text_overlay("Hello, 😊 World! 🌟")

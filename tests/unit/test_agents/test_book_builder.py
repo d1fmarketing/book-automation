@@ -70,16 +70,16 @@ class TestBookBuilder:
         """Test cover generation fallback to general images directory"""
         with patch('pathlib.Path.exists') as mock_exists:
             with patch('pathlib.Path.glob') as mock_glob:
-                # Book-specific directory doesn't exist
-                mock_exists.return_value = False
+                # First call to exists (book-specific dir) returns False
+                # Second call to exists (general dir) would return True but isn't checked
+                mock_exists.side_effect = [False]
                 
-                # Mock the general images directory
-                mock_path = Mock(spec=Path)
-                mock_path.glob.return_value = [Path("assets/images/generic-cover.png")]
+                # When book-specific doesn't exist, we check general images dir
+                # Mock Path("assets/images").glob("*.png") to return an image
+                mock_glob.return_value = [Path("assets/images/generic-cover.png")]
                 
-                with patch('pathlib.Path', return_value=mock_path):
-                    cover = builder.generate_cover()
-                    assert cover == Path("assets/images/generic-cover.png")
+                cover = builder.generate_cover()
+                assert cover == Path("assets/images/generic-cover.png")
     
     def test_generate_cover_no_images(self, builder):
         """Test cover generation when no images are found"""
@@ -150,15 +150,8 @@ class TestBookBuilder:
         
         with patch('pathlib.Path.exists') as mock_exists:
             with patch('subprocess.run') as mock_run:
-                # Mock that Puppeteer script exists
-                def exists_side_effect(self):
-                    if str(self) == "scripts/generate-pdf-puppeteer.js":
-                        return True
-                    elif str(self) == "dist/test-book.pdf":
-                        return True
-                    return False
-                
-                mock_exists.side_effect = exists_side_effect
+                # Mock that Puppeteer script exists and PDF is created
+                mock_exists.side_effect = lambda: True
                 
                 # Mock successful subprocess run
                 mock_run.return_value = Mock(returncode=0)

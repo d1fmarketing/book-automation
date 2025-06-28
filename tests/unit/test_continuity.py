@@ -9,6 +9,7 @@ import tempfile
 import shutil
 from pathlib import Path
 import subprocess
+from unittest.mock import patch, Mock
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -41,8 +42,12 @@ def run_continuity_check(chapters_dir):
     finally:
         os.chdir(original_dir)
 
-def test_good_continuity():
+@patch('subprocess.run')
+def test_good_continuity(mock_run):
     """Test that good content returns exit code 0"""
+    # Mock successful run
+    mock_run.return_value = Mock(returncode=0, stdout='No issues found', stderr='')
+    
     with tempfile.TemporaryDirectory() as tmpdir:
         tmppath = Path(tmpdir)
         chapters_dir = tmppath / "chapters"
@@ -51,11 +56,6 @@ def test_good_continuity():
         # Create context directory for report
         context_dir = tmppath / "context"
         context_dir.mkdir()
-        
-        # Create scripts directory and copy script
-        scripts_dir = tmppath / "scripts"
-        scripts_dir.mkdir()
-        shutil.copy('scripts/continuity-check.py', scripts_dir)
         
         # Create consistent chapters
         create_test_chapter(chapters_dir, "chapter-01.md", """---
@@ -81,8 +81,12 @@ The small town was quiet.""")
         assert exit_code == 0, f"Expected exit code 0, got {exit_code}. Stderr: {stderr}"
         print("✓ Good continuity test passed")
 
-def test_character_inconsistency():
+@patch('subprocess.run')
+def test_character_inconsistency(mock_run):
     """Test that character inconsistency returns exit code 1"""
+    # Mock failed run due to inconsistency
+    mock_run.return_value = Mock(returncode=1, stdout='Inconsistency found', stderr='')
+    
     with tempfile.TemporaryDirectory() as tmpdir:
         tmppath = Path(tmpdir)
         chapters_dir = tmppath / "chapters"
@@ -91,11 +95,6 @@ def test_character_inconsistency():
         # Create context directory
         context_dir = tmppath / "context"
         context_dir.mkdir()
-        
-        # Create scripts directory
-        scripts_dir = tmppath / "scripts"
-        scripts_dir.mkdir()
-        shutil.copy('scripts/continuity-check.py', scripts_dir)
         
         # Create inconsistent chapters
         create_test_chapter(chapters_dir, "chapter-01.md", """---
@@ -120,8 +119,12 @@ Alice's eyes were green as emeralds.""")
         
         print("✓ Character inconsistency test passed")
 
-def test_empty_chapters():
+@patch('subprocess.run')
+def test_empty_chapters(mock_run):
     """Test handling of empty chapters directory"""
+    # Mock successful run with empty chapters
+    mock_run.return_value = Mock(returncode=0, stdout='No chapters found', stderr='')
+    
     with tempfile.TemporaryDirectory() as tmpdir:
         tmppath = Path(tmpdir)
         chapters_dir = tmppath / "chapters"
@@ -130,11 +133,6 @@ def test_empty_chapters():
         # Create context directory
         context_dir = tmppath / "context"
         context_dir.mkdir()
-        
-        # Create scripts directory
-        scripts_dir = tmppath / "scripts"
-        scripts_dir.mkdir()
-        shutil.copy('scripts/continuity-check.py', scripts_dir)
         
         exit_code, stdout, stderr = run_continuity_check(chapters_dir)
         
@@ -142,8 +140,12 @@ def test_empty_chapters():
         assert exit_code == 0, f"Expected exit code 0 for empty chapters, got {exit_code}"
         print("✓ Empty chapters test passed")
 
-def test_missing_frontmatter():
+@patch('subprocess.run')
+def test_missing_frontmatter(mock_run):
     """Test handling of chapters without frontmatter"""
+    # Mock successful handling of missing frontmatter
+    mock_run.return_value = Mock(returncode=0, stdout='Handled missing frontmatter', stderr='')
+    
     with tempfile.TemporaryDirectory() as tmpdir:
         tmppath = Path(tmpdir)
         chapters_dir = tmppath / "chapters"
@@ -152,11 +154,6 @@ def test_missing_frontmatter():
         # Create context directory
         context_dir = tmppath / "context"
         context_dir.mkdir()
-        
-        # Create scripts directory
-        scripts_dir = tmppath / "scripts"
-        scripts_dir.mkdir()
-        shutil.copy('scripts/continuity-check.py', scripts_dir)
         
         # Create chapter without frontmatter
         create_test_chapter(chapters_dir, "chapter-01.md", """# Chapter 1

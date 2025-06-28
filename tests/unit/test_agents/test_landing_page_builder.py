@@ -64,21 +64,15 @@ class TestLandingPageBuilder:
                 # Book-specific directory doesn't exist
                 mock_exists.return_value = False
                 
-                # Mock general directory with multiple patterns
-                def glob_side_effect(pattern):
-                    if "*hero*" in pattern:
-                        return []
-                    elif "*cover*" in pattern:
-                        return [Path("assets/images/cover.png")]
-                    else:
-                        return [Path("assets/images/image1.png")]
+                # First glob for *hero* returns nothing
+                # Second glob for *cover* returns a cover image
+                mock_glob.side_effect = [
+                    [],  # No hero images
+                    [Path("assets/images/cover.png")]  # Found cover
+                ]
                 
-                mock_path = Mock(spec=Path)
-                mock_path.glob.side_effect = glob_side_effect
-                
-                with patch('pathlib.Path', return_value=mock_path):
-                    image = builder.get_hero_image()
-                    assert image == "assets/images/cover.png"
+                image = builder.get_hero_image()
+                assert str(image) == "assets/images/cover.png"
     
     def test_get_hero_image_none(self, builder):
         """Test hero image retrieval when no images found"""
