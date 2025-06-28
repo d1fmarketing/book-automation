@@ -11,14 +11,14 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 # Check if scripts exist
-if [ ! -f "scripts/continuity-check.py" ]; then
+if [ ! -f "src/ebook_pipeline/utils/continuity_check.py" ]; then
     echo "⚠️  Continuity check script not found. Skipping pre-push check."
     exit 0
 fi
 
 # Run continuity check
 echo "🔍 Checking for continuity errors before push..."
-python3 scripts/continuity-check.py
+PYTHONPATH=src python3 -m ebook_pipeline.utils.continuity_check
 
 if [ $? -ne 0 ]; then
     echo ""
