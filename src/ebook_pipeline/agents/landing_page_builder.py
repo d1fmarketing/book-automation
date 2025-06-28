@@ -2,40 +2,38 @@
 """
 LandingPageBuilder: Create and deploy conversion-focused landing pages
 """
-import os
-import json
-import requests
-from pathlib import Path
-from typing import Dict, Optional, List
 import logging
+import os
+from pathlib import Path
+from typing import Dict, Optional
 
 logger = logging.getLogger('LandingPageBuilder')
 
 
 class LandingPageBuilder:
     """Generates and deploys landing pages"""
-    
+
     def __init__(self, config):
         self.config = config
         self.api_key = os.getenv('HOSTING_API_KEY', '')
-        
+
     def get_hero_image(self) -> Optional[str]:
         """Get hero image for landing page"""
         images_dir = Path(f"assets/images/{self.config.book_slug}")
         if not images_dir.exists():
             images_dir = Path("assets/images")
-            
+
         # Look for specific hero image or use first available
         for pattern in ["*hero*", "*cover*", "*"]:
             for img in images_dir.glob(f"{pattern}.png"):
                 return str(img)
         return None
-    
+
     def generate_css(self) -> str:
         """Generate responsive CSS with optional brand colors"""
         primary_color = self.config.primary_palette[0] if self.config.primary_palette else "#1a1a1a"
         secondary_color = self.config.primary_palette[1] if len(self.config.primary_palette) > 1 else "#007bff"
-        
+
         return f"""
         :root {{
             --primary: {primary_color};
@@ -128,11 +126,11 @@ class LandingPageBuilder:
             .grid {{ grid-template-columns: 1fr; }}
         }}
         """
-    
+
     def create_page(self) -> Dict:
         """Create landing page structure"""
         hero_image = self.get_hero_image()
-        
+
         page_data = {
             "title": f"{self.config.book_title} - by {self.config.author_name}",
             "slug": self.config.book_slug,
@@ -205,13 +203,13 @@ class LandingPageBuilder:
             });
             """
         }
-        
+
         return page_data
-    
+
     def generate_html(self, page_data: Dict) -> str:
         """Generate static HTML from page data"""
         sections_html = ""
-        
+
         for section in page_data['sections']:
             if section['type'] == 'hero':
                 content = section['content']
@@ -242,7 +240,7 @@ class LandingPageBuilder:
                     </div>
                 </section>
                 """
-        
+
         return f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -259,22 +257,22 @@ class LandingPageBuilder:
         </body>
         </html>
         """
-    
+
     def deploy(self, page_data: Dict) -> Optional[str]:
         """Deploy landing page to target domain"""
         if not self.config.target_domain:
             logger.warning("No target domain specified, skipping deployment")
             return None
-            
+
         try:
             # Generate static HTML
             html_content = self.generate_html(page_data)
-            
+
             # Save locally for reference
             output_path = Path(f"dist/{self.config.book_slug}-landing.html")
             output_path.write_text(html_content)
             logger.info(f"Landing page saved to: {output_path}")
-            
+
             # If API key is available, deploy via API
             if self.api_key:
                 # This would be the actual deployment API call
@@ -285,7 +283,7 @@ class LandingPageBuilder:
             else:
                 # Return local file URL
                 return f"file://{output_path.absolute()}"
-                
+
         except Exception as e:
             logger.error(f"Deployment failed: {e}")
             return None

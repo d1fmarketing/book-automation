@@ -86,8 +86,8 @@ omnicreator:
 	@echo "$(BLUE)🚀 Running OmniCreator-X Pipeline...$(NC)"
 	@python3 omnicreator_run.py
 
-.PHONY: test
-test:
+.PHONY: test-npm
+test-npm:
 	@npm run test
 
 .PHONY: wordcount
@@ -111,7 +111,7 @@ verify: lint test
 .PHONY: lint
 lint:
 	@echo "$(BLUE)[LINT]$(NC) Executando linting com ruff..."
-	@ruff check src --fix
+	@python3 -m ruff check src --fix
 	@echo "$(GREEN)✓ Linting concluído$(NC)"
 
 .PHONY: test
