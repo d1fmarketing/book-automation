@@ -184,7 +184,7 @@ class ChapterAnalyzer:
         """Create a timeline of events"""
         timeline = []
         
-        for chapter_num, data in sorted(self.chapter_data.items()):
+        for chapter_num, data in sorted(self.chapter_data.items(), key=lambda x: str(x[0])):
             timeline.append({
                 'chapter': chapter_num,
                 'title': data.get('title', ''),
@@ -198,7 +198,7 @@ class ChapterAnalyzer:
         summaries_file = self.context_dir / "chapter-summaries.json"
         
         summaries = {}
-        for chapter_num, data in sorted(self.chapter_data.items()):
+        for chapter_num, data in sorted(self.chapter_data.items(), key=lambda x: str(x[0])):
             summaries[f"chapter_{chapter_num}"] = {
                 'title': data.get('title', ''),
                 'summary': data.get('summary', ''),
@@ -227,9 +227,9 @@ class ChapterAnalyzer:
         table.add_column("Characters", style="yellow")
         table.add_column("Locations", style="blue")
         
-        for chapter_num, data in sorted(self.chapter_data.items()):
+        for chapter_num, data in sorted(self.chapter_data.items(), key=lambda x: str(x[0])):
             table.add_row(
-                chapter_num,
+                str(chapter_num),
                 data.get('title', '')[:30],
                 str(data.get('word_count', 0)),
                 ', '.join(data.get('characters', []))[:30],
@@ -261,7 +261,7 @@ class ChapterAnalyzer:
         console.print("\n[bold]Character Appearances:[/bold]")
         char_appearances = self.extract_character_mentions()
         for character, chapters in sorted(char_appearances.items()):
-            console.print(f"  • {character}: Chapters {', '.join(chapters)}")
+            console.print(f"  • {character}: Chapters {', '.join(str(ch) for ch in chapters)}")
             
 def main():
     try:

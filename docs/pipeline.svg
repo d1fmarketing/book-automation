@@ -1,0 +1,28 @@
+<!-- Book Automation Pipeline Flow -->
+<!-- Text representation of pipeline flow -->
+
+Pipeline Flow:
+
+1. Writing Phase
+   ├── make session-start → Load context
+   ├── Write chapters in Markdown
+   └── make session-end → Save context
+
+2. Quality Control
+   ├── make wordcount → Update word counts
+   ├── make check-continuity → Verify consistency
+   └── make test → Run all tests
+
+3. Build Phase
+   ├── make generate-images → Create AI images
+   ├── make pdf → Generate PDF book
+   └── make epub → Generate EPUB book
+
+4. Verification
+   ├── make verify → Lint + Test
+   └── CI/CD → Automated builds
+
+Output:
+   └── build/dist/
+       ├── book.pdf
+       └── book.epub

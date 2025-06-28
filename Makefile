@@ -54,7 +54,7 @@ init:
 	@chmod +x scripts/*.sh scripts/*.py
 	@./scripts/bootstrap.sh
 	@npm install
-	@python -m venv venv
+	@python3 -m venv venv
 	@./venv/bin/pip install -r requirements.txt
 	@npx husky install
 	@echo "$(GREEN)[INIT]$(NC) Ambiente configurado com sucesso!"
@@ -104,21 +104,37 @@ serve:
 	@echo "$(GREEN)[SERVE]$(NC) Iniciando servidor local..."
 	@cd $(DIST_DIR) && python -m http.server 8000
 
+.PHONY: verify
+verify: lint test
+	@echo "$(GREEN)[VERIFY]$(NC) Todas as verificações passaram!"
+
+.PHONY: lint
+lint:
+	@echo "$(BLUE)[LINT]$(NC) Executando linting com ruff..."
+	@ruff check src --fix
+	@echo "$(GREEN)✓ Linting concluído$(NC)"
+
+.PHONY: test
+test:
+	@echo "$(BLUE)[TEST]$(NC) Executando testes..."
+	@PYTHONPATH=src pytest -q tests/
+	@echo "$(GREEN)✓ Testes passaram$(NC)"
+
 # ===== COMANDOS DE CONTEXTO =====
 
 .PHONY: session-start
-session-start: validate-setup
+session-start:
 	@echo "$(GREEN)[SESSION]$(NC) Iniciando sessão de escrita..."
-	@python $(SCRIPTS_DIR)/analyze-chapters.py
-	@python $(SCRIPTS_DIR)/generate-context.py
+	@python3 -m ebook_pipeline.utils.analyze_chapters
+	@python3 -m ebook_pipeline.utils.generate_context
 	@echo "$(GREEN)✓ Contexto atualizado! Leia $(CONTEXT_DIR)/CONTEXT.md antes de escrever.$(NC)"
 
 .PHONY: session-end
 session-end:
 	@echo "$(BLUE)[SESSION]$(NC) Finalizando sessão..."
-	@python -m ebook_pipeline.context.analyzer
-	@python -m ebook_pipeline.context.continuity_checker
-	@python -m ebook_pipeline.utils.context_generator
+	@python3 -m ebook_pipeline.utils.analyze_chapters
+	@python3 -m ebook_pipeline.utils.continuity_check
+	@python3 -m ebook_pipeline.utils.generate_context
 	@git add context/*.json context/CONTEXT.md
 	@git commit -m "chore: atualizar contexto da sessão" || true
 	@echo "$(GREEN)✓ Sessão finalizada e contexto salvo!$(NC)"
@@ -126,35 +142,35 @@ session-end:
 .PHONY: analyze
 analyze:
 	@echo "$(BLUE)[ANALYZE]$(NC) Analisando capítulos..."
-	@python -m ebook_pipeline.context.analyzer
+	@python3 -m ebook_pipeline.utils.analyze_chapters
 
 .PHONY: check-continuity
 check-continuity:
 	@echo "$(BLUE)[CHECK]$(NC) Verificando continuidade..."
-	@python -m ebook_pipeline.context.continuity_checker
+	@python3 -m ebook_pipeline.utils.continuity_check
 
 .PHONY: find
 find:
 	@echo "$(BLUE)[FIND]$(NC) Buscando: $(QUERY)"
-	@python -m ebook_pipeline.context.reference_finder "$(QUERY)"
+	@python3 -m ebook_pipeline.utils.find_references "$(QUERY)"
 
 .PHONY: track-character
 track-character:
 	@echo "$(BLUE)[TRACK]$(NC) Rastreando personagem: $(NAME)"
-	@python -m ebook_pipeline.context.character_tracker "$(NAME)"
+	@python3 -m ebook_pipeline.utils.character_tracker "$(NAME)"
 
 .PHONY: track-all-characters
 track-all-characters:
 	@echo "$(BLUE)[TRACK]$(NC) Rastreando todos os personagens..."
-	@python -m ebook_pipeline.context.character_tracker --all
+	@python3 -m ebook_pipeline.utils.character_tracker --all
 
 .PHONY: context-update
 context-update:
 	@echo "$(BLUE)[CONTEXT]$(NC) Atualizando todos os arquivos de contexto..."
-	@python -m ebook_pipeline.context.analyzer
-	@python -m ebook_pipeline.context.continuity_checker
-	@python -m ebook_pipeline.context.character_tracker --all
-	@python -m ebook_pipeline.utils.context_generator
+	@python3 -m ebook_pipeline.utils.analyze_chapters
+	@python3 -m ebook_pipeline.utils.continuity_check
+	@python3 -m ebook_pipeline.utils.character_tracker --all
+	@python3 -m ebook_pipeline.utils.generate_context
 	@echo "$(GREEN)✓ Contexto completamente atualizado!$(NC)"
 
 .PHONY: context-backup
@@ -172,11 +188,7 @@ context-backup:
 .PHONY: validate-setup
 validate-setup:
 	@# Verificar se diretórios existem
-	@test -d $(SCRIPTS_DIR) || (echo "$(RED)❌ Diretório $(SCRIPTS_DIR) não encontrado$(NC)" && exit 1)
 	@test -d $(CONTEXT_DIR) || (echo "$(RED)❌ Diretório $(CONTEXT_DIR) não encontrado$(NC)" && exit 1)
 	@test -d $(CHAPTERS_DIR) || (echo "$(RED)❌ Diretório $(CHAPTERS_DIR) não encontrado$(NC)" && exit 1)
-	@# Verificar se scripts Python existem
-	@test -f $(SCRIPTS_DIR)/analyze-chapters.py || (echo "$(RED)❌ Script analyze-chapters.py não encontrado$(NC)" && exit 1)
-	@test -f $(SCRIPTS_DIR)/continuity-check.py || (echo "$(RED)❌ Script continuity-check.py não encontrado$(NC)" && exit 1)
 	@# Verificar Python
 	@which python3 > /dev/null || which python > /dev/null || (echo "$(RED)❌ Python não encontrado$(NC)" && exit 1)

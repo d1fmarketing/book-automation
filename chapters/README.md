@@ -1,3 +1,7 @@
+---
+words: 57
+---
+
 # Chapters Directory
 
 This directory contains your book chapters as Markdown files.

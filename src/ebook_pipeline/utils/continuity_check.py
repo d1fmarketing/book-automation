@@ -85,7 +85,7 @@ class ContinuityChecker:
             'height': r'(\w+)\s+(?:was|is|stood)\s+(\w+)\s+(?:tall|short)',
         }
         
-        for chapter_num, chapter_data in sorted(chapters.items()):
+        for chapter_num, chapter_data in sorted(chapters.items(), key=lambda x: str(x[0])):
             content = chapter_data['content']
             
             for detail_type, pattern in patterns.items():
@@ -122,7 +122,7 @@ class ContinuityChecker:
             r'(\w+)\s+evening',
         ]
         
-        for chapter_num, chapter_data in sorted(chapters.items()):
+        for chapter_num, chapter_data in sorted(chapters.items(), key=lambda x: str(x[0])):
             content = chapter_data['content']
             
             for pattern in time_patterns:
@@ -148,7 +148,7 @@ class ContinuityChecker:
             r'(?:in|at)\s+the\s+(\w+\s*\w*),?\s+([^.]+)',
         ]
         
-        for chapter_num, chapter_data in sorted(chapters.items()):
+        for chapter_num, chapter_data in sorted(chapters.items(), key=lambda x: str(x[0])):
             content = chapter_data['content']
             
             # Extract location descriptions
@@ -180,7 +180,7 @@ class ContinuityChecker:
         # Also look for common important items
         important_objects.extend(['key', 'letter', 'book', 'weapon', 'map', 'ring'])
         
-        for chapter_num, chapter_data in sorted(chapters.items()):
+        for chapter_num, chapter_data in sorted(chapters.items(), key=lambda x: str(x[0])):
             content = chapter_data['content'].lower()
             
             for obj in important_objects:
@@ -206,7 +206,7 @@ class ContinuityChecker:
         all_names = defaultdict(list)
         
         # Extract all capitalized words that could be names
-        for chapter_num, chapter_data in sorted(chapters.items()):
+        for chapter_num, chapter_data in sorted(chapters.items(), key=lambda x: str(x[0])):
             content = chapter_data['content']
             
             # Find all capitalized words
@@ -233,7 +233,7 @@ class ContinuityChecker:
         # Get expected POV from story bible
         expected_pov = self.story_bible.get('book', {}).get('point_of_view', '')
         
-        for chapter_num, chapter_data in sorted(chapters.items()):
+        for chapter_num, chapter_data in sorted(chapters.items(), key=lambda x: str(x[0])):
             content = chapter_data['content']
             
             # Check for POV indicators
@@ -258,7 +258,7 @@ class ContinuityChecker:
         information_patterns = defaultdict(list)
         
         # Look for explanatory sentences
-        for chapter_num, chapter_data in sorted(chapters.items()):
+        for chapter_num, chapter_data in sorted(chapters.items(), key=lambda x: str(x[0])):
             content = chapter_data['content']
             sentences = content.split('.')
             

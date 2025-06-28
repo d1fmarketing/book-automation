@@ -3,6 +3,7 @@
 Generates and updates CONTEXT.md based on all chapters and story bible
 """
 import os
+import sys
 import json
 import yaml
 from pathlib import Path
@@ -162,7 +163,7 @@ class ContextGenerator:
                     }
                     
         # Active plot threads from story bible
-        if 'plot' in self.story_bible:
+        if 'plot' in self.story_bible or 'plot_threads' in self.story_bible:
             progress['active_plots'] = self.get_active_plots()
             
         return progress
@@ -662,6 +663,14 @@ class ContextGenerator:
             f.write(str(session + 1))
             
         return session
+    
+    def get_active_plots(self) -> list:
+        """Return a list of plot-thread IDs still unresolved in chapters."""
+        active = []
+        for plot in self.story_bible.get("plot_threads", []):
+            if not plot.get("resolved"):
+                active.append(plot["id"])
+        return active
 
 def main():
     try:

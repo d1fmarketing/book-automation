@@ -1,12 +1,10 @@
 ---
-chap: 01
-title: "Chapter Title Here"
-words_target: 2000
-words: 0
+chap: 1
 status: draft
+title: Chapter Title Here
+words: 32
+words_target: 2000
 ---
-
-# Chapter 1: Title Here
 
 Start your chapter content here...
 
@@ -23,4 +21,4 @@ More content...
 
 ---
 
-*End of Chapter*
+End of Chapter

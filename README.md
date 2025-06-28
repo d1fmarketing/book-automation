@@ -2,6 +2,27 @@
 
 A comprehensive automation pipeline for generating professional-quality eBooks from Markdown chapters, with AI-powered image generation, context management, and multi-format output support.
 
+## 🚀 Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/book-automation.git
+cd book-automation
+
+# Initialize the environment
+make init
+
+# Start your writing session
+make session-start
+
+# Create your first chapter
+cp chapters/chapter-template.md chapters/chapter-01-my-story.md
+# Edit your chapter...
+
+# Build your book
+make all
+```
+
 ## 🚀 Features
 
 - **📖 Multi-format Output**: Generate PDF (6×9" professional format) and EPUB
@@ -64,7 +85,7 @@ git merge main  # Get latest pipeline updates
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.11+
 - Node.js 20+
 - Pandoc 2.0+
 - Git
@@ -76,8 +97,15 @@ git merge main  # Get latest pipeline updates
 git clone https://github.com/d1fmarketing/book-automation.git
 cd book-automation
 
+# Check your environment
+python scripts/check_env.py
+
 # Install dependencies
 make init
+
+# Set up pre-commit hooks (optional but recommended)
+pip install pre-commit
+pre-commit install
 
 # Or manually:
 npm install

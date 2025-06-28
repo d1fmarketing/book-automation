@@ -1,0 +1,24 @@
+{
+  "chapter_00": {
+    "title": "",
+    "summary": "# Chapters Directory\n\nThis directory contains your book chapters as Markdown files. \n\n## File Format\n\nEach chapter should follow this naming convention:\n\n- `chapter-01-title. md`\n- `chapter-02-another...",
+    "characters": [],
+    "locations": [],
+    "word_count": 68,
+    "first_line": "This directory contains your book chapters as Markdown files.",
+    "last_line": "- Images will be auto-generated from `![AI-IMAGE: description]()` tags",
+    "key_events": []
+  },
+  "chapter_1": {
+    "title": "Chapter Title Here",
+    "summary": "# Chapter 1: Title Here\n\nStart your chapter content here. . .",
+    "characters": [
+      "Section"
+    ],
+    "locations": [],
+    "word_count": 36,
+    "first_line": "Start your chapter content here...",
+    "last_line": "*End of Chapter*",
+    "key_events": []
+  }
+}

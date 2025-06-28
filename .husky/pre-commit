@@ -27,7 +27,7 @@ if [ -n "$CHAPTER_CHANGES" ]; then
     
     # Executar verificação de continuidade
     echo "🔍 Verificando continuidade..."
-    python3 -m ebook_pipeline.context.continuity_checker
+    python3 -m ebook_pipeline.utils.continuity_check
     
     # Verificar se há erros no relatório
     if [ -f "context/continuity-report.json" ]; then
