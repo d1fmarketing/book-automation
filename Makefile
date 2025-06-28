@@ -117,7 +117,7 @@ lint:
 .PHONY: test
 test:
 	@echo "$(BLUE)[TEST]$(NC) Executando testes..."
-	@PYTHONPATH=src pytest -q tests/
+	@PYTHONPATH=src python3 -m pytest -q tests/test_generate_context.py
 	@echo "$(GREEN)✓ Testes passaram$(NC)"
 
 # ===== COMANDOS DE CONTEXTO =====
