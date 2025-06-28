@@ -34,6 +34,7 @@ help:
 	@echo "  $(BLUE)make epub$(NC)       - Gerar EPUB otimizado"
 	@echo "  $(BLUE)make all$(NC)        - Gerar todos os formatos"
 	@echo "  $(BLUE)make test$(NC)       - Executar validações"
+	@echo "  $(BLUE)make test-agents$(NC) - Testar agentes específicos"
 	@echo "  $(BLUE)make clean$(NC)      - Limpar arquivos gerados"
 	@echo "  $(BLUE)make wordcount$(NC)  - Atualizar contagem de palavras"
 	@echo "  $(BLUE)make serve$(NC)      - Preview local do livro"
@@ -117,24 +118,30 @@ lint:
 .PHONY: test
 test:
 	@echo "$(BLUE)[TEST]$(NC) Executando testes..."
-	@PYTHONPATH=src python3 -m pytest -q tests/test_generate_context.py
+	@PYTHONPATH=src python3 -m pytest -q tests/
 	@echo "$(GREEN)✓ Testes passaram$(NC)"
+
+.PHONY: test-agents
+test-agents:
+	@echo "$(BLUE)[TEST-AGENTS]$(NC) Testando agentes..."
+	@PYTHONPATH=src python3 -m pytest -q tests/test_agents.py
+	@echo "$(GREEN)✓ Testes de agentes passaram$(NC)"
 
 # ===== COMANDOS DE CONTEXTO =====
 
 .PHONY: session-start
 session-start:
 	@echo "$(GREEN)[SESSION]$(NC) Iniciando sessão de escrita..."
-	@python3 -m ebook_pipeline.utils.analyze_chapters
-	@python3 -m ebook_pipeline.utils.generate_context
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.analyze_chapters
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.generate_context
 	@echo "$(GREEN)✓ Contexto atualizado! Leia $(CONTEXT_DIR)/CONTEXT.md antes de escrever.$(NC)"
 
 .PHONY: session-end
 session-end:
 	@echo "$(BLUE)[SESSION]$(NC) Finalizando sessão..."
-	@python3 -m ebook_pipeline.utils.analyze_chapters
-	@python3 -m ebook_pipeline.utils.continuity_check
-	@python3 -m ebook_pipeline.utils.generate_context
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.analyze_chapters
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.continuity_check
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.generate_context
 	@git add context/*.json context/CONTEXT.md
 	@git commit -m "chore: atualizar contexto da sessão" || true
 	@echo "$(GREEN)✓ Sessão finalizada e contexto salvo!$(NC)"
@@ -142,35 +149,35 @@ session-end:
 .PHONY: analyze
 analyze:
 	@echo "$(BLUE)[ANALYZE]$(NC) Analisando capítulos..."
-	@python3 -m ebook_pipeline.utils.analyze_chapters
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.analyze_chapters
 
 .PHONY: check-continuity
 check-continuity:
 	@echo "$(BLUE)[CHECK]$(NC) Verificando continuidade..."
-	@python3 -m ebook_pipeline.utils.continuity_check
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.continuity_check
 
 .PHONY: find
 find:
 	@echo "$(BLUE)[FIND]$(NC) Buscando: $(QUERY)"
-	@python3 -m ebook_pipeline.utils.find_references "$(QUERY)"
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.find_references "$(QUERY)"
 
 .PHONY: track-character
 track-character:
 	@echo "$(BLUE)[TRACK]$(NC) Rastreando personagem: $(NAME)"
-	@python3 -m ebook_pipeline.utils.character_tracker "$(NAME)"
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.character_tracker "$(NAME)"
 
 .PHONY: track-all-characters
 track-all-characters:
 	@echo "$(BLUE)[TRACK]$(NC) Rastreando todos os personagens..."
-	@python3 -m ebook_pipeline.utils.character_tracker --all
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.character_tracker --all
 
 .PHONY: context-update
 context-update:
 	@echo "$(BLUE)[CONTEXT]$(NC) Atualizando todos os arquivos de contexto..."
-	@python3 -m ebook_pipeline.utils.analyze_chapters
-	@python3 -m ebook_pipeline.utils.continuity_check
-	@python3 -m ebook_pipeline.utils.character_tracker --all
-	@python3 -m ebook_pipeline.utils.generate_context
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.analyze_chapters
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.continuity_check
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.character_tracker --all
+	@PYTHONPATH=src python3 -m ebook_pipeline.utils.generate_context
 	@echo "$(GREEN)✓ Contexto completamente atualizado!$(NC)"
 
 .PHONY: context-backup

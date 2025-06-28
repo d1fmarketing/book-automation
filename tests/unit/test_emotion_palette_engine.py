@@ -6,9 +6,9 @@ import pytest
 import sys
 import os
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from ebook_pipeline.agents.emotion_palette import EmotionPaletteEngine, EmotionProfile
+# Add src to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from src.ebook_pipeline.agents.emotion_palette import EmotionPaletteEngine, EmotionProfile
 
 
 class TestEmotionPaletteEngine:
@@ -149,6 +149,66 @@ class TestEmotionPaletteEngine:
         palette, mood = engine.get_palette_for_emotion('unknown')
         assert palette == engine.NEUTRAL_PALETTE
         assert mood == 'balanced'
+    
+    def test_emotion_coverage(self, engine):
+        """Test that all defined emotions can be detected"""
+        test_cases = {
+            'peaceful': "A peaceful and calm meditation space",
+            'energetic': "An energetic and vibrant celebration",
+            'mysterious': "A mysterious shadowy figure",
+            'romantic': "A romantic candlelit dinner",
+            'tense': "A tense and threatening atmosphere",
+            'joyful': "A joyful and happy gathering",
+            'melancholic': "A melancholic and sad farewell",
+            'natural': "A natural forest landscape",
+            'luxurious': "A luxurious and elegant ballroom",
+            'ethereal': "An ethereal dreamlike fantasy"
+        }
+        
+        for expected_emotion, text in test_cases.items():
+            emotion, _, _ = engine.detect_emotion(text)
+            assert emotion == expected_emotion, f"Failed to detect {expected_emotion} in: {text}"
+    
+    def test_empty_color_list_formatting(self, engine):
+        """Test formatting empty color list"""
+        assert engine.format_colors_for_prompt([]) == ""
+        assert engine.format_colors_for_prompt(None) == ""
+    
+    def test_emotional_density_calculation(self, engine):
+        """Test that emotional density increases with more keywords"""
+        text_low = "A simple scene"
+        text_medium = "A peaceful scene"
+        text_high = "A very peaceful, calm, serene and tranquil scene"
+        
+        analysis_low = engine.analyze_text_emotions(text_low)
+        analysis_medium = engine.analyze_text_emotions(text_medium)
+        analysis_high = engine.analyze_text_emotions(text_high)
+        
+        assert analysis_low['emotional_density'] == 0
+        assert analysis_medium['emotional_density'] > 0
+        assert analysis_high['emotional_density'] > analysis_medium['emotional_density']
+    
+    def test_keywords_found_deduplication(self, engine):
+        """Test that duplicate keywords are deduplicated in results"""
+        text = "A peaceful peaceful peaceful scene"  # Repeated keyword
+        analysis = engine.analyze_text_emotions(text)
+        
+        # Should only appear once in keywords_found
+        assert analysis['keywords_found'].count('peaceful') == 1
+    
+    def test_brand_variations(self, engine):
+        """Test different brand-related keywords"""
+        brand_texts = [
+            "Our brand new product",
+            "Corporate headquarters building",
+            "Company annual report cover"
+        ]
+        
+        for text in brand_texts:
+            emotion, palette, mood = engine.detect_emotion(text)
+            assert emotion == 'brand'
+            assert palette == engine.BRAND_COLORS
+            assert mood == 'professional'
 
 
 if __name__ == "__main__":

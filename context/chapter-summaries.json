@@ -11,14 +11,14 @@
   },
   "chapter_1": {
     "title": "Chapter Title Here",
-    "summary": "# Chapter 1: Title Here\n\nStart your chapter content here. . .",
+    "summary": "Start your chapter content here. . .",
     "characters": [
       "Section"
     ],
     "locations": [],
-    "word_count": 36,
+    "word_count": 32,
     "first_line": "Start your chapter content here...",
-    "last_line": "*End of Chapter*",
+    "last_line": "End of Chapter",
     "key_events": []
   }
 }
