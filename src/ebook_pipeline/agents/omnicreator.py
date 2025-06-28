@@ -125,7 +125,7 @@ class OmniCreator:
 
     def generate_ebook(self, chapters: List[Path]) -> Tuple[Optional[str], Optional[str]]:
         """Generate EPUB and PDF from chapters"""
-        from agents.book_builder import BookBuilder
+        from ebook_pipeline.agents.book_builder import BookBuilder
 
         builder = BookBuilder(self.config)
 
@@ -141,7 +141,7 @@ class OmniCreator:
 
     def create_landing_page(self) -> Optional[str]:
         """Create and deploy landing page"""
-        from agents.landing_page_builder import LandingPageBuilder
+        from ebook_pipeline.agents.landing_page_builder import LandingPageBuilder
 
         builder = LandingPageBuilder(self.config)
 

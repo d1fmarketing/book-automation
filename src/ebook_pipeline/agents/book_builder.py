@@ -62,7 +62,7 @@ class BookBuilder:
                 "--from", "markdown",
                 "--to", "epub3",
                 "--metadata-file", str(metadata_path),
-                "--epub-stylesheet", "assets/css/epub-styles.css",
+                "--css", "assets/css/epub-styles.css",
                 "--output", str(epub_path)
             ]
 

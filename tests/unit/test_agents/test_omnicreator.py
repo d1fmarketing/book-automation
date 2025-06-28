@@ -182,9 +182,9 @@ class TestOmniCreator:
         
         # Mock the imports within the method
         mock_agent_module = Mock()
-        mock_agent_module.ImagePromptAgent = Mock
+        mock_agent_module.ImagePromptAgent = Mock()
         mock_gen_module = Mock()
-        mock_gen_module.ImageGenerator = Mock
+        mock_gen_module.ImageGenerator = Mock()
         
         with patch.dict('sys.modules', {
             'ebook_pipeline.agents.image_prompt_agent': mock_agent_module,
@@ -205,7 +205,7 @@ class TestOmniCreator:
         """Test ebook generation"""
         chapters = [Path("chapter1.md")]
         
-        with patch('src.ebook_pipeline.agents.book_builder.BookBuilder') as mock_builder_class:
+        with patch('ebook_pipeline.agents.book_builder.BookBuilder') as mock_builder_class:
             mock_builder = Mock()
             mock_builder.create_epub.return_value = "dist/test-book.epub"
             mock_builder.create_pdf.return_value = "dist/test-book.pdf"
@@ -221,7 +221,7 @@ class TestOmniCreator:
     
     def test_create_landing_page(self, creator):
         """Test landing page creation"""
-        with patch('src.ebook_pipeline.agents.landing_page_builder.LandingPageBuilder') as mock_builder_class:
+        with patch('ebook_pipeline.agents.landing_page_builder.LandingPageBuilder') as mock_builder_class:
             mock_builder = Mock()
             mock_builder.create_page.return_value = {'page': 'data'}
             mock_builder.deploy.return_value = "https://books.example.com/test-book"
