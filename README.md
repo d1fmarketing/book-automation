@@ -49,19 +49,36 @@ cp chapters/chapter-template.md chapters/chapter-01-my-story.md
 make all
 ```
 
-### Agent CLI Pipeline Flow
+### Agent CLI Pipeline Flow with MCP Visual QA
 
 1. **Writer**: `agentcli call writer --model $AGENT_CLI_TEXT_MODEL --outline outline.yaml --context context/CONTEXT.md --out chapters/`
 2. **Image**: `agentcli call ideogram --md chapters/ --palette emotion --out assets/images/`
-3. **Build**: `agentcli call builder --md chapters/ --img assets/images/ --css templates/pdf-standard.css --out build/dist/`
-4. **Infinite QA Loop**:
+3. **Build**: `agentcli call builder --md chapters/ --img assets/images/ --css templates/pdf-standard.css --out build/dist/ --save-html build/tmp/ebook.html`
+4. **MCP Visual QA Loop** (literal "eyes on the page"):
    ```bash
    while true; do
-       agentcli call qa --pdf build/dist/ebook.pdf --epub build/dist/ebook.epub
+       # MCP browser automation checks both HTML (fast DOM) and PDF (print geometry)
+       mcp start --session qa --browser chromium
+       mcp qa navigate "build/tmp/ebook.html"
+       mcp qa assert font-size between 11.5pt 14pt
+       mcp qa assert line-height between 1.3 1.6
+       mcp qa assert contrast-ratio min 4.5
+       mcp qa navigate "build/dist/ebook.pdf"
+       mcp qa assert page-bleed within 3mm
        [ $? -eq 0 ] && break
-       agentcli call builder --tweak next   # adjusts preset
+       
+       # Builder reads qa/last_fail.json and tweaks layout
+       agentcli call builder --tweak next
    done
    ```
+
+### MCP Integration Benefits
+
+- **Real Browser Rendering**: MCP drives Chromium to render every pixel
+- **Visual Assertions**: Checks typography, contrast, layout with actual eyes
+- **Dual Validation**: HTML for fast DOM checks, PDF for print geometry
+- **Smart Retries**: Failure reports guide which preset to try next
+- **Screenshot Evidence**: Captures visual proof of any failures
 
 ## 🚀 Features
 

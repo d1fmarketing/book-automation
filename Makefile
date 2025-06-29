@@ -222,8 +222,8 @@ writer:
 
 .PHONY: builder
 builder:
-	@echo "$(BLUE)[BUILDER]$(NC) Building PDF/EPUB with Agent CLI..."
-	@agentcli call builder \
+	@echo "$(BLUE)[BUILDER]$(NC) Building PDF/EPUB with Agent CLI (+ HTML for MCP)..."
+	@scripts/agentcli-builder-wrapper.sh \
 		--md chapters/ \
 		--img assets/images/ \
 		--css templates/pdf-standard.css \
@@ -231,18 +231,27 @@ builder:
 
 .PHONY: qa
 qa:
-	@echo "$(YELLOW)[QA]$(NC) Running infinite QA loop until perfect..."
-	@while true; do \
-		agentcli call qa \
-			--pdf build/dist/ebook.pdf \
-			--epub build/dist/ebook.epub; \
+	@echo "$(YELLOW)[QA]$(NC) Running MCP visual QA loop until perfect..."
+	@PDF=build/dist/ebook.pdf; \
+	HTML=build/tmp/ebook.html; \
+	if [ ! -f "$$HTML" ]; then \
+		echo "$(RED)❌ HTML not found. Run 'make builder' first$(NC)"; \
+		exit 1; \
+	fi; \
+	while true; do \
+		scripts/agentcli-qa-wrapper.sh --pdf $$PDF --epub build/dist/ebook.epub; \
 		if [ $$? -eq 0 ]; then \
-			echo "$(GREEN)✅ QA PASSED$(NC)"; \
+			echo "$(GREEN)✅ QA PASSED - All visual checks green!$(NC)"; \
 			break; \
 		fi; \
-		echo "$(YELLOW)🔧 QA failed, tweaking layout...$(NC)"; \
-		agentcli call builder --tweak next; \
+		echo "$(YELLOW)🔧 QA failed, tweaking layout based on report...$(NC)"; \
+		scripts/agentcli-builder-wrapper.sh --tweak next; \
 	done
+
+.PHONY: qa-single
+qa-single:
+	@echo "$(BLUE)[QA]$(NC) Running single MCP visual QA pass..."
+	@scripts/mcp-qa-runner.sh build/dist/ebook.pdf build/tmp/ebook.html
 
 # ===== VALIDAÇÃO E SETUP =====
 

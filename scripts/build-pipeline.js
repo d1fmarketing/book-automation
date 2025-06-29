@@ -134,16 +134,15 @@ class PipelineOrchestrator {
         if (!imageSuccess) return this.handleFailure('image');
 
         // Phase 3: Build Agent - Generate PDF/EPUB via Agent CLI
-        const cssTemplate = this.getCurrentCssTemplate();
+        // Use our wrapper to ensure HTML is also generated for MCP
         const buildSuccess = await this.executePhase(
             'build',
-            'agentcli',
-            ['call', 'builder',
-             '--md', 'chapters/',
+            path.join(__dirname, 'agentcli-builder-wrapper.sh'),
+            ['--md', 'chapters/',
              '--img', 'assets/images/',
-             '--css', cssTemplate,
+             '--css', this.getCurrentCssTemplate(),
              '--out', 'build/dist/'],
-            'Agent CLI Builder - Generating PDF/EPUB'
+            'Agent CLI Builder - Generating PDF/EPUB with HTML'
         );
         if (!buildSuccess) return this.handleFailure('build');
 
@@ -160,13 +159,13 @@ class PipelineOrchestrator {
                 return this.runPipeline();
             }
 
+            // Use our MCP-enabled QA wrapper
             const qaSuccess = await this.executePhase(
                 'qa',
-                'agentcli',
-                ['call', 'qa',
-                 '--pdf', pdfPath,
+                path.join(__dirname, 'agentcli-qa-wrapper.sh'),
+                ['--pdf', pdfPath,
                  '--epub', epubPath],
-                `QA Agent - Attempt ${this.pipelineState.qaRetries + 1}`
+                `MCP Visual QA - Attempt ${this.pipelineState.qaRetries + 1}`
             );
 
             if (qaSuccess) {
@@ -178,16 +177,30 @@ class PipelineOrchestrator {
             this.pipelineState.qaRetries++;
             console.log(`\n🔧 QA failed. Tweaking layout preset and rebuilding...`);
             
-            // Move to next preset
-            this.currentPreset = (this.currentPreset + 1) % this.layoutPresets.length;
+            // Analyze failure report to determine next preset
+            let failureDetails = 'general';
+            try {
+                const reportPath = path.join(__dirname, '..', 'qa', 'last_fail.json');
+                if (fs.existsSync(reportPath)) {
+                    const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+                    // Determine which aspect failed most
+                    const failures = report.checks.filter(c => !c.passed);
+                    if (failures.some(f => f.name.includes('font'))) failureDetails = 'font';
+                    else if (failures.some(f => f.name.includes('line-height'))) failureDetails = 'spacing';
+                    else if (failures.some(f => f.name.includes('blank'))) failureDetails = 'layout';
+                }
+            } catch (e) {
+                console.log('Could not read QA report, using sequential preset');
+            }
+            
+            console.log(`Failure type: ${failureDetails}`);
             
             // Rebuild with new preset
             const rebuildSuccess = await this.executePhase(
                 'build',
-                'agentcli',
-                ['call', 'builder',
-                 '--tweak', 'next'],
-                `Rebuild with preset ${this.currentPreset + 1}`
+                path.join(__dirname, 'agentcli-builder-wrapper.sh'),
+                ['--tweak', 'next'],
+                `Rebuild with next preset based on ${failureDetails} failure`
             );
             
             if (!rebuildSuccess) {
