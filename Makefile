@@ -48,6 +48,13 @@ help:
 	@echo "  $(BLUE)make find$(NC) QUERY=\"texto\" - Buscar referências"
 	@echo "  $(BLUE)make track-character$(NC) NAME=\"Nome\" - Rastrear personagem"
 	@echo "  $(BLUE)make context-update$(NC) - Atualizar arquivos de contexto"
+	@echo ""
+	@echo "Comandos AI para escrita automatizada:"
+	@echo "  $(BLUE)make ai-plan$(NC)        - Gerar outline completo do livro com AI"
+	@echo "  $(BLUE)make ai-write$(NC) N=1   - Escrever capítulo específico com AI"
+	@echo "  $(BLUE)make ai-write-next$(NC)  - Escrever próximo capítulo pendente"
+	@echo "  $(BLUE)make ai-research$(NC) QUERY=\"tema\" - Pesquisar sobre tema"
+	@echo "  $(BLUE)make ai-book-complete$(NC) - Pipeline completo: planeja e escreve tudo"
 
 .PHONY: init
 init:
@@ -189,6 +196,42 @@ context-backup:
 	@# Manter apenas os últimos 5 backups
 	@ls -t backups/context-*.tar.gz 2>/dev/null | tail -n +6 | xargs -r rm -f
 	@echo "$(BLUE)Backups mantidos: $(shell ls backups/context-*.tar.gz 2>/dev/null | wc -l)$(NC)"
+
+# ===== AI WRITING COMMANDS =====
+
+.PHONY: ai-plan
+ai-plan:
+	@echo "$(GREEN)[AI-PLAN]$(NC) Generating book outline with AI..."
+	@PYTHONPATH=src python3 -m ebook_pipeline.agents.master_orchestrator plan
+
+.PHONY: ai-write
+ai-write:
+	@echo "$(GREEN)[AI-WRITE]$(NC) Writing chapter $(N) with AI..."
+	@if [ -z "$(N)" ]; then \
+		echo "$(RED)Error: Chapter number required. Use: make ai-write N=1$(NC)"; \
+		exit 1; \
+	fi
+	@PYTHONPATH=src python3 -m ebook_pipeline.agents.master_orchestrator write --chapter=$(N)
+
+.PHONY: ai-write-next
+ai-write-next:
+	@echo "$(GREEN)[AI-WRITE]$(NC) Writing next chapter with AI..."
+	@PYTHONPATH=src python3 -m ebook_pipeline.agents.master_orchestrator write-next
+
+.PHONY: ai-research
+ai-research:
+	@echo "$(BLUE)[AI-RESEARCH]$(NC) Researching topic..."
+	@if [ -z "$(QUERY)" ]; then \
+		echo "$(RED)Error: Query required. Use: make ai-research QUERY=\"your topic\"$(NC)"; \
+		exit 1; \
+	fi
+	@PYTHONPATH=src python3 -m ebook_pipeline.agents.research_agent --query="$(QUERY)"
+
+.PHONY: ai-book-complete
+ai-book-complete:
+	@echo "$(GREEN)🚀 [AI-COMPLETE]$(NC) Running complete AI book pipeline..."
+	@PYTHONPATH=src python3 -m ebook_pipeline.agents.master_orchestrator complete
+	@echo "$(GREEN)🎉 AI book generation complete!$(NC)"
 
 # ===== VALIDAÇÃO E SETUP =====
 

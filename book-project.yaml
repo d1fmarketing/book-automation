@@ -1,0 +1,159 @@
+# 📚 Book Project Configuration
+# Configure your AI-powered book project here
+
+project:
+  title: "Como Investir em Criptomoedas para Iniciantes"
+  subtitle: "O Guia Definitivo para Entrar no Mundo Crypto com Segurança"
+  author: "Seu Nome"
+  language: "pt-BR"  # en, pt-BR, es, etc.
+  
+# 🎯 Target Audience Definition
+target_audience:
+  age_range: [25, 45]
+  knowledge_level: "beginner"  # beginner, intermediate, advanced
+  interests:
+    - "investimentos"
+    - "tecnologia"
+    - "independência financeira"
+    - "inovação"
+  pain_points:
+    - "Medo de perder dinheiro com crypto"
+    - "Complexidade técnica das criptomoedas"
+    - "Não saber por onde começar"
+    - "Preocupação com segurança e golpes"
+    
+# 📖 Book Specifications
+book_specs:
+  chapters: 12
+  words_per_chapter: 3000
+  total_words: 36000
+  include_exercises: true
+  include_summaries: true
+  include_glossary: true
+  
+# ✍️ Writing Style
+style:
+  tone: "amigável e profissional"  # casual, professional, academic, friendly
+  approach: "prático com exemplos reais"
+  features:
+    - step_by_step_tutorials
+    - real_case_studies
+    - exercises_per_chapter
+    - visual_aids
+    - quick_tips
+    - warning_boxes
+    - success_stories
+  writing_guidelines:
+    - "Use analogias simples para conceitos complexos"
+    - "Sempre inclua exemplos práticos"
+    - "Evite jargão técnico desnecessário"
+    - "Foque em ações práticas"
+    
+# 💰 Monetization Strategy
+monetization:
+  price_point: "R$ 97,00"
+  value_propositions:
+    - "Economize milhares evitando erros comuns de iniciantes"
+    - "ROI potencial de 10x o valor do livro no primeiro ano"
+    - "Acesso a comunidade exclusiva de investidores"
+    - "Atualizações gratuitas por 1 ano"
+  sales_channels:
+    - "Amazon KDP"
+    - "Hotmart"
+    - "Site próprio"
+  bonuses:
+    - "Planilha de controle de investimentos"
+    - "Checklist de segurança crypto"
+    - "Guia de impostos para crypto"
+    
+# 🔍 Research Sources
+research_sources:
+  - type: "web"
+    topics:
+      - "cryptocurrency basics 2024"
+      - "bitcoin investment strategies"
+      - "crypto security best practices"
+      - "DeFi for beginners"
+      - "crypto taxation Brazil"
+  - type: "github"
+    repos:
+      - "awesome-cryptocurrency"
+      - "defi-toolkit"
+      - "blockchain-basics"
+  - type: "statistics"
+    sources:
+      - "coinmarketcap"
+      - "glassnode"
+      - "defillama"
+      - "messari"
+  - type: "news"
+    sources:
+      - "cointelegraph"
+      - "decrypt"
+      - "coindesk"
+      
+# 📚 Chapter Outline (AI will expand this)
+chapters_outline:
+  - number: 1
+    title: "Por Que Criptomoedas São o Futuro do Dinheiro"
+    focus: "Motivação e visão geral"
+    
+  - number: 2
+    title: "Blockchain: A Tecnologia Por Trás das Criptos"
+    focus: "Fundamentos técnicos simplificados"
+    
+  - number: 3
+    title: "Bitcoin: O Ouro Digital"
+    focus: "Primeira criptomoeda explicada"
+    
+  - number: 4
+    title: "Altcoins: Além do Bitcoin"
+    focus: "Ethereum, stablecoins e outras"
+    
+  - number: 5
+    title: "Como Comprar Sua Primeira Cripto"
+    focus: "Tutorial passo a passo"
+    
+  - number: 6
+    title: "Carteiras Digitais: Guardando Suas Criptos"
+    focus: "Segurança e tipos de carteiras"
+    
+  - number: 7
+    title: "Estratégias de Investimento"
+    focus: "DCA, HODL, trading básico"
+    
+  - number: 8
+    title: "DeFi: O Banco do Futuro"
+    focus: "Finanças descentralizadas"
+    
+  - number: 9
+    title: "NFTs e o Metaverso"
+    focus: "Novos casos de uso"
+    
+  - number: 10
+    title: "Segurança: Protegendo Seus Investimentos"
+    focus: "Evitando golpes e hacks"
+    
+  - number: 11
+    title: "Impostos e Regulamentação"
+    focus: "Aspectos legais"
+    
+  - number: 12
+    title: "Plano de Ação: Seus Próximos Passos"
+    focus: "Implementação prática"
+    
+# 🎨 Visual Elements
+visuals:
+  images_per_chapter: 2
+  style: "modern, clean, professional"
+  color_palette:
+    - "#FF6B00"  # Bitcoin orange
+    - "#627EEA"  # Ethereum blue  
+    - "#1A1A1A"  # Dark background
+    - "#FFFFFF"  # White
+  include_elements:
+    - infographics
+    - charts
+    - screenshots
+    - diagrams
+    - comparison_tables
