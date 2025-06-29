@@ -1,0 +1,44 @@
+# Pipeline Configuration - Agent CLI Edition
+# NO local LLMs, NO SDKs - Pure Agent CLI remote calls
+
+text_model: ${AGENT_CLI_TEXT_MODEL}
+image_provider: ideogram
+
+qa_thresholds:
+  font_min_pt: 11.5
+  font_max_pt: 14
+  contrast_ratio: 4.5
+  line_height_min: 1.3
+  line_height_max: 1.6
+  max_blank_space: 50  # percentage
+
+layout_presets: presets/layout-presets.yaml
+
+# Agent CLI specific settings
+agent_cli:
+  retry_on_failure: true
+  max_retries: 3
+  timeout: 600  # seconds per call
+
+# Image generation settings
+ideogram:
+  parallelism: 5
+  cache_enabled: true
+  emotion_palette: true
+  cost_per_image: 0.08
+
+# Build settings
+build:
+  pdf_enabled: true
+  epub_enabled: true
+  compress_images: true
+  max_image_width: 1600
+  embed_fonts: true
+
+# Logging
+logging:
+  level: info
+  format: json
+  directory: logs/
+  rotate_size: 10MB
+  keep_count: 3

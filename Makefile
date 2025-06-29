@@ -49,12 +49,16 @@ help:
 	@echo "  $(BLUE)make track-character$(NC) NAME=\"Nome\" - Rastrear personagem"
 	@echo "  $(BLUE)make context-update$(NC) - Atualizar arquivos de contexto"
 	@echo ""
+	@echo "Comandos de Pipeline:"
+	@echo "  $(BLUE)make pipeline$(NC)       - Execute complete Agent CLI pipeline"
+	@echo "  $(BLUE)make writer$(NC)         - Run Agent CLI writer"
+	@echo "  $(BLUE)make images$(NC)         - Run Agent CLI Ideogram"
+	@echo "  $(BLUE)make builder$(NC)        - Run Agent CLI builder"
+	@echo "  $(BLUE)make qa$(NC)             - Run Agent CLI QA (loops until perfect)"
+	@echo ""
 	@echo "Comandos AI para escrita automatizada:"
-	@echo "  $(BLUE)make ai-plan$(NC)        - Gerar outline completo do livro com AI"
-	@echo "  $(BLUE)make ai-write$(NC) N=1   - Escrever capítulo específico com AI"
-	@echo "  $(BLUE)make ai-write-next$(NC)  - Escrever próximo capítulo pendente"
-	@echo "  $(BLUE)make ai-research$(NC) QUERY=\"tema\" - Pesquisar sobre tema"
-	@echo "  $(BLUE)make ai-book-complete$(NC) - Pipeline completo: planeja e escreve tudo"
+	@echo "  $(BLUE)make writer$(NC)         - Generate chapters with Agent CLI"
+	@echo "  $(BLUE)make pipeline$(NC)       - Run complete Agent CLI pipeline"
 
 .PHONY: init
 init:
@@ -69,25 +73,28 @@ init:
 
 .PHONY: pdf
 pdf:
-	@node scripts/generate-pdf-puppeteer.js
+	@echo "$(BLUE)[BUILD]$(NC) Generating PDF via Agent CLI..."
+	@agentcli call builder \
+		--md chapters/ \
+		--img assets/images/ \
+		--css templates/pdf-standard.css \
+		--out build/dist/
 
 .PHONY: epub
 epub:
 	@npm run build:epub
 
-.PHONY: generate-images
-generate-images:
-	@echo "$(BLUE)🎨 Ideogram v3 image pass...$(NC)"
-	@if [ -z "$$IDEOGRAM_API_KEY" ]; then \
-		echo "$(RED)❌ Error: IDEOGRAM_API_KEY not set!$(NC)"; \
-		echo "$(YELLOW)Set it with: export IDEOGRAM_API_KEY=ideogram_sk_live_...$(NC)"; \
-		exit 1; \
-	fi
-	@IDEOGRAM_API_KEY=$(IDEOGRAM_API_KEY) python3 $(SCRIPTS_DIR)/generate-images.py --skip-existing
+.PHONY: generate-images images
+generate-images images:
+	@echo "$(BLUE)🎨 Agent CLI Ideogram v3 image generation...$(NC)"
+	@agentcli call ideogram \
+		--md chapters/ \
+		--palette emotion \
+		--out assets/images/
 
 .PHONY: all
-all: clean wordcount generate-images pdf epub
-	@echo "$(GREEN)[BUILD]$(NC) Todos os formatos gerados!"
+all: clean wordcount images builder qa
+	@echo "$(GREEN)[BUILD]$(NC) All formats generated and QA passed!"
 
 .PHONY: omnicreator
 omnicreator:
@@ -197,41 +204,45 @@ context-backup:
 	@ls -t backups/context-*.tar.gz 2>/dev/null | tail -n +6 | xargs -r rm -f
 	@echo "$(BLUE)Backups mantidos: $(shell ls backups/context-*.tar.gz 2>/dev/null | wc -l)$(NC)"
 
-# ===== AI WRITING COMMANDS =====
+# ===== AGENT CLI PIPELINE =====
 
-.PHONY: ai-plan
-ai-plan:
-	@echo "$(GREEN)[AI-PLAN]$(NC) Generating book outline with AI..."
-	@PYTHONPATH=src python3 -m ebook_pipeline.agents.master_orchestrator plan
+.PHONY: pipeline
+pipeline:
+	@echo "$(GREEN)🚀 [PIPELINE]$(NC) Running complete Agent CLI pipeline..."
+	@node scripts/build-pipeline.js
 
-.PHONY: ai-write
-ai-write:
-	@echo "$(GREEN)[AI-WRITE]$(NC) Writing chapter $(N) with AI..."
-	@if [ -z "$(N)" ]; then \
-		echo "$(RED)Error: Chapter number required. Use: make ai-write N=1$(NC)"; \
-		exit 1; \
-	fi
-	@PYTHONPATH=src python3 -m ebook_pipeline.agents.master_orchestrator write --chapter=$(N)
+.PHONY: writer
+writer:
+	@echo "$(GREEN)[WRITER]$(NC) Generating chapters with Agent CLI..."
+	@agentcli call writer \
+		--model $(AGENT_CLI_TEXT_MODEL) \
+		--outline outline.yaml \
+		--context context/CONTEXT.md \
+		--out chapters/
 
-.PHONY: ai-write-next
-ai-write-next:
-	@echo "$(GREEN)[AI-WRITE]$(NC) Writing next chapter with AI..."
-	@PYTHONPATH=src python3 -m ebook_pipeline.agents.master_orchestrator write-next
+.PHONY: builder
+builder:
+	@echo "$(BLUE)[BUILDER]$(NC) Building PDF/EPUB with Agent CLI..."
+	@agentcli call builder \
+		--md chapters/ \
+		--img assets/images/ \
+		--css templates/pdf-standard.css \
+		--out build/dist/
 
-.PHONY: ai-research
-ai-research:
-	@echo "$(BLUE)[AI-RESEARCH]$(NC) Researching topic..."
-	@if [ -z "$(QUERY)" ]; then \
-		echo "$(RED)Error: Query required. Use: make ai-research QUERY=\"your topic\"$(NC)"; \
-		exit 1; \
-	fi
-	@PYTHONPATH=src python3 -m ebook_pipeline.agents.research_agent --query="$(QUERY)"
-
-.PHONY: ai-book-complete
-ai-book-complete:
-	@echo "$(GREEN)🚀 [AI-COMPLETE]$(NC) Running complete AI book pipeline..."
-	@PYTHONPATH=src python3 -m ebook_pipeline.agents.master_orchestrator complete
-	@echo "$(GREEN)🎉 AI book generation complete!$(NC)"
+.PHONY: qa
+qa:
+	@echo "$(YELLOW)[QA]$(NC) Running infinite QA loop until perfect..."
+	@while true; do \
+		agentcli call qa \
+			--pdf build/dist/ebook.pdf \
+			--epub build/dist/ebook.epub; \
+		if [ $$? -eq 0 ]; then \
+			echo "$(GREEN)✅ QA PASSED$(NC)"; \
+			break; \
+		fi; \
+		echo "$(YELLOW)🔧 QA failed, tweaking layout...$(NC)"; \
+		agentcli call builder --tweak next; \
+	done
 
 # ===== VALIDAÇÃO E SETUP =====
 

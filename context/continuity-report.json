@@ -1,35 +1,9 @@
 {
-  "timestamp": "2025-06-28T17:57:28.079091",
+  "timestamp": "2025-06-29T12:15:10.164467",
   "summary": {
     "errors": 0,
-    "warnings": 5
+    "warnings": 0
   },
   "errors": [],
-  "warnings": [
-    {
-      "type": "Possible Name Misspelling",
-      "severity": "WARNING",
-      "message": "Found similar names: 'chapters' and 'chapter' - could be a misspelling"
-    },
-    {
-      "type": "Possible Name Misspelling",
-      "severity": "WARNING",
-      "message": "Found similar names: 'format' and 'more' - could be a misspelling"
-    },
-    {
-      "type": "Possible Name Misspelling",
-      "severity": "WARNING",
-      "message": "Found similar names: 'each' and 'end' - could be a misspelling"
-    },
-    {
-      "type": "Possible Name Misspelling",
-      "severity": "WARNING",
-      "message": "Found similar names: 'use' and 'keep' - could be a misspelling"
-    },
-    {
-      "type": "Possible Name Misspelling",
-      "severity": "WARNING",
-      "message": "Found similar names: 'notes' and 'more' - could be a misspelling"
-    }
-  ]
+  "warnings": []
 }

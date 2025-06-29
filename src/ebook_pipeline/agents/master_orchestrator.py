@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import yaml
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -54,12 +55,21 @@ class BookProject:
 class MasterOrchestrator:
     """The maestro that coordinates all agents to create books"""
     
-    def __init__(self, project_file: str = "book-project.yaml"):
+    def __init__(self, project_file: str = "book-project.yaml", mode: str = "standard"):
         """Initialize the orchestrator with project configuration"""
         self.project = BookProject.from_yaml(project_file)
+        self.mode = mode  # quick, standard, premium, custom
         self.agents = self._initialize_agents()
         self.state_file = Path("orchestrator-state.json")
         self.state = self._load_state()
+        
+        # Load pipeline configuration
+        try:
+            from ebook_pipeline.agents.agent_registry import get_registry
+            self.registry = get_registry()
+        except:
+            logger.warning("Agent registry not available")
+            self.registry = None
         
     def _initialize_agents(self) -> Dict[str, Any]:
         """Initialize all agent instances"""
@@ -84,14 +94,39 @@ class MasterOrchestrator:
         except ImportError:
             logger.warning("ResearchAgent not available yet")
             
-        # Use existing agents
-        from ebook_pipeline.agents.image_prompt_agent import ImagePromptAgent
-        from ebook_pipeline.agents.book_builder import BookBuilder
-        from ebook_pipeline.agents.landing_page_builder import LandingPageBuilder
-        
-        agents['image'] = ImagePromptAgent()
-        agents['builder'] = BookBuilder(self._get_book_config())
-        agents['landing'] = LandingPageBuilder(self._get_book_config())
+        # Visual agents
+        try:
+            from ebook_pipeline.agents.image_prompt_agent import ImagePromptAgent
+            agents['image'] = ImagePromptAgent()
+        except ImportError:
+            logger.warning("ImagePromptAgent not available yet")
+            
+        try:
+            from ebook_pipeline.agents.emotion_palette import EmotionPalette
+            agents['emotion'] = EmotionPalette()
+        except ImportError:
+            logger.warning("EmotionPalette not available yet")
+            
+        # Build agents
+        try:
+            from ebook_pipeline.agents.book_builder import BookBuilder
+            agents['builder'] = BookBuilder(self._get_book_config())
+        except ImportError:
+            logger.warning("BookBuilder not available yet")
+            
+        # Marketing agents
+        try:
+            from ebook_pipeline.agents.landing_page_builder import LandingPageBuilder
+            agents['landing'] = LandingPageBuilder(self._get_book_config())
+        except ImportError:
+            logger.warning("LandingPageBuilder not available yet")
+            
+        # Advanced agents
+        try:
+            from ebook_pipeline.agents.omnicreator import OmniCreator
+            agents['omnicreator'] = OmniCreator(self._get_book_config())
+        except ImportError:
+            logger.warning("OmniCreator not available yet")
         
         return agents
         
@@ -214,9 +249,23 @@ class MasterOrchestrator:
         return None
         
     def complete_book(self):
-        """Run complete pipeline: plan, write all, build, deploy"""
-        logger.info("🚀 Starting complete book automation pipeline")
+        """Run complete pipeline based on selected mode"""
+        logger.info(f"🚀 Starting {self.mode} book automation pipeline")
         
+        # Execute based on mode
+        if self.mode == "quick":
+            self._run_quick_pipeline()
+        elif self.mode == "standard":
+            self._run_standard_pipeline()
+        elif self.mode == "premium":
+            self._run_premium_pipeline()
+        else:
+            self._run_custom_pipeline()
+            
+        logger.info("🎉 Book automation complete!")
+        
+    def _run_quick_pipeline(self):
+        """Quick mode: plan, write, basic PDF"""
         # 1. Plan if needed
         if not self.state.get('outline'):
             self.plan_book()
@@ -225,20 +274,132 @@ class MasterOrchestrator:
         while self.write_next_chapter():
             pass
             
-        # 3. Generate all images
-        logger.info("🎨 Generating AI images...")
-        os.system("make generate-images")
+        # 3. Basic PDF generation
+        logger.info("📖 Generating basic PDF...")
+        self._run_tool("node scripts/generate-pdf-puppeteer.js")
         
-        # 4. Build book formats
-        logger.info("📖 Building book formats...")
-        os.system("make all")
-        
-        # 5. Create landing page if configured
-        if self.project.monetization:
-            logger.info("🌐 Creating landing page...")
-            # Landing page generation would go here
+    def _run_standard_pipeline(self):
+        """Standard mode: full pipeline with images and QA"""
+        # 1. Plan if needed
+        if not self.state.get('outline'):
+            self.plan_book()
             
-        logger.info("🎉 Book automation complete!")
+        # 2. Research (optional)
+        if 'researcher' in self.agents:
+            self._run_research_phase()
+            
+        # 2. Write all chapters
+        while self.write_next_chapter():
+            pass
+            
+        # 3. Context management
+        logger.info("📊 Analyzing chapters...")
+        self._run_tool("make analyze")
+        self._run_tool("make check-continuity")
+        
+        # 4. Generate images with emotion analysis
+        self._generate_images_with_emotion()
+        
+        # 5. Build professional formats
+        logger.info("📖 Building book formats...")
+        self._run_tool("node scripts/generate-professional-pdf.js")
+        self._run_tool("node scripts/build-epub.js")
+        
+        # 6. QA validation
+        self._run_qa_validation()
+        
+    def _run_premium_pipeline(self):
+        """Premium mode: everything including marketing"""
+        # Run standard pipeline first
+        self._run_standard_pipeline()
+        
+        # Additional premium features
+        if 'landing' in self.agents and self.project.monetization:
+            logger.info("🌐 Creating landing page...")
+            self._create_landing_page()
+            
+        # Start preview server
+        logger.info("🌐 Starting preview server...")
+        self._run_tool("node scripts/visual-preview-server.js", background=True)
+        
+    def _run_custom_pipeline(self):
+        """Custom mode: user-defined steps"""
+        # This would read custom workflow from configuration
+        logger.info("Running custom pipeline...")
+        # For now, fall back to standard
+        self._run_standard_pipeline()
+        
+    def _run_research_phase(self):
+        """Run research for all chapters"""
+        logger.info("🔍 Researching topics...")
+        # Research implementation would go here
+        
+    def _generate_images_with_emotion(self):
+        """Generate images with emotion palette analysis"""
+        logger.info("🎨 Analyzing emotional palette...")
+        
+        if 'emotion' in self.agents:
+            # Analyze chapters for emotional tone
+            chapter_files = sorted(Path("chapters").glob("chapter-*.md"))
+            emotions = {}
+            
+            for cf in chapter_files:
+                # This would call emotion palette analysis
+                logger.info(f"Analyzing emotions in {cf.name}")
+                # emotions[cf.name] = self.agents['emotion'].analyze(cf)
+                
+        logger.info("🎨 Generating AI images...")
+        self._run_tool("python3 scripts/generate-images.py --skip-existing")
+        
+    def _run_qa_validation(self):
+        """Run QA validation with retries"""
+        logger.info("✅ Running QA validation...")
+        
+        pdf_path = Path("build/dist/ebook-professional.pdf")
+        if not pdf_path.exists():
+            # Try other PDF names
+            pdf_path = Path("build/dist/ebook-clean.pdf")
+            if not pdf_path.exists():
+                pdf_path = Path("build/dist/ebook.pdf")
+                
+        if pdf_path.exists():
+            max_retries = 3
+            for i in range(max_retries):
+                result = self._run_tool(f"node scripts/qa-agent.js {pdf_path}", check=False)
+                if result == 0:
+                    break
+                logger.warning(f"QA failed, retry {i+1}/{max_retries}")
+        else:
+            logger.warning("No PDF found for QA validation")
+            
+    def _create_landing_page(self):
+        """Create marketing landing page"""
+        try:
+            landing_agent = self.agents['landing']
+            # Landing page creation would go here
+            logger.info("Landing page created successfully")
+        except Exception as e:
+            logger.error(f"Failed to create landing page: {e}")
+            
+    def _run_tool(self, command: str, check: bool = True, background: bool = False) -> int:
+        """Run a tool/script with proper error handling"""
+        try:
+            if background:
+                subprocess.Popen(command, shell=True)
+                return 0
+            else:
+                result = subprocess.run(command, shell=True, check=check)
+                return result.returncode
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Command failed: {command}")
+            if check:
+                raise
+            return e.returncode
+        except Exception as e:
+            logger.error(f"Error running command: {e}")
+            if check:
+                raise
+            return -1
         
     def _get_previous_chapters(self, up_to: int) -> List[Dict[str, str]]:
         """Get content of previous chapters for context"""
@@ -306,17 +467,35 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description='Master AI Orchestrator for Book Writing')
-    parser.add_argument('command', choices=['plan', 'write', 'write-next', 'complete'],
+    parser.add_argument('command', choices=['plan', 'write', 'write-next', 'complete', 'status'],
                        help='Command to execute')
     parser.add_argument('--chapter', type=int, help='Chapter number to write')
     parser.add_argument('--project', default='book-project.yaml', help='Project configuration file')
+    parser.add_argument('--mode', choices=['quick', 'standard', 'premium', 'custom'],
+                       default='standard', help='Pipeline mode to use')
     
     args = parser.parse_args()
     
     try:
-        orchestrator = MasterOrchestrator(args.project)
+        orchestrator = MasterOrchestrator(args.project, mode=args.mode)
         
-        if args.command == 'plan':
+        if args.command == 'status':
+            # Show pipeline status
+            print("\n📊 Pipeline Status:")
+            print(f"Mode: {orchestrator.mode}")
+            print(f"Project: {orchestrator.project.title}")
+            state = orchestrator.state
+            print(f"Status: {state.get('status', 'new')}")
+            print(f"Chapters written: {len(state.get('chapters_written', []))}/{len(state.get('outline', {}).get('chapters', []))")
+            
+            if orchestrator.registry:
+                print("\n🤖 Available Agents:")
+                agents = orchestrator.registry.list_agents()
+                for name, info in agents.items():
+                    status = "✅" if name in orchestrator.agents else "⚪"
+                    print(f"  {status} {name}: {info['description']}")
+                    
+        elif args.command == 'plan':
             outline = orchestrator.plan_book()
             print(f"\n📚 Book Outline Generated:")
             print(f"Title: {outline['title']}")

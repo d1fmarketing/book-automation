@@ -1,10 +1,18 @@
-# 📚 book-automation - Professional eBook Automation Pipeline
+# 📚 book-automation - Professional eBook Automation Pipeline (Agent CLI Edition)
 
-A comprehensive automation pipeline for generating professional-quality eBooks from Markdown chapters, with AI-powered image generation, context management, and multi-format output support.
+A comprehensive automation pipeline for generating professional-quality eBooks from Markdown chapters, with AI-powered image generation, context management, and multi-format output support. All generation tasks run through Agent CLI remote endpoints - NO local LLMs or SDKs.
 
-## 🚀 Quick Start v1.0
+## 🟥 AGENT CLI ONLY - NO LOCAL LLMs, NO SDKs
 
-### Using the Full Pipeline (Recommended)
+### 🔒 Hard Rules
+
+• No OpenAI text calls
+• No local model installs
+• No SDK or token juggling—Agent CLI already handles auth, billing, retries
+• QA loops forever until perfect
+• Fatal-error if anything's missing
+
+### 🚀 Quick Start - Agent CLI Edition
 
 ```bash
 # Clone the repository
@@ -14,15 +22,17 @@ cd book-automation
 # Initialize the environment
 make init
 
-# Set up your API keys
-cp .env.example .env
-# Edit .env with your IDEOGRAM_API_KEY and OPENAI_API_KEY
+# Set your Agent CLI text model
+export AGENT_CLI_TEXT_MODEL=claude-3-opus
 
-# Run the complete pipeline (Writer → Image → Build → QA)
-npm run build:pipeline
+# Run the complete Agent CLI pipeline
+make pipeline
 
-# Or use Docker for consistent environment
-docker-compose up
+# Or run individual steps:
+make writer    # Generate chapters via Agent CLI
+make images    # Generate images via Agent CLI Ideogram
+make builder   # Build PDF/EPUB via Agent CLI
+make qa        # Run infinite QA loop until perfect
 ```
 
 ### Manual Workflow
@@ -39,13 +49,19 @@ cp chapters/chapter-template.md chapters/chapter-01-my-story.md
 make all
 ```
 
-### Pipeline Features (v1.0)
+### Agent CLI Pipeline Flow
 
-- **🤖 Automated Pipeline**: Complete book generation with `npm run build:pipeline`
-- **🔄 MCP Visual Loop**: PDF validation with browser-based visualization
-- **🔁 Smart Retries**: Up to 3 attempts with visual corrections
-- **🐳 Docker Support**: Consistent builds across environments
-- **📊 State Tracking**: Pipeline progress saved in `pipeline-state.json`
+1. **Writer**: `agentcli call writer --model $AGENT_CLI_TEXT_MODEL --outline outline.yaml --context context/CONTEXT.md --out chapters/`
+2. **Image**: `agentcli call ideogram --md chapters/ --palette emotion --out assets/images/`
+3. **Build**: `agentcli call builder --md chapters/ --img assets/images/ --css templates/pdf-standard.css --out build/dist/`
+4. **Infinite QA Loop**:
+   ```bash
+   while true; do
+       agentcli call qa --pdf build/dist/ebook.pdf --epub build/dist/ebook.epub
+       [ $? -eq 0 ] && break
+       agentcli call builder --tweak next   # adjusts preset
+   done
+   ```
 
 ## 🚀 Features
 

@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
 /**
- * Build Pipeline v1.0 - Orchestrates the complete book generation pipeline
- * Flow: Writer → Image → Build → QA (with MCP visual loop)
+ * Build Pipeline v2.1 - Agent CLI Edition
+ * Flow: Writer → Image → Build → QA (infinite loop until perfect)
+ * NO local LLMs, NO SDKs - Pure Agent CLI commands only
  */
 
 const { spawn } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
+const yaml = require('js-yaml');
 
 class PipelineOrchestrator {
     constructor() {
-        this.maxRetries = 3;
-        this.currentRetry = 0;
         this.pipelineState = {
             status: 'starting',
             phases: {
@@ -22,8 +22,29 @@ class PipelineOrchestrator {
                 qa: { status: 'pending', output: null }
             },
             startTime: new Date().toISOString(),
-            errors: []
+            errors: [],
+            qaRetries: 0,
+            currentPreset: 0
         };
+        this.layoutPresets = [];
+        this.loadConfig();
+    }
+
+    loadConfig() {
+        try {
+            const configPath = path.join(__dirname, '..', 'pipeline-config.yaml');
+            if (fs.existsSync(configPath)) {
+                const config = yaml.load(fs.readFileSync(configPath, 'utf8'));
+                this.config = config;
+            }
+            
+            const presetsPath = path.join(__dirname, '..', 'presets', 'layout-presets.yaml');
+            if (fs.existsSync(presetsPath)) {
+                this.layoutPresets = yaml.load(fs.readFileSync(presetsPath, 'utf8'));
+            }
+        } catch (error) {
+            console.log('Config files not found, using defaults');
+        }
     }
 
     async runCommand(command, args = [], description = '') {
@@ -78,16 +99,21 @@ class PipelineOrchestrator {
         console.log('\n🤖 PIPELINE v1.0 - BOOK AUTOMATION SYSTEM');
         console.log('=' .repeat(50));
 
-        // Phase 1: Writer Agent (if chapters don't exist)
+        // Phase 1: Writer Agent via Agent CLI
         const chaptersExist = fs.existsSync(path.join(__dirname, '..', 'chapters')) && 
                             fs.readdirSync(path.join(__dirname, '..', 'chapters')).length > 0;
         
         if (!chaptersExist) {
+            const textModel = process.env.AGENT_CLI_TEXT_MODEL || 'claude-3-opus';
             const writerSuccess = await this.executePhase(
                 'writer',
-                'python3',
-                ['-m', 'ebook_pipeline.agents.ai_writer_agent'],
-                'AI Writer Agent - Generating chapters'
+                'agentcli',
+                ['call', 'writer', 
+                 '--model', textModel,
+                 '--outline', 'outline.yaml',
+                 '--context', 'context/CONTEXT.md',
+                 '--out', 'chapters/'],
+                'Agent CLI Writer - Generating chapters'
             );
             if (!writerSuccess) return this.handleFailure('writer');
         } else {
@@ -95,52 +121,77 @@ class PipelineOrchestrator {
             this.pipelineState.phases.writer.status = 'skipped';
         }
 
-        // Phase 2: Image Agent - Generate images with Ideogram
+        // Phase 2: Image Agent - Generate images with Ideogram via Agent CLI
         const imageSuccess = await this.executePhase(
             'image',
-            'make',
-            ['generate-images'],
-            'Image Agent - Generating AI images'
+            'agentcli',
+            ['call', 'ideogram',
+             '--md', 'chapters/',
+             '--palette', 'emotion',
+             '--out', 'assets/images/'],
+            'Agent CLI Ideogram - Generating AI images'
         );
         if (!imageSuccess) return this.handleFailure('image');
 
-        // Phase 3: Build Agent - Generate PDF/EPUB
+        // Phase 3: Build Agent - Generate PDF/EPUB via Agent CLI
+        const cssTemplate = this.getCurrentCssTemplate();
         const buildSuccess = await this.executePhase(
             'build',
-            'node',
-            ['scripts/generate-clean-pdf.js'],
-            'Build Agent - Generating PDF'
+            'agentcli',
+            ['call', 'builder',
+             '--md', 'chapters/',
+             '--img', 'assets/images/',
+             '--css', cssTemplate,
+             '--out', 'build/dist/'],
+            'Agent CLI Builder - Generating PDF/EPUB'
         );
         if (!buildSuccess) return this.handleFailure('build');
 
-        // Phase 4: QA Agent with MCP visualization
-        const pdfPath = path.join(__dirname, '..', 'build', 'dist', 'ebook-clean.pdf');
-        if (!fs.existsSync(pdfPath)) {
-            console.log('❌ PDF not found at expected location');
-            return this.handleFailure('build');
-        }
-
-        const qaSuccess = await this.executePhase(
-            'qa',
-            'node',
-            ['scripts/qa-agent.js', pdfPath],
-            'QA Agent - Validating PDF quality'
-        );
-
-        if (!qaSuccess) {
-            // QA failed, check if we should retry
-            if (this.currentRetry < this.maxRetries) {
-                this.currentRetry++;
-                console.log(`\n🔄 QA failed. Retrying pipeline (${this.currentRetry}/${this.maxRetries})...`);
-                
-                // Reset build and QA phases for retry
+        // Phase 4: Infinite QA Loop - Loop until perfect
+        console.log('\n🔄 Starting Infinite QA Loop - Will retry until perfect');
+        
+        while (true) {
+            const pdfPath = path.join(__dirname, '..', 'build', 'dist', 'ebook.pdf');
+            const epubPath = path.join(__dirname, '..', 'build', 'dist', 'ebook.epub');
+            
+            if (!fs.existsSync(pdfPath)) {
+                console.log('❌ PDF not found, rebuilding...');
                 this.pipelineState.phases.build.status = 'pending';
-                this.pipelineState.phases.qa.status = 'pending';
-                
-                // Run build and QA again
                 return this.runPipeline();
-            } else {
-                return this.handleFailure('qa', true);
+            }
+
+            const qaSuccess = await this.executePhase(
+                'qa',
+                'agentcli',
+                ['call', 'qa',
+                 '--pdf', pdfPath,
+                 '--epub', epubPath],
+                `QA Agent - Attempt ${this.pipelineState.qaRetries + 1}`
+            );
+
+            if (qaSuccess) {
+                console.log('\n✅ QA PASSED - Book is perfect!');
+                break;
+            }
+
+            // QA failed, tweak layout and rebuild
+            this.pipelineState.qaRetries++;
+            console.log(`\n🔧 QA failed. Tweaking layout preset and rebuilding...`);
+            
+            // Move to next preset
+            this.currentPreset = (this.currentPreset + 1) % this.layoutPresets.length;
+            
+            // Rebuild with new preset
+            const rebuildSuccess = await this.executePhase(
+                'build',
+                'agentcli',
+                ['call', 'builder',
+                 '--tweak', 'next'],
+                `Rebuild with preset ${this.currentPreset + 1}`
+            );
+            
+            if (!rebuildSuccess) {
+                console.log('❌ Rebuild failed, retrying...');
             }
         }
 
@@ -157,21 +208,27 @@ class PipelineOrchestrator {
         // Output final status
         console.log(JSON.stringify({
             status: 'done',
-            version: '1.0',
-            pdf: pdfPath,
-            retries: this.currentRetry,
+            version: '2.1-agentcli',
+            pdf: path.join(__dirname, '..', 'build', 'dist', 'ebook.pdf'),
+            epub: path.join(__dirname, '..', 'build', 'dist', 'ebook.epub'),
+            qaRetries: this.pipelineState.qaRetries,
             duration: this.calculateDuration()
         }, null, 2));
     }
 
-    handleFailure(phase, needsHuman = false) {
-        this.pipelineState.status = needsHuman ? 'needs-human' : 'failed';
+    getCurrentCssTemplate() {
+        if (this.layoutPresets.length === 0) {
+            return 'templates/pdf-standard.css';
+        }
+        const preset = this.layoutPresets[this.currentPreset % this.layoutPresets.length];
+        return preset.css || 'templates/pdf-standard.css';
+    }
+
+    handleFailure(phase) {
+        this.pipelineState.status = 'failed';
         
         console.log(`\n❌ PIPELINE FAILED AT PHASE: ${phase.toUpperCase()}`);
-        
-        if (needsHuman) {
-            console.log('🙋 Human intervention required after max retries');
-        }
+        console.log('Fatal error - aborting pipeline');
         
         this.savePipelineState();
         process.exit(1);
@@ -203,16 +260,18 @@ class PipelineOrchestrator {
             process.exit(1);
         }
         
-        // Check Python
+        // Check for Agent CLI
         try {
-            await this.runCommand('python3', ['--version'], 'Checking Python');
+            await this.runCommand('which', ['agentcli'], 'Checking Agent CLI');
         } catch {
-            console.log('❌ Python 3 not found');
+            console.log('❌ Agent CLI not found. Please install agentcli');
             process.exit(1);
         }
         
-        // Check if MCP browser tools are available (optional for now)
-        // This would be expanded in a full implementation
+        // Check environment variable
+        if (!process.env.AGENT_CLI_TEXT_MODEL) {
+            console.log('⚠️  AGENT_CLI_TEXT_MODEL not set, using default');
+        }
         
         console.log('✅ All prerequisites met');
     }
