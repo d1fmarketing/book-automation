@@ -1,0 +1,79 @@
+# Book Project Configuration Template
+# This file defines your book's structure and writing parameters
+
+project:
+  title: "Your Book Title"
+  subtitle: "Optional Subtitle"
+  author: "Author Name"
+  language: "en-US"  # or pt-BR, es-ES, fr-FR, etc.
+  
+# Target Audience
+target_audience:
+  age_range: [18, 65]  # Adjust as needed
+  knowledge_level: "beginner"  # beginner, intermediate, advanced
+  interests:
+    - "topic 1"
+    - "topic 2"
+    - "topic 3"
+  pain_points:
+    - "Problem your book solves 1"
+    - "Problem your book solves 2"
+    - "Problem your book solves 3"
+    
+# Book Specifications
+book_specs:
+  chapters: 10  # Number of chapters
+  words_per_chapter: 2000  # Target words per chapter
+  total_words: 20000  # Total target word count
+  include_exercises: false
+  include_summaries: true
+  include_checklists: false
+  visual_elements: true
+  
+# Writing Style
+style:
+  tone: "professional and engaging"  # Adjust to your preference
+  approach: "practical with examples"
+  features:
+    - bullet_points
+    - numbered_lists
+    - highlight_boxes
+    - quotes
+    - examples
+  writing_guidelines:
+    - "Clear and concise language"
+    - "One main idea per paragraph"
+    - "Use active voice"
+    - "Include relevant examples"
+    
+# Chapter Structure
+chapters_outline:
+  - number: 1
+    title: "Introduction"
+    focus: "Set the stage for your book"
+    key_concept: "Why this book matters"
+    words_target: 2000
+    
+  - number: 2
+    title: "Chapter 2 Title"
+    focus: "Main topic of chapter 2"
+    key_concept: "Key takeaway"
+    words_target: 2000
+    
+  # Add more chapters as needed
+  
+# Visual Elements
+visuals:
+  images_per_chapter: 1
+  style: "professional diagrams and illustrations"
+  color_palette:
+    - "#2C3E50"  # Dark blue-gray
+    - "#3498DB"  # Bright blue
+    - "#E74C3C"  # Red accent
+    - "#27AE60"  # Green
+    - "#F39C12"  # Orange
+  include_elements:
+    - diagrams
+    - charts
+    - illustrations
+    - infographics
