@@ -2,7 +2,9 @@
 
 A comprehensive automation pipeline for generating professional-quality eBooks from Markdown chapters, with AI-powered image generation, context management, and multi-format output support.
 
-## 🚀 Quick Start
+## 🚀 Quick Start v1.0
+
+### Using the Full Pipeline (Recommended)
 
 ```bash
 # Clone the repository
@@ -12,6 +14,20 @@ cd book-automation
 # Initialize the environment
 make init
 
+# Set up your API keys
+cp .env.example .env
+# Edit .env with your IDEOGRAM_API_KEY and OPENAI_API_KEY
+
+# Run the complete pipeline (Writer → Image → Build → QA)
+npm run build:pipeline
+
+# Or use Docker for consistent environment
+docker-compose up
+```
+
+### Manual Workflow
+
+```bash
 # Start your writing session
 make session-start
 
@@ -22,6 +38,14 @@ cp chapters/chapter-template.md chapters/chapter-01-my-story.md
 # Build your book
 make all
 ```
+
+### Pipeline Features (v1.0)
+
+- **🤖 Automated Pipeline**: Complete book generation with `npm run build:pipeline`
+- **🔄 MCP Visual Loop**: PDF validation with browser-based visualization
+- **🔁 Smart Retries**: Up to 3 attempts with visual corrections
+- **🐳 Docker Support**: Consistent builds across environments
+- **📊 State Tracking**: Pipeline progress saved in `pipeline-state.json`
 
 ## 🚀 Features
 

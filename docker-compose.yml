@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  pipeline:
+    build: .
+    container_name: book-automation-pipeline
+    volumes:
+      - ./chapters:/app/chapters
+      - ./assets:/app/assets
+      - ./build:/app/build
+      - ./context:/app/context
+      - ./.env:/app/.env:ro
+    environment:
+      - IDEOGRAM_API_KEY=${IDEOGRAM_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - NODE_ENV=production
+    networks:
+      - book-network
+
+  mcp-browser:
+    build: ./src/mcp/puppeteer
+    container_name: mcp-browser-service
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - book-network
+    profiles:
+      - mcp
+
+networks:
+  book-network:
+    driver: bridge
+
+# Usage:
+# docker-compose up          # Run pipeline
+# docker-compose up -d       # Run in background
+# docker-compose logs -f     # Follow logs
+# docker-compose down        # Stop all services
+#
+# With MCP profile:
+# docker-compose --profile mcp up   # Run with MCP browser service
