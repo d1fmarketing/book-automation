@@ -8,7 +8,13 @@
 const { spawn } = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
-const chalk = require('chalk');
+// Simple color codes instead of chalk
+const colors = {
+  blue: (text) => `\x1b[34m${text}\x1b[0m`,
+  green: (text) => `\x1b[32m${text}\x1b[0m`,
+  red: (text) => `\x1b[31m${text}\x1b[0m`,
+  yellow: (text) => `\x1b[33m${text}\x1b[0m`
+};
 
 // Command registry
 const COMMANDS = {
@@ -65,12 +71,12 @@ const COMMANDS = {
 
 // Help text
 function showHelp() {
-  console.log(chalk.blue('🤖 Claude Elite Commands\n'));
+  console.log(colors.blue('🤖 Claude Elite Commands\n'));
   console.log('Usage: claude <command> [args]\n');
   console.log('Commands:');
   
   Object.entries(COMMANDS).forEach(([cmd, info]) => {
-    console.log(`  ${chalk.green(cmd.padEnd(12))} ${info.description}`);
+    console.log(`  ${colors.green(cmd.padEnd(12))} ${info.description}`);
   });
   
   console.log('\nExamples:');
@@ -85,8 +91,8 @@ async function executeCommand(command, args) {
   const cmdInfo = COMMANDS[command];
   
   if (!cmdInfo) {
-    console.error(chalk.red(`Unknown command: ${command}`));
-    console.log(chalk.yellow('\nDid you mean one of these?'));
+    console.error(colors.red(`Unknown command: ${command}`));
+    console.log(colors.yellow('\nDid you mean one of these?'));
     const similar = Object.keys(COMMANDS).filter(cmd => 
       cmd.includes(command.slice(1)) || command.includes(cmd.slice(1))
     );
@@ -100,8 +106,8 @@ async function executeCommand(command, args) {
     try {
       await fs.access(scriptPath);
     } catch (error) {
-      console.error(chalk.red(`Script not found: ${scriptPath}`));
-      console.log(chalk.yellow('Creating stub...'));
+      console.error(colors.red(`Script not found: ${scriptPath}`));
+      console.log(colors.yellow('Creating stub...'));
       
       // Create stub script
       const stubContent = `#!/bin/bash
@@ -116,12 +122,12 @@ echo "Args: $@"
       await fs.writeFile(scriptPath, stubContent);
       await fs.chmod(scriptPath, 0o755);
       
-      console.log(chalk.green(`Created stub at: ${scriptPath}`));
+      console.log(colors.green(`Created stub at: ${scriptPath}`));
     }
   }
   
   // Execute the command
-  console.log(chalk.blue(`Executing: ${command} ${args.join(' ')}`));
+  console.log(colors.blue(`Executing: ${command} ${args.join(' ')}`));
   
   let child;
   if (cmdInfo.type === 'npm') {
@@ -144,7 +150,7 @@ echo "Args: $@"
   }
   
   child.on('error', (error) => {
-    console.error(chalk.red(`Failed to execute: ${error.message}`));
+    console.error(colors.red(`Failed to execute: ${error.message}`));
     process.exit(1);
   });
   
@@ -174,7 +180,7 @@ async function main() {
 // Run if executed directly
 if (require.main === module) {
   main().catch(error => {
-    console.error(chalk.red('Fatal error:'), error);
+    console.error(colors.red('Fatal error:'), error);
     process.exit(1);
   });
 }
