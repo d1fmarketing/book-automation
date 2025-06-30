@@ -1,15 +1,15 @@
 # Metadados do Livro
-title: "Título do Seu Livro"
-subtitle: "Subtítulo Opcional"
-author: "Seu Nome"
-publisher: "Sua Editora"
+title: "The Tiny Test Book"
+subtitle: "A Minimal E-Book for Pipeline Validation"
+author: "Test Author"
+publisher: "Test Publisher"
 language: pt-BR
 isbn: "978-0-000000-00-0"
 uuid: "00000000-0000-0000-0000-000000000000"
 date: 2025-01-01
 version: "1.0.0"
-copyright: "© 2025 Seu Nome. Todos os direitos reservados."
-description: "Uma breve descrição do seu livro que aparecerá nos metadados"
+copyright: "© 2025 Test Author. All rights reserved."
+description: "A minimal test book designed to validate the automated ebook pipeline"
 subject: 
   - "Categoria Principal"
   - "Categoria Secundária"

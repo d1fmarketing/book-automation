@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-06-29T22:41:13Z",
+  "pdf": "/Users/d1f/Desktop/Ebooks/book-automation/build/dist/ebook.pdf",
+  "html": "build/tmp/ebook.html",
+  "checks": [
+    {
+      "name": "font-size",
+      "passed": true,
+      "details": "Font sizes within range"
+    },
+    {
+      "name": "line-height",
+      "passed": true,
+      "details": "Line height within range"
+    },
+    {
+      "name": "contrast-ratio",
+      "passed": true,
+      "details": "Contrast meets WCAG AA"
+    },
+    {
+      "name": "blank-pages",
+      "passed": true,
+      "details": "Blank space acceptable"
+    },
+    {
+      "name": "widows-orphans",
+      "passed": true,
+      "details": "No bad breaks"
+    },
+    {
+      "name": "page-bleed",
+      "passed": true,
+      "details": "Bleed within tolerance"
+    }
+  ],
+  "failures": [],
+  "screenshots": [],
+  "status": "passed",
+  "exit_code": 0
+}

@@ -1,0 +1,12 @@
+# Adicionar ao final do Makefile existente
+
+# ===== PIPELINE CORRIGIDO =====
+
+.PHONY: pipeline-real
+pipeline-real:
+	@echo "$(GREEN)🚀 [PIPELINE]$(NC) Running FIXED pipeline..."
+	@node scripts/build-pipeline-fixed.js
+
+.PHONY: ebook
+ebook: pipeline-real
+	@echo "$(GREEN)✅ E-book gerado com sucesso!$(NC)"

@@ -15,6 +15,34 @@ This is a professional eBook automation pipeline that generates high-quality PDF
 - **Git hooks** for quality control
 - **Markdown linting** and validation
 - **Image optimization** for web and print
+- **MCP Visual QA** using Claude's browser tools
+
+## 🤖 MCP (Model Context Protocol) - IMPORTANTE!
+
+### O que é MCP neste projeto
+MCP são as ferramentas que EU (Claude) uso para interagir com seu sistema:
+- **Browser Control**: Posso navegar, ver páginas/PDFs, executar JavaScript
+- **File System**: Posso ler, criar e editar arquivos
+- **Bash**: Posso executar comandos
+
+### Como usar MCP para QA Visual
+```bash
+# 1. Você gera o PDF
+npm run build:pdf
+
+# 2. Me pede para verificar
+"Claude, verifique o PDF em build/dist/ebook.pdf"
+
+# 3. EU uso MCP para:
+- Navegar até o arquivo
+- Ver o conteúdo
+- Executar verificações
+- Reportar problemas
+```
+
+### ⚠️ ATENÇÃO: MCP não é um comando!
+- ❌ ERRADO: `mcp start --browser`
+- ✅ CERTO: Pedir para o Claude usar suas ferramentas
 
 ## 📁 Project Structure
 
@@ -379,3 +407,41 @@ git commit -m "feat: complete chapter X"
 ```
 
 Remember: This pipeline is designed for professional ebook production. All commands ensure quality output suitable for commercial distribution.
+
+## 🚨 REGRA CRÍTICA DE QA - NUNCA MENTIR!
+
+### Verificação Obrigatória de PDF
+
+**NUNCA** diga que o PDF está pronto sem verificar VISUALMENTE:
+
+1. **Execute o script de verificação**:
+   ```bash
+   node scripts/pdf-qa-loop-real.js
+   ```
+
+2. **O script DEVE retornar**:
+   - "✅ PDF ESTÁ PERFEITO! CAPA ENCONTRADA!"
+   - Tamanho correto: 6×9 polegadas
+   - Capa visual detectada (screenshot > 50KB)
+
+3. **Se falhar, NÃO PARE**:
+   - Debug o problema
+   - Corrija o código
+   - Execute novamente
+   - Repita até funcionar
+
+4. **Loop automático disponível**:
+   ```bash
+   ./scripts/verify-and-fix-loop.sh
+   ```
+
+### Por que isso é importante?
+
+- PDFs renderizados não mostram tags `<img>` quando abertos no browser
+- A única forma de verificar é visualmente (screenshot) ou com ferramentas PDF
+- Imagens locais com `file://` podem não carregar no Puppeteer
+- Use base64 para garantir que as imagens sejam embutidas
+
+### Lembre-se:
+
+**NUNCA ASSUMA QUE ESTÁ FUNCIONANDO!** Sempre verifique com o script `pdf-qa-loop-real.js` antes de dizer que o PDF está pronto.

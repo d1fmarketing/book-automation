@@ -1,0 +1,218 @@
+/* PDF Standard CSS - Minimal Test Book */
+/* Professional 6x9" book format styling */
+
+/* Page setup */
+@page {
+    size: 6in 9in;
+    margin: 0.75in 0.75in 0.85in 0.75in;
+    
+    @bottom-center {
+        content: counter(page);
+        font-family: Georgia, serif;
+        font-size: 10pt;
+        color: #666;
+    }
+}
+
+/* First page of chapters - no page number */
+@page :first {
+    @bottom-center {
+        content: none;
+    }
+}
+
+/* Base typography */
+body {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #1a1a1a;
+    text-align: justify;
+    hyphens: auto;
+}
+
+/* Headings */
+h1 {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 24pt;
+    font-weight: 300;
+    text-align: center;
+    margin: 2em 0 1em 0;
+    page-break-before: always;
+    page-break-after: avoid;
+}
+
+h2 {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16pt;
+    font-weight: 400;
+    margin: 1.5em 0 0.75em 0;
+    page-break-after: avoid;
+}
+
+h3 {
+    font-family: Georgia, serif;
+    font-size: 14pt;
+    font-style: italic;
+    font-weight: normal;
+    margin: 1.2em 0 0.6em 0;
+    page-break-after: avoid;
+}
+
+/* Paragraphs */
+p {
+    margin: 0;
+    text-indent: 1.5em;
+    orphans: 2;
+    widows: 2;
+}
+
+/* First paragraph after heading - no indent */
+h1 + p,
+h2 + p,
+h3 + p,
+hr + p {
+    text-indent: 0;
+}
+
+/* Scene breaks */
+hr {
+    border: none;
+    text-align: center;
+    margin: 1.5em 0;
+    page-break-after: avoid;
+}
+
+hr:after {
+    content: "* * *";
+    font-size: 14pt;
+    color: #666;
+}
+
+/* Blockquotes */
+blockquote {
+    margin: 1em 2em;
+    font-style: italic;
+    font-size: 11pt;
+}
+
+/* Lists */
+ul, ol {
+    margin: 1em 0 1em 2em;
+}
+
+li {
+    margin: 0.3em 0;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1em auto;
+    page-break-inside: avoid;
+}
+
+/* Cover page */
+.cover {
+    text-align: center;
+    page-break-after: always;
+}
+
+.cover img {
+    max-width: 100%;
+    max-height: 7.5in;
+    margin: 0 auto;
+}
+
+/* Title page */
+.title-page {
+    text-align: center;
+    page-break-after: always;
+    padding-top: 2in;
+}
+
+.title-page h1 {
+    font-size: 36pt;
+    margin: 0 0 0.5em 0;
+    page-break-before: avoid;
+}
+
+.title-page .subtitle {
+    font-size: 18pt;
+    font-style: italic;
+    color: #666;
+    margin: 0 0 2em 0;
+}
+
+.title-page .author {
+    font-size: 16pt;
+    margin: 2em 0;
+}
+
+/* Chapter title styling */
+.chapter-title {
+    text-align: center;
+    margin-bottom: 3em;
+    page-break-after: avoid;
+}
+
+.chapter-number {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14pt;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 0.5em;
+}
+
+/* Drop caps for first paragraph */
+.first-paragraph:first-letter {
+    float: left;
+    font-size: 48pt;
+    line-height: 36pt;
+    padding: 4pt 2pt 0 0;
+    margin-top: -4pt;
+    font-weight: bold;
+}
+
+/* Dialogue formatting */
+.dialogue {
+    margin: 0.5em 0;
+}
+
+/* Prevent orphans and widows */
+p {
+    orphans: 2;
+    widows: 2;
+}
+
+/* Page break control */
+h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+}
+
+.keep-together {
+    page-break-inside: avoid;
+}
+
+/* End matter */
+.end-matter {
+    page-break-before: always;
+    text-align: center;
+    padding-top: 3em;
+}
+
+/* Print-specific adjustments */
+@media print {
+    body {
+        color: black;
+    }
+    
+    a {
+        color: black;
+        text-decoration: none;
+    }
+}

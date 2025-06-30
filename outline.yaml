@@ -1,0 +1,83 @@
+# Minimal Test Book Outline - 5 Pages Total
+# For testing the Agent CLI pipeline and MCP visual QA
+
+title: "The Tiny Test Book"
+subtitle: "A Minimal E-Book for Pipeline Validation"
+author: "Test Author"
+genre: "Test Fiction"
+target_audience: "Pipeline testers"
+total_pages: 5
+word_target: 800  # ~200 words per section
+
+overview: |
+  A minimal test book designed to validate the complete Agent CLI pipeline.
+  This book contains just enough content to test all systems: writing, image
+  generation, PDF/EPUB building, and MCP visual QA validation.
+
+themes:
+  - Testing and validation
+  - Simplicity and minimalism
+  - Quick iteration
+
+chapters:
+  - number: 1
+    title: "The Beginning"
+    slug: "the-beginning"
+    word_target: 200
+    description: |
+      A simple opening that introduces our test narrative. Just enough
+      content to fill a page with proper formatting.
+    scenes:
+      - Opening paragraph about starting something new
+      - Brief description of the test environment
+      - Closing thought about what comes next
+
+  - number: 2
+    title: "The Middle"
+    slug: "the-middle"
+    word_target: 200
+    description: |
+      The heart of our minimal story. Contains typical book elements
+      like dialogue and description to test formatting.
+    scenes:
+      - A conversation between two characters
+      - Description of a simple setting
+      - A small conflict or challenge
+
+  - number: 3
+    title: "The Twist"
+    slug: "the-twist"
+    word_target: 200
+    description: |
+      A brief unexpected element to test how the pipeline handles
+      different narrative structures and formatting needs.
+    scenes:
+      - Revelation of something unexpected
+      - Character reaction and internal thoughts
+      - Setup for the conclusion
+
+  - number: 4
+    title: "The End"
+    slug: "the-end"
+    word_target: 200
+    description: |
+      A satisfying conclusion that wraps up our test narrative
+      and validates the full pipeline worked correctly.
+    scenes:
+      - Resolution of the mini-conflict
+      - Final thoughts from the protagonist
+      - Closing line that brings it full circle
+
+cover_prompt: |
+  A minimalist book cover design featuring abstract geometric shapes
+  in soft gradients. Simple, clean, professional. Title "The Tiny Test Book"
+  prominently displayed with modern typography.
+
+style_guide:
+  tone: "Simple and clear"
+  pov: "Third person limited"
+  tense: "Past tense"
+  formatting:
+    - Use standard paragraph indentation
+    - Include at least one dialogue exchange per chapter
+    - Keep sentences concise and readable

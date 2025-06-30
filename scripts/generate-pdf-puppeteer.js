@@ -32,6 +32,20 @@ async function generatePDF() {
             await fs.readFile('metadata.yaml', 'utf8')
         );
         
+        // Converter imagem da capa para base64
+        const coverPath = path.join(process.cwd(), 'assets/images/cover.jpg');
+        let coverBase64 = '';
+        if (await fs.pathExists(coverPath)) {
+            const coverBuffer = await fs.readFile(coverPath);
+            // Detectar o tipo real da imagem
+            const isPNG = coverBuffer[0] === 0x89 && coverBuffer[1] === 0x50;
+            const mimeType = isPNG ? 'image/png' : 'image/jpeg';
+            coverBase64 = `data:${mimeType};base64,${coverBuffer.toString('base64')}`;
+            console.log(chalk.blue(`Capa carregada: ${(coverBuffer.length / 1024 / 1024).toFixed(2)} MB`));
+        } else {
+            console.log(chalk.yellow('Aviso: Capa não encontrada em assets/images/cover.jpg'));
+        }
+        
         // Ler capítulos
         const chaptersDir = path.join(process.cwd(), 'chapters');
         const chapterFiles = await glob('chapters/*.md');
@@ -68,16 +82,47 @@ async function generatePDF() {
             // Converter para HTML
             let html = marked.parse(markdownContent);
             
-            // Adicionar número do capítulo
-            html = html.replace(/<h1[^>]*>/, `<h1>Capítulo ${chapterNumber}: `);
+            // Process AI-IMAGE placeholders
+            // The marked.js output includes quotes inside the alt text, so we need a more flexible regex
+            html = html.replace(/<img src="" alt="AI-IMAGE: (.*?)">/g, (match, altText) => {
+                // For now, use the cover image for any AI-IMAGE placeholder
+                const coverPath = path.join(process.cwd(), 'assets/images/cover.jpg');
+                const absolutePath = `file://${coverPath}`;
+                // Clean up the alt text and escape quotes properly
+                const cleanAltText = altText.replace(/"/g, '&quot;').replace(/&quot;&quot;/g, '&quot;');
+                return `<img src="${absolutePath}" alt="${cleanAltText}" style="max-width: 100%; height: auto; display: block; margin: 2em auto;">`;
+            });
             
-            // Wrap em div com classe chapter
-            chaptersHTML += `<div class="chapter">${html}</div>\n`;
+            // Não adicionar "Capítulo X:" se já estiver no conteúdo
+            // Apenas manter o título original do capítulo
+            
+            // Extract chapter title from first h1 or h2
+            let chapterTitle = '';
+            const titleMatch = html.match(/<h[12]>(.*?)<\/h[12]>/);
+            if (titleMatch) {
+                chapterTitle = titleMatch[1];
+            }
+            
+            // Wrap em div com classe chapter e adicionar string para header
+            // Usar chapter-first para o primeiro capítulo (sem page-break)
+            const chapterClass = chapterNumber === 1 ? 'chapter-first' : 'chapter';
+            chaptersHTML += `<div class="${chapterClass}">
+                <div class="chapter-title-string">${chapterTitle}</div>
+                ${html}
+            </div>\n`;
             
             chapterNumber++;
         }
         
         spinner.text = 'Gerando HTML...';
+        
+        // Ler CSS profissional
+        const cssPath = path.join(process.cwd(), 'assets/css/pdf.css');
+        let customCSS = '';
+        if (await fs.pathExists(cssPath)) {
+            customCSS = await fs.readFile(cssPath, 'utf8');
+            console.log(chalk.blue('CSS profissional carregado'));
+        }
         
         // Template HTML
         const htmlTemplate = `
@@ -87,171 +132,18 @@ async function generatePDF() {
     <meta charset="UTF-8">
     <title>${metadata.title}</title>
     <style>
-        /* Reset e configurações base */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: ${metadata.build.pdf.fontFamily};
-            font-size: ${metadata.build.pdf.fontSize};
-            line-height: ${metadata.build.pdf.lineHeight};
-            color: #1a1a1a;
-            text-align: justify;
-            hyphens: auto;
-        }
-        
-        /* Página de título */
-        .title-page {
-            page-break-after: always;
-            text-align: center;
-            padding-top: 3in;
-        }
-        
-        .title-page h1 {
-            font-size: 32pt;
-            margin-bottom: 0.5in;
-            font-weight: normal;
-        }
-        
-        .title-page .subtitle {
-            font-size: 18pt;
-            color: #666;
-            margin-bottom: 2in;
-        }
-        
-        .title-page .author {
-            font-size: 16pt;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-        
-        /* Página de copyright */
-        .copyright-page {
-            page-break-after: always;
-            text-align: center;
-            padding-top: 6in;
-            font-size: 9pt;
-        }
-        
-        /* Sumário */
-        .toc {
-            page-break-after: always;
-        }
-        
-        .toc h2 {
-            text-align: center;
-            margin-bottom: 2em;
-        }
-        
-        .toc ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .toc li {
-            margin-bottom: 0.5em;
-        }
-        
-        .toc a {
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        /* Capítulos */
-        .chapter {
-            page-break-before: always;
-        }
-        
-        h1 {
-            font-size: 24pt;
-            margin-top: 2in;
-            margin-bottom: 0.5in;
-            text-align: center;
-            font-weight: normal;
-        }
-        
-        h2 {
-            font-size: 14pt;
-            margin-top: 1.5em;
-            margin-bottom: 0.8em;
-        }
-        
-        h3 {
-            font-size: 12pt;
-            margin-top: 1.2em;
-            margin-bottom: 0.6em;
-        }
-        
-        p {
-            margin-bottom: 0.8em;
-            text-indent: 0.3in;
-        }
-        
-        p:first-of-type,
-        h1 + p,
-        h2 + p,
-        h3 + p {
-            text-indent: 0;
-        }
-        
-        /* Listas */
-        ul, ol {
-            margin: 1em 0 1em 2em;
-        }
-        
-        li {
-            margin-bottom: 0.3em;
-        }
-        
-        /* Citações */
-        blockquote {
-            margin: 1em 2em;
-            font-style: italic;
-            color: #555;
-        }
-        
-        /* Links */
-        a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        
-        /* Código */
-        code {
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            background: #f5f5f5;
-            padding: 0.1em 0.3em;
-        }
-        
-        pre {
-            background: #f5f5f5;
-            padding: 1em;
-            margin: 1em 0;
-            overflow-x: auto;
-            font-size: 0.9em;
-        }
-        
-        /* Configurações de impressão */
-        @page {
-            size: ${metadata.build.pdf.pageSize};
-            margin: ${metadata.build.pdf.margin.top} 
-                    ${metadata.build.pdf.margin.right} 
-                    ${metadata.build.pdf.margin.bottom} 
-                    ${metadata.build.pdf.margin.left};
-        }
-        
-        @media print {
-            .no-print {
-                display: none;
-            }
-        }
+        ${customCSS}
     </style>
 </head>
 <body>
+    <!-- Book Title String for Running Headers -->
+    <div class="book-title">${metadata.title}</div>
+    
+    <!-- Cover Page -->
+    <div class="cover-page">
+        ${coverBase64 ? `<img src="${coverBase64}" alt="Book Cover">` : '<p>Capa não encontrada</p>'}
+    </div>
+    
     <!-- Página de Título -->
     <div class="title-page">
         <h1>${metadata.title}</h1>
@@ -270,14 +162,25 @@ async function generatePDF() {
         }
     </div>
     
+    <!-- Sumário -->
+    <div class="toc-page">
+        <h2>Sumário</h2>
+        ${chapterFiles.map((file, index) => {
+            const chapterNum = index + 1;
+            const chapterTitle = `Capítulo ${chapterNum}`;
+            return `<div class="toc-entry"><span class="toc-title">${chapterTitle}</span><span class="toc-page-num">${5 + index}</span></div>`;
+        }).join('\n        ')}
+    </div>
+    
     <!-- Conteúdo dos Capítulos -->
     ${chaptersHTML}
     
     ${metadata.build.general.includeProductLinks && metadata.product_url ? `
     <!-- Página Final com CTA -->
-    <div class="chapter">
+    <div class="thank-you-page">
         <div style="text-align: center; margin-top: 3in;">
             <h2>Obrigado por ler!</h2>
+            <div style="font-size: 24pt; color: #666; margin: 1em 0;">❦</div>
             <p style="margin: 2em 0;">
                 Para mais informações e recursos adicionais, visite:
             </p>
@@ -303,6 +206,49 @@ async function generatePDF() {
             waitUntil: 'networkidle0' 
         });
         
+        // Aguardar um momento para garantir que o conteúdo seja renderizado
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Aguardar imagens carregarem
+        await page.waitForSelector('img', { timeout: 10000 }).catch(() => {});
+        
+        // Esperar todas as imagens carregarem completamente
+        await page.evaluate(() => {
+            return Promise.all(
+                Array.from(document.images).map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise((resolve, reject) => {
+                        img.addEventListener('load', resolve);
+                        img.addEventListener('error', () => {
+                            console.error('Erro ao carregar imagem:', img.src.substring(0, 100));
+                            resolve(); // Continuar mesmo com erro
+                        });
+                        // Timeout para cada imagem
+                        setTimeout(resolve, 5000);
+                    });
+                })
+            );
+        });
+        
+        // Aguardar mais um momento para garantir renderização completa
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Debug: verificar se a capa está presente
+        const hasCovers = await page.evaluate(() => {
+            const imgs = document.querySelectorAll('.cover-page img');
+            console.log('Número de imagens na capa:', imgs.length);
+            imgs.forEach((img, index) => {
+                console.log(`Imagem ${index + 1}:`, {
+                    src: img.src.substring(0, 100) + '...',
+                    width: img.naturalWidth,
+                    height: img.naturalHeight,
+                    complete: img.complete
+                });
+            });
+            return imgs.length;
+        });
+        console.log(chalk.blue(`Imagens de capa encontradas: ${hasCovers}`));
+        
         // Configurar output
         const outputDir = path.join(process.cwd(), 'build', 'dist');
         await fs.ensureDir(outputDir);
@@ -317,7 +263,8 @@ async function generatePDF() {
         // Gerar PDF
         await page.pdf({
             path: outputFile,
-            format: 'Letter',
+            width: '6in',
+            height: '9in',
             printBackground: true,
             displayHeaderFooter: metadata.build.pdf.showPageNumbers,
             headerTemplate: '<div></div>',
@@ -334,13 +281,14 @@ async function generatePDF() {
         
         await browser.close();
         
-        // Salvar HTML para debug se necessário
-        if (process.env.DEBUG) {
-            await fs.writeFile(
-                path.join(outputDir, 'debug.html'),
-                htmlTemplate
-            );
-        }
+        // Salvar HTML para MCP QA
+        const tmpDir = path.join(process.cwd(), 'build', 'tmp');
+        await fs.ensureDir(tmpDir);
+        await fs.writeFile(
+            path.join(tmpDir, 'ebook.html'),
+            htmlTemplate
+        );
+        console.log(chalk.blue(`HTML salvo para QA: build/tmp/ebook.html`));
         
         spinner.succeed(chalk.green(`PDF gerado com sucesso: ${outputFile}`));
         
