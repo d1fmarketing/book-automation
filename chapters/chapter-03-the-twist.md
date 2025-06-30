@@ -1,12 +1,12 @@
 ---
-chap: 03
-title: "The Twist"
-words_target: 200
-words: 196
+chap: 3
 status: draft
+title: The Twist
+words: 185
+words_target: 200
 ---
 
-# Chapter 3: The Twist
+## Chapter 3: The Twist
 
 The first QA run failed.
 

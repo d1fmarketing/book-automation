@@ -1,12 +1,12 @@
 ---
-chap: 04
-title: "The End"
-words_target: 200
-words: 194
+chap: 4
 status: draft
+title: The End
+words: 194
+words_target: 200
 ---
 
-# Chapter 4: The End
+## Chapter 4: The End
 
 The final validation passed at 6:47 PM.
 

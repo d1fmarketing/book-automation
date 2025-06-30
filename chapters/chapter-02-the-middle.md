@@ -1,12 +1,12 @@
 ---
-chap: 02
-title: "The Middle"
-words_target: 200
-words: 195
+chap: 2
 status: draft
+title: The Middle
+words: 189
+words_target: 200
 ---
 
-# Chapter 2: The Middle
+## Chapter 2: The Middle
 
 The pipeline churned onward, each phase flowing seamlessly into the next. Sarah watched the progress indicators climb steadily upward, green lights cascading down the status board.
 

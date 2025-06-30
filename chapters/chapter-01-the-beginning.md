@@ -1,12 +1,12 @@
 ---
-chap: 01
-title: "The Beginning"
-words_target: 200
-words: 198
+chap: 1
 status: draft
+title: The Beginning
+words: 185
+words_target: 200
 ---
 
-# Chapter 1: The Beginning
+## Chapter 1: The Beginning
 
 The test had begun. Sarah stood at the threshold of the automated pipeline, watching as streams of data flowed through the system like digital rivers. This wasn't just any test—it was the validation of months of careful engineering.
 

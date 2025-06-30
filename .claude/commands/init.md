@@ -2,23 +2,26 @@
 
 Initialize a new project with Claude Elite capabilities while preserving any existing setup.
 
-## Steps:
+## Steps
 
 1. **Check if project already exists**
    - Look for existing `package.json`, `Makefile`, or `.git`
    - If exists, add Elite features without overwriting
 
 2. **Create Elite structure**
+
    ```bash
    mkdir -p .claude/{commands,mcp-configs,scripts,templates}
    ```
 
 3. **Run environment verification**
+
    ```bash
    .claude/scripts/verify-env.sh
    ```
 
 4. **Initialize git if needed**
+
    ```bash
    if [ ! -d .git ]; then
      git init
@@ -29,6 +32,7 @@ Initialize a new project with Claude Elite capabilities while preserving any exi
    ```
 
 5. **Create basic claude.md if missing**
+
    ```bash
    if [ ! -f claude.md ] && [ ! -f CLAUDE.md ]; then
      echo "# Project Configuration for Claude
@@ -48,6 +52,7 @@ Initialize a new project with Claude Elite capabilities while preserving any exi
    - Copy Elite template with project-specific modifications
 
 7. **Install dependencies if package.json exists**
+
    ```bash
    if [ -f package.json ]; then
      npm install
@@ -59,12 +64,14 @@ Initialize a new project with Claude Elite capabilities while preserving any exi
    - List what was preserved
    - Show next steps
 
-## Usage:
-```
+## Usage
+
+```bash
 claude /init
 ```
 
-## Notes:
+## Notes
+
 - This command is safe to run multiple times
 - It never overwrites existing files
 - It enhances but doesn't replace existing setup

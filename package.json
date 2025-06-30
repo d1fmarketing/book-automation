@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky install",
-    "lint": "markdownlint chapters/*.md --fix",
-    "lint:check": "markdownlint chapters/*.md",
+    "lint": "markdownlint 'chapters/*.md' '.claude/**/*.md' --fix",
+    "lint:check": "markdownlint 'chapters/*.md' '.claude/**/*.md'",
     "wordcount": "PYTHONPATH=src:$PYTHONPATH python3 -m ebook_pipeline.utils.wordcount",
     "optimize:images": "sharp --input 'assets/images/*.{jpg,jpeg,png}' --output build/temp/images --resize 1600 1600 --withoutEnlargement --quality 85",
     "build:epub": "node scripts/build-epub.js",
