@@ -1,0 +1,161 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'chapters/**'
+      - 'metadata.yaml'
+      - 'package.json'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    if: github.event.pusher.name != 'github-actions[bot]'
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        
+    - name: 📦 Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+      env:
+        PYTHONPATH: src
+        
+    - name: 🏗️ Build eBook
+      run: |
+        echo "📖 Building PDF..."
+        npm run build:pdf
+        echo "📚 Building EPUB..."
+        npm run build:epub
+        
+    - name: 📊 Generate Release Notes
+      id: release_notes
+      run: |
+        # Get commits since last tag
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        if [ -z "$LAST_TAG" ]; then
+          COMMITS=$(git log --pretty=format:"- %s (%an)" --no-merges)
+        else
+          COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%an)" --no-merges)
+        fi
+        
+        # Get word count stats
+        WORD_COUNT=$(PYTHONPATH=src python3 -c "
+        import json
+        from pathlib import Path
+        total = 0
+        for chapter in Path('chapters').glob('*.md'):
+            with open(chapter) as f:
+                content = f.read()
+                if '---' in content:
+                    _, frontmatter, _ = content.split('---', 2)
+                    for line in frontmatter.split('\\n'):
+                        if line.startswith('words:'):
+                            total += int(line.split(':')[1].strip())
+        print(total)
+        " 2>/dev/null || echo "0")
+        
+        # Create release notes
+        cat > release-notes.md << EOF
+        ## 📚 eBook Build $(date +%Y-%m-%d)
+        
+        ### 📊 Statistics
+        - Total words: ${WORD_COUNT}
+        - Chapters: $(ls -1 chapters/*.md | wc -l)
+        - Build date: $(date +"%Y-%m-%d %H:%M:%S")
+        
+        ### 🔄 Changes
+        ${COMMITS}
+        
+        ### 📦 Assets
+        - PDF: Professional 6×9" format
+        - EPUB: Validated EPUB 2.0 format
+        
+        ---
+        *Built with Claude Elite Pipeline* 🚀
+        EOF
+        
+        # Set output for next steps
+        echo "word_count=${WORD_COUNT}" >> $GITHUB_OUTPUT
+        
+    - name: 🏷️ Determine Version
+      id: version
+      run: |
+        # Read version from package.json
+        VERSION=$(node -p "require('./package.json').version")
+        
+        # Generate build number based on date and commit
+        BUILD_DATE=$(date +%Y%m%d)
+        BUILD_NUM=$(git rev-list --count HEAD)
+        
+        # Create full version tag
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          TAG="v${VERSION}-build.${BUILD_NUM}"
+        else
+          TAG="v${VERSION}-${BUILD_DATE}.${BUILD_NUM}"
+        fi
+        
+        echo "tag=${TAG}" >> $GITHUB_OUTPUT
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        
+    - name: 📦 Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.tag }}
+        name: Release ${{ steps.version.outputs.tag }}
+        body_path: release-notes.md
+        draft: false
+        prerelease: ${{ github.ref != 'refs/heads/main' }}
+        files: |
+          build/dist/*.pdf
+          build/dist/*.epub
+          
+    - name: 🔖 Update Latest Tag
+      if: github.ref == 'refs/heads/main'
+      run: |
+        git tag -f latest
+        git push -f origin latest
+        
+    - name: 📈 Update README Badge
+      if: github.ref == 'refs/heads/main'
+      run: |
+        # Update word count badge in README if it exists
+        if [ -f "README.md" ]; then
+          WORD_COUNT=${{ steps.release_notes.outputs.word_count }}
+          sed -i "s/Words-[0-9]*/Words-${WORD_COUNT}/" README.md || true
+          
+          # Commit if changed
+          if git diff --quiet README.md; then
+            echo "No README changes needed"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add README.md
+            git commit -m "chore: update word count badge [skip ci]"
+            git push
+          fi
+        fi
