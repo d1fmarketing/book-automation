@@ -1,0 +1,96 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Quality Gates for Pre-commit
+# This runs additional quality checks beyond basic linting
+
+echo "🔍 Running quality gates..."
+
+# 1. Check for console.log statements in JavaScript
+echo "📝 Checking for console.log statements..."
+if git diff --cached --name-only | grep -E '\.(js|ts)$' | xargs grep -l "console\.log" 2>/dev/null; then
+    echo "⚠️  Warning: Found console.log statements in staged files"
+    echo "   Consider using proper logging or removing debug statements"
+fi
+
+# 2. Check for TODO/FIXME comments
+echo "📝 Checking for TODO/FIXME comments..."
+TODO_COUNT=$(git diff --cached --name-only | xargs grep -E "(TODO|FIXME)" 2>/dev/null | wc -l)
+if [ "$TODO_COUNT" -gt "0" ]; then
+    echo "⚠️  Found $TODO_COUNT TODO/FIXME comments in staged files"
+    git diff --cached --name-only | xargs grep -n -E "(TODO|FIXME)" 2>/dev/null | head -5
+fi
+
+# 3. Check for large files
+echo "📦 Checking for large files..."
+LARGE_FILES=$(git diff --cached --name-only | xargs -I {} sh -c 'test -f "{}" && find "{}" -size +1M' 2>/dev/null)
+if [ -n "$LARGE_FILES" ]; then
+    echo "⚠️  Warning: Large files detected (>1MB):"
+    echo "$LARGE_FILES"
+    echo "   Consider using Git LFS for large binary files"
+fi
+
+# 4. Check commit message quality (if available)
+if [ -f ".git/COMMIT_EDITMSG" ]; then
+    echo "📝 Checking commit message quality..."
+    COMMIT_MSG=$(cat .git/COMMIT_EDITMSG)
+    
+    # Check minimum length
+    if [ ${#COMMIT_MSG} -lt 10 ]; then
+        echo "❌ ERROR: Commit message too short (minimum 10 characters)"
+        exit 1
+    fi
+    
+    # Check for conventional commit format
+    if ! echo "$COMMIT_MSG" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .+"; then
+        echo "⚠️  Warning: Commit message doesn't follow conventional format"
+        echo "   Expected: type(scope): description"
+        echo "   Example: feat: add user authentication"
+    fi
+fi
+
+# 5. Check for sensitive data patterns
+echo "🔐 Checking for sensitive data..."
+SENSITIVE_PATTERNS="(password|secret|key|token|api_key|apikey|auth|credential)"
+if git diff --cached --name-only | xargs grep -iE "$SENSITIVE_PATTERNS.*=.*['\"].*['\"]" 2>/dev/null | grep -v "example\|sample\|test\|mock"; then
+    echo "❌ ERROR: Possible sensitive data detected in staged files!"
+    echo "   Please review and remove any hardcoded secrets"
+    exit 1
+fi
+
+# 6. Elite-specific checks
+if git diff --cached --name-only | grep -q "^\.claude/"; then
+    echo "🚀 Running Elite-specific checks..."
+    
+    # Check script permissions
+    for script in $(git diff --cached --name-only | grep "^\.claude/.*\.sh$"); do
+        if [ -f "$script" ] && [ ! -x "$script" ]; then
+            echo "⚠️  Warning: Script $script is not executable"
+            echo "   Run: chmod +x $script"
+        fi
+    done
+    
+    # Check for required headers in Elite files
+    for elite_file in $(git diff --cached --name-only | grep "^\.claude/.*\.md$"); do
+        if [ -f "$elite_file" ] && ! head -1 "$elite_file" | grep -q "^#"; then
+            echo "⚠️  Warning: Elite documentation $elite_file missing header"
+        fi
+    done
+fi
+
+# 7. Python code quality
+if git diff --cached --name-only | grep -q "\.py$"; then
+    echo "🐍 Checking Python code quality..."
+    
+    # Check for print statements (should use logging)
+    if git diff --cached --name-only | grep "\.py$" | xargs grep -l "print(" 2>/dev/null | grep -v "__pycache__"; then
+        echo "⚠️  Warning: Found print() statements in Python files"
+        echo "   Consider using logging module instead"
+    fi
+fi
+
+echo "✅ Quality gates completed!"
+
+# Note: This script uses warnings (exit 0) instead of errors (exit 1)
+# to avoid blocking commits while still providing feedback
+exit 0

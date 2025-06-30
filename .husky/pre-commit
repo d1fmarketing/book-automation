@@ -47,3 +47,9 @@ fi
 # Adicionar arquivos modificados
 git add chapters/*.md
 git add context/*.json context/CONTEXT.md 2>/dev/null || true
+
+# Executar quality gates
+if [ -f "$(dirname "$0")/pre-commit-quality" ]; then
+    echo "🔍 Running quality checks..."
+    . "$(dirname "$0")/pre-commit-quality"
+fi
