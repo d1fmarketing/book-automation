@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+/**
+ * Claude Elite CLI Entry Point
+ * Provides the 'claude' command
+ */
+
+require('./.claude/cli-router.js');
