@@ -1,0 +1,175 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, edited ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  validate-pr:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: 🏷️ Validate PR Title
+      uses: amannn/action-semantic-pull-request@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        types: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          perf
+          test
+          build
+          ci
+          chore
+          revert
+        requireScope: false
+        subjectPattern: ^(?![A-Z]).+$
+        subjectPatternError: |
+          The subject "{subject}" found in the pull request title "{title}"
+          didn't match the configured pattern. Please ensure that the subject
+          doesn't start with an uppercase character.
+          
+    - name: 📏 Check PR Size
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const { data: files } = await github.rest.pulls.listFiles({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: pr.number
+          });
+          
+          const additions = pr.additions;
+          const deletions = pr.deletions;
+          const filesChanged = files.length;
+          
+          let sizeLabel = '';
+          let comment = '';
+          
+          if (additions + deletions < 10) {
+            sizeLabel = 'size/XS';
+            comment = '✅ This is a tiny PR, perfect for quick review!';
+          } else if (additions + deletions < 100) {
+            sizeLabel = 'size/S';
+            comment = '✅ This is a small PR, easy to review.';
+          } else if (additions + deletions < 500) {
+            sizeLabel = 'size/M';
+            comment = '👍 This is a medium PR. Please ensure it\'s well-documented.';
+          } else if (additions + deletions < 1000) {
+            sizeLabel = 'size/L';
+            comment = '⚠️ This is a large PR. Consider breaking it into smaller PRs.';
+          } else {
+            sizeLabel = 'size/XL';
+            comment = '🚨 This is a very large PR! It\'s recommended to split this into smaller, focused PRs.';
+          }
+          
+          // Add size label
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: pr.number,
+            labels: [sizeLabel]
+          });
+          
+          // Add comment about PR size
+          const body = `## 📊 PR Size Analysis
+          
+          - **Files changed**: ${filesChanged}
+          - **Lines added**: ${additions}
+          - **Lines deleted**: ${deletions}
+          - **Total changes**: ${additions + deletions}
+          
+          ${comment}`;
+          
+          // Find existing comment or create new one
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: pr.number,
+          });
+          
+          const botComment = comments.find(comment => 
+            comment.user.type === 'Bot' && 
+            comment.body.includes('PR Size Analysis')
+          );
+          
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: body
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: body
+            });
+          }
+          
+    - name: 🔍 Check for Conflicts
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          
+          if (pr.mergeable_state === 'dirty') {
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: ['has conflicts']
+            });
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: '❌ This PR has merge conflicts that must be resolved before it can be merged.'
+            });
+          } else {
+            // Remove conflict label if it exists
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                name: 'has conflicts'
+              });
+            } catch (e) {
+              // Label might not exist, that's okay
+            }
+          }
+          
+    - name: 📝 Elite Changes Check
+      if: contains(toJSON(github.event.pull_request.files), '.claude/')
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.payload.pull_request.number,
+            labels: ['elite-changes']
+          });
+          
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.payload.pull_request.number,
+            body: '🚀 This PR includes Elite framework changes. Please ensure:\n\n- [ ] Documentation is updated\n- [ ] Scripts are executable\n- [ ] No breaking changes to existing pipeline'
+          });

@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+/**
+ * Claude Elite CLI Entry Point
+ * Provides the 'claude' command with headless support
+ */
+
+require('./.claude/cli-headless.js');

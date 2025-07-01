@@ -5,9 +5,9 @@
 
 ## 📍 Current Position
 
-**Current Chapter**: 0  
-**Status**: not started  
-**Words Written**: 0 / 2000 target
+**Current Chapter**: 1  
+**Status**: draft  
+**Words Written**: 185 / 200 target
 
 ## 📖 Story Progress Summary
 
@@ -28,9 +28,15 @@
 ## 🎯 Next Chapter Goals
 
 ### Must Include
-- [ ] Build toward inciting incident
+- [ ] Introduction of main character
+- [ ] Establish setting
+- [ ] Hook the reader
+- [ ] Set the tone
 
 ### Must Avoid
+- [ ] Info dumping
+- [ ] Starting with character waking up (cliché)
+- [ ] Long descriptions without action
 
 ## 🔄 Continuity Reminders
 
@@ -91,5 +97,5 @@
 
 ---
 
-**Last Updated**: 2025-06-28 17:55:39  
-**Session**: #4
+**Last Updated**: 2025-06-30 11:32:43  
+**Session**: #5

@@ -1,0 +1,216 @@
+name: CI - Lint & Test
+
+on:
+  push:
+    branches: [ main, develop, 'feat/*' ]
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for better git operations
+    
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install Node dependencies
+      run: npm ci
+      
+    - name: 🧹 Lint Markdown files
+      run: |
+        echo "🧹 Running markdown lint checks..."
+        npm run lint:check
+        echo "✅ All markdown files pass lint!"
+        
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: 📦 Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+      env:
+        PYTHONPATH: src
+        
+    - name: 📊 Word Count Check
+      run: |
+        echo "📊 Checking word counts..."
+        PYTHONPATH=src python -m ebook_pipeline.utils.wordcount
+        
+    - name: 🔍 Continuity Check
+      run: |
+        echo "🔍 Running continuity checks..."
+        PYTHONPATH=src python -m ebook_pipeline.utils.continuity_check
+        
+        # Check if there are any errors
+        if [ -f "context/continuity-report.json" ]; then
+          ERROR_COUNT=$(python3 -c "import json; data=json.load(open('context/continuity-report.json')); print(data['summary']['errors'])" 2>/dev/null || echo "0")
+          if [ "$ERROR_COUNT" -gt "0" ]; then
+            echo "❌ Found $ERROR_COUNT continuity errors!"
+            python3 -c "import json; data=json.load(open('context/continuity-report.json')); [print(f'  - {e[\"message\"]}') for e in data['errors'][:5]]" 2>/dev/null
+            exit 1
+          fi
+        fi
+        echo "✅ Continuity check passed!"
+        
+    - name: 🏷️ Auto-tag PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const labels = [];
+          
+          // Analyze PR title and files
+          const title = pr.title.toLowerCase();
+          const files = await github.rest.pulls.listFiles({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: pr.number
+          });
+          
+          const changedFiles = files.data.map(f => f.filename);
+          
+          // Auto-label based on conventional commits
+          if (title.startsWith('feat:') || title.startsWith('feature:')) {
+            labels.push('feature');
+          } else if (title.startsWith('fix:')) {
+            labels.push('bug');
+          } else if (title.startsWith('docs:')) {
+            labels.push('documentation');
+          } else if (title.startsWith('chore:')) {
+            labels.push('chore');
+          } else if (title.startsWith('test:')) {
+            labels.push('test');
+          }
+          
+          // Auto-label based on file changes
+          if (changedFiles.some(f => f.includes('.github/workflows'))) {
+            labels.push('ci/cd');
+          }
+          if (changedFiles.some(f => f.includes('chapters/'))) {
+            labels.push('content');
+          }
+          if (changedFiles.some(f => f.includes('.claude/'))) {
+            labels.push('elite');
+          }
+          if (changedFiles.some(f => f.includes('scripts/'))) {
+            labels.push('automation');
+          }
+          
+          // Apply labels if any were identified
+          if (labels.length > 0) {
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: labels
+            });
+            console.log(`Applied labels: ${labels.join(', ')}`);
+          }
+          
+    - name: 📝 PR Comment with Status
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          let comment = '## 🤖 Automated PR Check Results\n\n';
+          
+          comment += '| Check | Status |\n';
+          comment += '|-------|--------|\n';
+          comment += '| Markdown Lint | ✅ Passed |\n';
+          comment += '| Word Count | ✅ Updated |\n';
+          comment += '| Continuity Check | ✅ Passed |\n';
+          
+          // Add word count summary if available
+          try {
+            const wordcountOutput = fs.readFileSync('wordcount-output.txt', 'utf8');
+            if (wordcountOutput) {
+              comment += '\n### 📊 Word Count Summary\n';
+              comment += '```\n' + wordcountOutput + '\n```\n';
+            }
+          } catch (e) {
+            // File might not exist, that's okay
+          }
+          
+          // Find and update or create comment
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          
+          const botComment = comments.find(comment => 
+            comment.user.type === 'Bot' && 
+            comment.body.includes('Automated PR Check Results')
+          );
+          
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: comment
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+          }
+          
+  elite-checks:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'elite') || contains(github.event.pull_request.title, 'elite')
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: 🛡️ Verify Elite Structure
+      run: |
+        echo "🛡️ Verifying Elite directory structure..."
+        
+        # Check required directories
+        for dir in ".claude/commands" ".claude/scripts" ".claude/templates" ".claude/mcp-configs"; do
+          if [ ! -d "$dir" ]; then
+            echo "❌ Missing required directory: $dir"
+            exit 1
+          fi
+        done
+        
+        # Check required scripts
+        for script in ".claude/scripts/verify-env.sh" ".claude/scripts/install-complete-stack.sh"; do
+          if [ ! -f "$script" ]; then
+            echo "❌ Missing required script: $script"
+            exit 1
+          fi
+        done
+        
+        echo "✅ Elite structure verified!"
+        
+    - name: 📋 Check Elite Documentation
+      run: |
+        if [ ! -f "CLAUDE-ELITE.md" ]; then
+          echo "❌ Missing CLAUDE-ELITE.md documentation"
+          exit 1
+        fi
+        echo "✅ Elite documentation found!"

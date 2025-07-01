@@ -10,8 +10,8 @@ npm run lint:check
 # Atualizar contagem de palavras
 npm run wordcount
 
-# Verificar se capítulos foram modificados
-CHAPTER_CHANGES=$(git diff --cached --name-only | grep "chapters/.*\.md" || true)
+# Verificar se capítulos foram modificados (excluindo .claude/)
+CHAPTER_CHANGES=$(git diff --cached --name-only | grep -v "^\.claude/" | grep "chapters/.*\.md" || true)
 
 if [ -n "$CHAPTER_CHANGES" ]; then
     echo "📚 Mudanças em capítulos detectadas. Verificando contexto..."
@@ -47,3 +47,9 @@ fi
 # Adicionar arquivos modificados
 git add chapters/*.md
 git add context/*.json context/CONTEXT.md 2>/dev/null || true
+
+# Executar quality gates
+if [ -f "$(dirname "$0")/pre-commit-quality" ]; then
+    echo "🔍 Running quality checks..."
+    . "$(dirname "$0")/pre-commit-quality"
+fi

@@ -1,0 +1,29 @@
+{
+  "status": "completed",
+  "phases": {
+    "writer": {
+      "status": "skipped",
+      "output": null
+    },
+    "image": {
+      "status": "completed",
+      "output": null,
+      "completedAt": "2025-06-29T22:41:12.685Z"
+    },
+    "build": {
+      "status": "completed",
+      "output": null,
+      "completedAt": "2025-06-29T22:41:12.865Z"
+    },
+    "qa": {
+      "status": "completed",
+      "output": null,
+      "completedAt": "2025-06-29T22:41:13.235Z"
+    }
+  },
+  "startTime": "2025-06-29T22:41:12.667Z",
+  "errors": [],
+  "qaRetries": 0,
+  "currentPreset": 0,
+  "completedAt": "2025-06-29T22:41:13.235Z"
+}

@@ -1,68 +1,43 @@
-# Layout Presets for QA Cycling
-# Each preset is tried in order until QA passes
+# Layout presets for infinite QA loop
+# Each preset tries different typography settings to pass visual checks
 
 - pass: 1
-  font_pt: 12
-  line_height: 1.4
-  margin_top: 48
-  margin_bottom: 48
-  css: templates/pdf-standard.css
-  description: "Standard layout"
-
+  name: "Standard"
+  css: "templates/pdf-standard.css"
+  description: "Default professional book layout"
+  
 - pass: 2
-  font_pt: 11.5
-  line_height: 1.35
-  margin_top: 44
-  margin_bottom: 44
-  css: templates/pdf-tight.css
-  description: "Tight layout for dense content"
-
+  name: "Tight"
+  css: "templates/pdf-tight.css"
+  description: "Reduced margins and spacing"
+  
 - pass: 3
-  font_pt: 12.5
-  line_height: 1.45
-  margin_top: 52
-  margin_bottom: 52
-  css: templates/pdf-loose.css
-  description: "Loose layout for readability"
-
+  name: "Loose"
+  css: "templates/pdf-loose.css"
+  description: "Increased margins and spacing"
+  
 - pass: 4
-  font_pt: 13
-  line_height: 1.5
-  margin_top: 56
-  margin_bottom: 56
-  css: templates/pdf-standard.css
-  description: "Large font standard"
-
+  name: "Standard Alt"
+  css: "templates/pdf-standard.css"
+  description: "Standard with minor tweaks"
+  
 - pass: 5
-  font_pt: 11.5
-  line_height: 1.4
-  margin_top: 40
-  margin_bottom: 40
-  css: templates/pdf-tight.css
-  description: "Extra tight layout"
-
+  name: "Tight Alt"
+  css: "templates/pdf-tight.css"
+  description: "Tight with minor tweaks"
+  
 - pass: 6
-  font_pt: 12
-  line_height: 1.35
-  margin_top: 46
-  margin_bottom: 46
-  css: templates/pdf-standard.css
-  description: "Standard with tight line height"
-
+  name: "Standard Final"
+  css: "templates/pdf-standard.css"
+  description: "Standard with final adjustments"
+  
 - pass: 7
-  font_pt: 12.5
-  line_height: 1.5
-  margin_top: 50
-  margin_bottom: 50
-  css: templates/pdf-loose.css
-  description: "Medium font loose spacing"
-
+  name: "Loose Alt"
+  css: "templates/pdf-loose.css"
+  description: "Loose with minor tweaks"
+  
 - pass: 8
-  font_pt: 13.5
-  line_height: 1.55
-  margin_top: 60
-  margin_bottom: 60
-  css: templates/pdf-loose.css
-  description: "Extra large and loose"
-
-# After pass 8, the system cycles back to pass 1 with minor adjustments
+  name: "Loose Final"
+  css: "templates/pdf-loose.css"
+  description: "Loose with final adjustments"
+EOF < /dev/null

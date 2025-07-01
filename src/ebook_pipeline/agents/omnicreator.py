@@ -104,7 +104,7 @@ class OmniCreator:
     def process_images(self, chapters: List[Path]) -> Dict[str, str]:
         """Process all image placeholders in chapters"""
         from ebook_pipeline.agents.image_prompt_agent import ImagePromptAgent
-        from scripts.generate_images import ImageGenerator
+        from ebook_pipeline.generators.generate_images import ImageGenerator
 
         # Initialize with custom palette if provided
         agent = ImagePromptAgent()
