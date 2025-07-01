@@ -4,8 +4,52 @@ const path = require('path');
 const archiver = require('archiver');
 const yaml = require('js-yaml');
 const marked = require('marked');
-const chalk = require('chalk');
-const ora = require('ora');
+// ANSI colors (chalk is ESM-only now)
+const colors = {
+    green: (text) => `\x1b[32m${text}\x1b[0m`,
+    red: (text) => `\x1b[31m${text}\x1b[0m`,
+    yellow: (text) => `\x1b[33m${text}\x1b[0m`,
+    blue: (text) => `\x1b[34m${text}\x1b[0m`,
+    gray: (text) => `\x1b[90m${text}\x1b[0m`
+};
+// Simple spinner replacement
+class SimpleSpinner {
+    constructor(text) {
+        this.text = text;
+        this.interval = null;
+        this.frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+        this.index = 0;
+    }
+    
+    start() {
+        process.stdout.write(`${this.frames[0]} ${this.text}`);
+        this.interval = setInterval(() => {
+            process.stdout.write(`\r${this.frames[this.index]} ${this.text}`);
+            this.index = (this.index + 1) % this.frames.length;
+        }, 80);
+        return this;
+    }
+    
+    succeed(text) {
+        this.stop();
+        console.log(`\r✅ ${text || this.text}`);
+    }
+    
+    fail(text) {
+        this.stop();
+        console.log(`\r❌ ${text || this.text}`);
+    }
+    
+    stop() {
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+            process.stdout.write('\r' + ' '.repeat(50) + '\r');
+        }
+    }
+}
+
+const ora = (text) => new SimpleSpinner(text);
 const { glob } = require('glob');
 const { create } = require('xmlbuilder2');
 
@@ -39,9 +83,9 @@ class EPUBBuilder {
             await this.createTOC();
             await this.createPackage();
             
-            this.spinner.succeed(chalk.green('EPUB criado com sucesso!'));
+            this.spinner.succeed(colors.green('EPUB criado com sucesso!'));
         } catch (error) {
-            this.spinner.fail(chalk.red('Erro ao criar EPUB'));
+            this.spinner.fail(colors.red('Erro ao criar EPUB'));
             console.error(error);
             process.exit(1);
         }
@@ -49,9 +93,29 @@ class EPUBBuilder {
     
     async loadMetadata() {
         this.spinner.text = 'Carregando metadados...';
-        this.metadata = yaml.load(
+        const rawMetadata = yaml.load(
             await fs.readFile('metadata.yaml', 'utf8')
         );
+        
+        // Normalize metadata structure
+        this.metadata = {
+            title: rawMetadata.book?.title || rawMetadata.title || 'Untitled',
+            author: rawMetadata.book?.author || rawMetadata.author || 'Unknown',
+            language: rawMetadata.book?.language || rawMetadata.language || 'en',
+            publisher: rawMetadata.book?.publisher || rawMetadata.publisher || '',
+            description: rawMetadata.book?.description || rawMetadata.description || '',
+            uuid: rawMetadata.book?.isbn || rawMetadata.uuid || 'urn:uuid:' + this.generateUUID(),
+            copyright: rawMetadata.copyright || `© ${new Date().getFullYear()} ${rawMetadata.book?.author || rawMetadata.author || ''}`,
+            coverImage: rawMetadata.images?.cover || rawMetadata.coverImage || 'assets/images/cover.jpg'
+        };
+    }
+    
+    generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     }
     
     async prepareDirectories() {
@@ -382,7 +446,7 @@ pre {
         
         const outputFile = path.join(
             this.outputDir,
-            `${this.metadata.title.toLowerCase().replace(/\s+/g, '-')}.epub`
+            `${(this.metadata.book?.title || this.metadata.title || 'ebook').toLowerCase().replace(/\s+/g, '-')}.epub`
         );
         
         const output = fs.createWriteStream(outputFile);
@@ -390,8 +454,8 @@ pre {
         
         return new Promise((resolve, reject) => {
             output.on('close', () => {
-                console.log(chalk.green(`✓ EPUB criado: ${outputFile}`));
-                console.log(chalk.blue(`  Tamanho: ${(archive.pointer() / 1024 / 1024).toFixed(2)} MB`));
+                console.log(colors.green(`✓ EPUB criado: ${outputFile}`));
+                console.log(colors.blue(`  Tamanho: ${(archive.pointer() / 1024 / 1024).toFixed(2)} MB`));
                 resolve();
             });
             

@@ -1,0 +1,144 @@
+{
+  "status": "completed",
+  "phases": {
+    "writer": {
+      "status": "skipped",
+      "output": null
+    },
+    "image": {
+      "status": "completed",
+      "output": null,
+      "completedAt": "2025-06-29T22:41:12.685Z"
+    },
+    "build": {
+      "status": "completed",
+      "output": null,
+      "completedAt": "2025-06-29T22:41:12.865Z"
+    },
+    "qa": {
+      "status": "completed",
+      "output": null,
+      "completedAt": "2025-06-29T22:41:13.235Z"
+    }
+  },
+  "startTime": "2025-06-29T22:41:12.667Z",
+  "errors": [],
+  "qaRetries": 0,
+  "currentPreset": 0,
+  "completedAt": "2025-06-29T22:41:13.235Z",
+  "metrics": {
+    "total_time": 0,
+    "phase_times": {}
+  },
+  "updated_at": "2025-07-01T15:57:40.615Z",
+  "checkpoints": [
+    {
+      "id": "2025-07-01T07-51-39-381Z-test-enhanced",
+      "created_at": "2025-07-01T07:51:39.398Z",
+      "label": "test-enhanced",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T07-51-39-592Z-before-restore",
+      "created_at": "2025-07-01T07:51:39.607Z",
+      "label": "before-restore",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-33-600Z-load-test-3-1",
+      "created_at": "2025-07-01T15:57:33.657Z",
+      "label": "load-test-3-1",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-33-910Z-load-test-1-1",
+      "created_at": "2025-07-01T15:57:33.964Z",
+      "label": "load-test-1-1",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-35-238Z-load-test-4-2",
+      "created_at": "2025-07-01T15:57:35.294Z",
+      "label": "load-test-4-2",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-35-987Z-load-test-3-2",
+      "created_at": "2025-07-01T15:57:36.033Z",
+      "label": "load-test-3-2",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-36-771Z-load-test-1-2",
+      "created_at": "2025-07-01T15:57:36.824Z",
+      "label": "load-test-1-2",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-36-996Z-load-test-2-2",
+      "created_at": "2025-07-01T15:57:37.022Z",
+      "label": "load-test-2-2",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-37-147Z-load-test-3-3",
+      "created_at": "2025-07-01T15:57:37.191Z",
+      "label": "load-test-3-3",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-37-341Z-load-test-4-3",
+      "created_at": "2025-07-01T15:57:37.377Z",
+      "label": "load-test-4-3",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-37-715Z-load-test-0-3",
+      "created_at": "2025-07-01T15:57:37.745Z",
+      "label": "load-test-0-3",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-38-144Z-load-test-2-3",
+      "created_at": "2025-07-01T15:57:38.175Z",
+      "label": "load-test-2-3",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-38-722Z-load-test-1-3",
+      "created_at": "2025-07-01T15:57:38.781Z",
+      "label": "load-test-1-3",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-38-967Z-load-test-4-4",
+      "created_at": "2025-07-01T15:57:39.005Z",
+      "label": "load-test-4-4",
+      "size": "1.3MB"
+    },
+    {
+      "id": "2025-07-01T15-57-39-099Z-load-test-3-4",
+      "created_at": "2025-07-01T15:57:39.162Z",
+      "label": "load-test-3-4",
+      "size": "1.4MB"
+    },
+    {
+      "id": "2025-07-01T15-57-39-874Z-load-test-1-4",
+      "created_at": "2025-07-01T15:57:39.917Z",
+      "label": "load-test-1-4",
+      "size": "1.4MB"
+    },
+    {
+      "id": "2025-07-01T15-57-40-475Z-load-test-2-4",
+      "created_at": "2025-07-01T15:57:40.540Z",
+      "label": "load-test-2-4",
+      "size": "1.4MB"
+    },
+    {
+      "id": "2025-07-01T15-57-40-575Z-load-test-4-5",
+      "created_at": "2025-07-01T15:57:40.613Z",
+      "label": "load-test-4-5",
+      "size": "1.4MB"
+    }
+  ]
+}

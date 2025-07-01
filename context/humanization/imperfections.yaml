@@ -1,0 +1,164 @@
+# Controlled Imperfections for Natural Writing
+# These patterns make AI writing indistinguishable from human writing
+
+sentence_variety:
+  structures:
+    ultra_short:
+      - "É isso."
+      - "Simples assim."
+      - "Funcionou!"
+      - "Próximo."
+      - "Bingo!"
+      - "Exatamente."
+      frequency: 0.10  # 10% of sentences
+    
+    short:
+      - "{Subject} {verb} {object}."
+      - "{Question}?"
+      - "{Exclamation}!"
+      frequency: 0.30  # 30% of sentences
+    
+    medium:
+      - "E foi assim que {outcome}."
+      - "O resultado? {Result}."
+      - "Mas tem um detalhe: {detail}."
+      frequency: 0.40  # 40% of sentences
+    
+    long:
+      - "Quando você realmente entende {concept}, percebe que não é apenas sobre {surface}, mas sim sobre {deep}, e isso muda completamente sua perspectiva sobre {area}."
+      - "Se tem uma coisa que aprendi em {years} anos de {field}, é que {wisdom}, especialmente quando {condition}."
+      frequency: 0.20  # 20% of sentences
+
+natural_imperfections:
+  grammar_flexibilities:
+    # Not errors, but informal usage
+    - pattern: "Começar frase com E/Mas"
+      examples:
+        - "E foi exatamente isso que aconteceu."
+        - "Mas não é só isso."
+        - "E sabe o que é melhor?"
+      frequency: 0.15
+    
+    - pattern: "Fragmentos intencionais"
+      examples:
+        - "O problema? Complexidade desnecessária."
+        - "A solução? Mais simples do que parece."
+        - "Resultado final? Sucesso total."
+      frequency: 0.10
+    
+    - pattern: "Repetição para ênfase"
+      examples:
+        - "Muito, muito importante isso."
+        - "Realmente, realmente funciona."
+        - "Nunca, nunca faça isso."
+      frequency: 0.05
+  
+  conversational_markers:
+    - pattern: "Interrupções de pensamento"
+      examples:
+        - "O código estava... como posso explicar... uma bagunça completa."
+        - "Então você pega o — ah, primeiro precisa configurar — o arquivo principal."
+        - "A ideia é simples: você... na verdade, deixa eu explicar melhor."
+      frequency: 0.08
+    
+    - pattern: "Auto-correções"
+      examples:
+        - "São 5 passos. Quer dizer, 6 se contar a preparação."
+        - "Isso sempre funciona. Bom, quase sempre."
+        - "É fácil! Ok, não tão fácil, mas possível."
+      frequency: 0.07
+    
+    - pattern: "Pensamento em voz alta"
+      examples:
+        - "Hmm, como explicar isso..."
+        - "Deixa eu pensar num exemplo melhor..."
+        - "Ah, já sei! É como..."
+      frequency: 0.05
+
+typing_patterns:
+  # Simulate natural typing patterns
+  intentional_variations:
+    - type: "Emphasis variations"
+      examples:
+        - "MUITO importante"
+        - "muuuito bom"
+        - "Super recomendo"
+        - "ultra rápido"
+    
+    - type: "Number writing inconsistency"
+      examples:
+        - "3 formas" vs "três formas"
+        - "10 minutos" vs "dez minutos"
+      rule: "Vary between numeric and written for numbers 1-10"
+    
+    - type: "Contraction variations"
+      examples:
+        - "não é" vs "não é" vs "ñ é" (very informal)
+        - "para" vs "pra"
+        - "está" vs "tá"
+      rule: "Match formality level of section"
+
+paragraph_patterns:
+  natural_breaks:
+    - "Single sentence paragraph for impact."
+    
+    - "Question paragraph?\nExactly."
+    
+    - "Sometimes you need that\npause\nfor effect."
+  
+  rhythm_variations:
+    - pattern: "Build up"
+      structure: "Short. Slightly longer. Even longer sentence here. Then back to short."
+    
+    - pattern: "List break"
+      structure: "Instead of bullet points, sometimes just: First this. Then that. Finally this."
+    
+    - pattern: "Conversational flow"
+      structure: "Big explanation... pause... 'Make sense?' Continue."
+
+human_touches:
+  aside_comments:
+    - "(Sim, eu sei que parece óbvio agora)"
+    - "(Confesso que demorei pra entender isso)"
+    - "(Pode pular essa parte se já souber)"
+    - "(Guarda esse truque, vai precisar)"
+    frequency: 0.05
+  
+  meta_comments:
+    - "Essa parte aqui é meio chata, mas importante"
+    - "Prometo que fica mais interessante"
+    - "Se você entendeu até aqui, o resto é tranquilo"
+    - "Última coisa técnica, juro"
+    frequency: 0.03
+  
+  time_references:
+    - "Enquanto escrevo isso..."
+    - "No momento que você lê isso..."
+    - "Hoje em dia..."
+    - "Antigamente..."
+    frequency: 0.02
+
+# Anti-perfection rules
+avoid_patterns:
+  never_use:
+    - "All paragraphs same length"
+    - "All sentences starting with subject"
+    - "Perfect grammar throughout"
+    - "Academic tone consistently"
+    - "Never admitting uncertainty"
+  
+  red_flags:
+    - "Moreover/Furthermore" → Use "Além disso/E mais"
+    - "In conclusion" → Use "Resumindo/No final"
+    - "It should be noted" → Just say it
+    - "One might argue" → Use "Você pode pensar"
+
+authenticity_score:
+  # Metrics to ensure human-like writing
+  targets:
+    sentence_length_stddev: "> 5 words"
+    paragraph_length_stddev: "> 2 sentences"
+    personal_pronouns_per_page: "> 5"
+    questions_per_chapter: "3-7"
+    contractions_usage: "15-25%"
+    perfect_sentences_max: "85%"

@@ -1,0 +1,342 @@
+/* Ultra-Thin Modern Design for Pipeline Ebook */
+
+/* Font Imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+
+/* Root Variables */
+:root {
+    --primary: #0066CC;
+    --secondary: #00AA44;
+    --accent: #FF6600;
+    --black: #1A1A1A;
+    --gray-dark: #4A4A4A;
+    --gray: #7A7A7A;
+    --gray-light: #DADADA;
+    --gray-ultra-light: #F5F5F5;
+    --white: #FFFFFF;
+    
+    --font-ultra-thin: 100;
+    --font-thin: 200;
+    --font-light: 300;
+    --font-regular: 400;
+    --font-medium: 500;
+    
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --spacing-xxl: 5rem;
+}
+
+/* Base Typography */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: var(--font-light);
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--black);
+    background: var(--white);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Page Layout */
+@page {
+    margin: 0.75in;
+    size: 6in 9in;
+}
+
+.page {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* Headings - Ultra Thin */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-thin);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: var(--font-ultra-thin);
+    margin-bottom: var(--spacing-xl);
+    color: var(--primary);
+    text-align: center;
+    page-break-before: always;
+    padding-top: var(--spacing-xxl);
+}
+
+h2 {
+    font-size: 2rem;
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+    color: var(--black);
+    border-bottom: 1px solid var(--gray-ultra-light);
+    padding-bottom: var(--spacing-sm);
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-top: var(--spacing-lg);
+    font-weight: var(--font-light);
+}
+
+h4 {
+    font-size: 1.25rem;
+    margin-top: var(--spacing-md);
+    font-weight: var(--font-regular);
+    color: var(--gray-dark);
+}
+
+/* Paragraphs */
+p {
+    margin-bottom: var(--spacing-md);
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+}
+
+p:first-of-type {
+    text-indent: 0;
+}
+
+p:first-of-type::first-letter {
+    font-size: 3.5rem;
+    font-weight: var(--font-ultra-thin);
+    float: left;
+    line-height: 1;
+    margin-right: var(--spacing-xs);
+    margin-top: -0.1em;
+    color: var(--primary);
+}
+
+/* Lists */
+ul, ol {
+    margin-left: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+li {
+    margin-bottom: var(--spacing-xs);
+    font-weight: var(--font-light);
+}
+
+/* Code Blocks - Ultra Minimal */
+pre, code {
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-weight: var(--font-light);
+    font-size: 0.9em;
+}
+
+code {
+    background: var(--gray-ultra-light);
+    padding: 0.1em 0.3em;
+    border-radius: 2px;
+    color: var(--accent);
+}
+
+pre {
+    background: var(--gray-ultra-light);
+    border-left: 2px solid var(--primary);
+    padding: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+    overflow-x: auto;
+    line-height: 1.4;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+/* Blockquotes - Elegant */
+blockquote {
+    margin: var(--spacing-lg) 0;
+    padding-left: var(--spacing-lg);
+    border-left: 1px solid var(--primary);
+    font-style: italic;
+    font-weight: var(--font-thin);
+    color: var(--gray-dark);
+}
+
+/* Links */
+a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: var(--font-regular);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+a:hover {
+    border-bottom-color: var(--primary);
+}
+
+/* Images - Minimalist */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: var(--spacing-xl) auto;
+}
+
+figure {
+    margin: var(--spacing-xl) 0;
+    text-align: center;
+}
+
+figcaption {
+    font-size: 0.875rem;
+    color: var(--gray);
+    font-weight: var(--font-thin);
+    margin-top: var(--spacing-sm);
+    font-style: italic;
+}
+
+/* Tables - Clean */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-lg) 0;
+    font-weight: var(--font-light);
+}
+
+th {
+    font-weight: var(--font-medium);
+    text-align: left;
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--black);
+}
+
+td {
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--gray-ultra-light);
+}
+
+/* Chapter Opener */
+.chapter-opener {
+    page-break-before: always;
+    text-align: center;
+    padding-top: var(--spacing-xxl);
+}
+
+.chapter-number {
+    font-size: 5rem;
+    font-weight: var(--font-ultra-thin);
+    color: var(--gray-light);
+    line-height: 1;
+    margin-bottom: var(--spacing-md);
+}
+
+.chapter-title {
+    font-size: 2.5rem;
+    font-weight: var(--font-thin);
+    color: var(--black);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* Special Elements */
+.note {
+    background: var(--gray-ultra-light);
+    border-left: 3px solid var(--secondary);
+    padding: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+    font-weight: var(--font-light);
+}
+
+.warning {
+    background: #FFF3CD;
+    border-left: 3px solid var(--accent);
+    padding: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+    font-weight: var(--font-light);
+}
+
+.highlight {
+    background: linear-gradient(to bottom, transparent 60%, rgba(0, 102, 204, 0.1) 60%);
+    padding: 0 0.1em;
+}
+
+/* Page Numbers */
+.page-number {
+    position: absolute;
+    bottom: 0.5in;
+    font-size: 0.75rem;
+    font-weight: var(--font-thin);
+    color: var(--gray);
+}
+
+.page-number.even {
+    left: 0.75in;
+}
+
+.page-number.odd {
+    right: 0.75in;
+}
+
+/* TOC - Minimal */
+.toc {
+    page-break-before: always;
+}
+
+.toc h1 {
+    margin-bottom: var(--spacing-xl);
+}
+
+.toc-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--spacing-md);
+    font-weight: var(--font-light);
+}
+
+.toc-title {
+    flex: 1;
+}
+
+.toc-dots {
+    flex: 0 0 auto;
+    border-bottom: 1px dotted var(--gray-light);
+    margin: 0 var(--spacing-sm);
+    min-width: 2rem;
+}
+
+.toc-page {
+    flex: 0 0 auto;
+    font-weight: var(--font-thin);
+    color: var(--gray);
+}
+
+/* Print Optimizations */
+@media print {
+    body {
+        font-size: 11pt;
+    }
+    
+    h1, h2, h3, h4 {
+        page-break-after: avoid;
+    }
+    
+    p, blockquote, ul, ol {
+        orphans: 3;
+        widows: 3;
+    }
+    
+    pre {
+        page-break-inside: avoid;
+    }
+}

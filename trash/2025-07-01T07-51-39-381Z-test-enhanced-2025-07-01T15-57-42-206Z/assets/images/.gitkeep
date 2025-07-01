@@ -1,0 +1,3 @@
+# This directory stores AI-generated images for the ebook
+# Images are generated from ![AI-IMAGE: description]() tags in chapters
+# Run 'make generate-images' to process all placeholders

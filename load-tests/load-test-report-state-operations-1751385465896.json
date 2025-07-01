@@ -1,0 +1,76 @@
+{
+  "testName": "state-operations",
+  "duration": "17.4s",
+  "concurrency": 10,
+  "operations": {
+    "total": 1518,
+    "successful": 1506,
+    "failed": 12,
+    "successRate": "99.2%",
+    "throughput": "87.0 ops/sec"
+  },
+  "performance": {
+    "min": "41ms",
+    "max": "729ms",
+    "avg": "81.1ms",
+    "p50": "55ms",
+    "p95": "171ms",
+    "p99": "446ms"
+  },
+  "resources": {
+    "peakMemory": "10.7MB",
+    "avgHandles": 21
+  },
+  "errors": [
+    {
+      "command": "node",
+      "error": "Process exited with code null",
+      "duration": "12ms"
+    },
+    {
+      "command": "complete-illustrator-1",
+      "error": "Complete phase failed with code null",
+      "duration": "13ms"
+    },
+    {
+      "command": "node",
+      "error": "Process exited with code null",
+      "duration": "9ms"
+    },
+    {
+      "command": "complete-builder-7",
+      "error": "Complete phase failed with code null",
+      "duration": "9ms"
+    },
+    {
+      "command": "node",
+      "error": "Process exited with code null",
+      "duration": "4ms"
+    },
+    {
+      "command": "start-qa-3",
+      "error": "Start phase failed with code null",
+      "duration": "4ms"
+    },
+    {
+      "command": "node",
+      "error": "Process exited with code null",
+      "duration": "10ms"
+    },
+    {
+      "command": "start-publisher-8",
+      "error": "Start phase failed with code null",
+      "duration": "10ms"
+    },
+    {
+      "command": "node",
+      "error": "Process exited with code null",
+      "duration": "26ms"
+    },
+    {
+      "command": "status-4",
+      "error": "Status read failed with code null",
+      "duration": "26ms"
+    }
+  ]
+}

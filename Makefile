@@ -16,3 +16,39 @@ clean:
 .PHONY: pdf
 pdf:
 	npm run build:pdf
+
+# PDF com verificação QA
+.PHONY: pdf-qa
+pdf-qa:
+	npm run build:pdf
+	node scripts/pdf-qa-loop-real.js
+
+# PDF sem QA (desenvolvimento rápido)
+.PHONY: pdf-fast
+pdf-fast:
+	SKIP_PDF_QA=1 npm run build:pdf
+
+# Grammar checking commands
+.PHONY: grammar-server
+grammar-server:
+	npm run grammar:server
+
+.PHONY: grammar
+grammar:
+	npm run grammar
+
+.PHONY: grammar-check
+grammar-check:
+	npm run grammar:check:chapters
+
+.PHONY: grammar-fix
+grammar-fix:
+	npm run grammar:fix
+
+.PHONY: grammar-report
+grammar-report:
+	npm run grammar:report
+
+.PHONY: test-grammar
+test-grammar:
+	node scripts/test-grammar.js

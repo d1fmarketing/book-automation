@@ -1,0 +1,149 @@
+# Story Bible - Master Reference Document
+# This file contains all key information about your book to maintain consistency
+
+# Book Overview
+book:
+  title: "Your Book Title"
+  genre: "Fiction/Non-fiction"
+  target_audience: "Adults/Young Adults/Children"
+  themes:
+    - primary: "Main theme"
+    - secondary: ["Theme 2", "Theme 3"]
+  tone: "Serious/Humorous/Dark/Light"
+  point_of_view: "First Person/Third Person Limited/Omniscient"
+
+# Characters
+characters:
+  protagonist:
+    name: "Character Name"
+    age: 30
+    physical_description: "Height, build, hair color, distinguishing features"
+    personality_traits: ["trait1", "trait2", "trait3"]
+    background: "Brief history"
+    motivation: "What drives them"
+    character_arc: "How they change throughout the story"
+    speech_patterns: "Formal/Casual/Dialect notes"
+    relationships:
+      - character: "Other Character"
+        type: "friend/enemy/love interest"
+        dynamic: "Description of relationship"
+    first_appearance: "Chapter 1"
+    key_scenes: ["ch01_meeting", "ch05_revelation"]
+    
+  # Add more characters as needed
+  secondary_characters:
+    - name: "Character 2"
+      role: "Best friend/Mentor/Antagonist"
+      description: "Brief description"
+      quirks: ["quirk1", "quirk2"]
+
+# World Building
+world:
+  setting:
+    time_period: "Contemporary/Historical/Future"
+    primary_location: "City/Country/Planet"
+    locations:
+      - name: "Main Location"
+        description: "Detailed description"
+        significance: "Why it matters to the story"
+        first_mentioned: "Chapter X"
+      - name: "Secondary Location"
+        description: "Brief description"
+        
+  rules: # For fantasy/sci-fi
+    magic_system: "How it works, limitations"
+    technology: "Available tech, limitations"
+    society: "Government, social structure"
+    economy: "Currency, trade"
+    
+  culture:
+    customs: ["custom1", "custom2"]
+    language_notes: "Special terms, phrases"
+    food: ["typical dishes"]
+    clothing: "Fashion notes"
+
+# Plot Structure
+plot:
+  premise: "One-sentence summary"
+  
+  three_act_structure:
+    act_1:
+      setup: "Introduction to world and characters"
+      inciting_incident: "What starts the story"
+      plot_point_1: "Major turn into Act 2"
+      
+    act_2:
+      rising_action: 
+        - "Event 1"
+        - "Event 2"
+      midpoint: "Major revelation or reversal"
+      plot_point_2: "Turn into Act 3"
+      
+    act_3:
+      climax: "Final confrontation"
+      resolution: "How it ends"
+      
+  subplots:
+    - name: "Romance subplot"
+      description: "Brief description"
+      resolution: "How it concludes"
+
+# Timeline
+timeline:
+  - date: "Story Day 1"
+    chapter: 1
+    events: ["Event 1", "Event 2"]
+  - date: "Story Day 2"
+    chapter: 2
+    events: ["Event 3"]
+  # Continue for key dates
+
+# Important Objects/McGuffins
+objects:
+  - name: "The Ancient Book"
+    description: "Leather-bound, mysterious symbols"
+    significance: "Contains the secret to..."
+    location_history:
+      - chapter: 1
+        location: "Library"
+      - chapter: 5
+        location: "Protagonist's backpack"
+
+# Terminology & Consistency
+terminology:
+  # Keep track of specific terms, spellings, capitalizations
+  - term: "The Council"
+    definition: "Governing body of the realm"
+    always_capitalized: true
+  - term: "mindreading"
+    definition: "Ability to read thoughts"
+    spelling_note: "One word, not 'mind reading'"
+
+# Research Notes
+research:
+  - topic: "Medieval weaponry"
+    sources: ["Book 1", "Website URL"]
+    key_facts: ["Fact 1", "Fact 2"]
+    
+# Style Guide
+style_guide:
+  chapter_length: "2000-3000 words"
+  scene_breaks: "Use *** centered"
+  dialogue_tags: "Prefer 'said' over elaborate tags"
+  tense: "Past/Present"
+  forbidden_words: ["very", "really", "just"]
+  
+# Series Planning (if applicable)
+series:
+  total_books: 3
+  book_1_arc: "Introduction and first challenge"
+  book_2_arc: "Deepening conflict"
+  book_3_arc: "Final resolution"
+  overarching_arc: "Complete journey"
+  
+# Notes & Ideas
+notes:
+  future_scenes: []
+  cut_content: []
+  inspiration: []
+  questions_to_resolve: []

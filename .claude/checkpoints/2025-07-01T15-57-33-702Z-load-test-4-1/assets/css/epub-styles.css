@@ -1,0 +1,227 @@
+/* Estilos padrão para EPUB */
+@namespace epub "http://www.idpf.org/2007/ops";
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Corpo do texto */
+body {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1em;
+    line-height: 1.6;
+    color: #1a1a1a;
+    margin: 0.5em;
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+}
+
+/* Títulos */
+h1 {
+    font-size: 1.8em;
+    font-weight: normal;
+    text-align: center;
+    margin: 1em 0;
+    page-break-before: always;
+    -webkit-page-break-before: always;
+    page-break-after: avoid;
+    -webkit-page-break-after: avoid;
+}
+
+h2 {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin: 1.5em 0 0.5em 0;
+    page-break-after: avoid;
+    -webkit-page-break-after: avoid;
+}
+
+h3 {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 1.2em 0 0.5em 0;
+    page-break-after: avoid;
+    -webkit-page-break-after: avoid;
+}
+
+/* Parágrafos */
+p {
+    text-indent: 1.5em;
+    margin: 0 0 0.5em 0;
+}
+
+/* Primeiro parágrafo sem indentação */
+p:first-child,
+p:first-of-type,
+h1 + p,
+h2 + p,
+h3 + p,
+blockquote + p,
+ul + p,
+ol + p {
+    text-indent: 0;
+}
+
+/* Listas */
+ul, ol {
+    margin: 1em 0 1em 2em;
+}
+
+li {
+    margin-bottom: 0.3em;
+}
+
+/* Citações */
+blockquote {
+    margin: 1em 1.5em;
+    padding-left: 0.5em;
+    font-style: italic;
+    color: #555;
+    border-left: 3px solid #ddd;
+}
+
+/* Links */
+a {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+/* Código */
+code {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.9em;
+    background-color: #f5f5f5;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+}
+
+pre {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.85em;
+    background-color: #f5f5f5;
+    padding: 1em;
+    margin: 1em 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Imagens */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1em auto;
+}
+
+/* Quebras de seção */
+hr {
+    border: none;
+    text-align: center;
+    margin: 2em 0;
+}
+
+hr::after {
+    content: "* * *";
+    font-size: 1.2em;
+    letter-spacing: 0.5em;
+}
+
+/* Tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9em;
+}
+
+th, td {
+    padding: 0.5em;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+/* Classes especiais */
+.center {
+    text-align: center;
+    text-indent: 0;
+}
+
+.right {
+    text-align: right;
+    text-indent: 0;
+}
+
+.no-indent {
+    text-indent: 0;
+}
+
+.small-caps {
+    font-variant: small-caps;
+    letter-spacing: 0.05em;
+}
+
+/* Dedicatória */
+.dedication {
+    text-align: center;
+    font-style: italic;
+    margin: 3em 2em;
+}
+
+/* Epígrafe */
+.epigraph {
+    margin: 2em 2em 2em 4em;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.epigraph-author {
+    text-align: right;
+    font-style: normal;
+    font-size: 0.9em;
+    margin-top: 0.5em;
+}
+
+/* Notas de rodapé */
+.footnote {
+    font-size: 0.85em;
+    vertical-align: super;
+    line-height: 0;
+}
+
+.footnote-text {
+    font-size: 0.9em;
+    margin: 0.5em 0;
+    padding-left: 1em;
+}
+
+/* Responsividade para diferentes dispositivos */
+@media screen and (max-width: 480px) {
+    body {
+        font-size: 0.9em;
+        margin: 0.3em;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+    }
+    
+    h2 {
+        font-size: 1.3em;
+    }
+    
+    h3 {
+        font-size: 1.1em;
+    }
+}

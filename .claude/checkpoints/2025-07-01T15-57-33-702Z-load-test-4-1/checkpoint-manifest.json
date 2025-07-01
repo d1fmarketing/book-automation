@@ -1,0 +1,50 @@
+{
+  "id": "2025-07-01T15-57-33-702Z-load-test-4-1",
+  "created_at": "2025-07-01T15:57:33.704Z",
+  "label": "load-test-4-1",
+  "includes": [
+    {
+      "path": "chapters/",
+      "type": "directory",
+      "files": 6,
+      "size": 5820
+    },
+    {
+      "path": "assets/",
+      "type": "directory",
+      "files": 6,
+      "size": 1138253
+    },
+    {
+      "path": "context/",
+      "type": "directory",
+      "files": 12,
+      "size": 56168
+    },
+    {
+      "path": "pipeline-state.json",
+      "type": "file",
+      "files": 1,
+      "size": 1090
+    },
+    {
+      "path": ".claude/todos.json",
+      "type": "file",
+      "files": 1,
+      "size": 193
+    },
+    {
+      "path": ".claude/logs/",
+      "type": "directory",
+      "files": 4,
+      "size": 5426
+    },
+    {
+      "path": "trash/",
+      "type": "directory",
+      "files": 8,
+      "size": 1596
+    }
+  ],
+  "stats": {}
+}

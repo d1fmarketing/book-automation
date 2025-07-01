@@ -1,0 +1,18 @@
+{
+  "session_id": "book-2025-07-01-1b552f25",
+  "created_at": "2025-07-01T08:30:09.173Z",
+  "updated_at": "2025-07-01T08:30:09.173Z",
+  "current_phase": null,
+  "phases": {},
+  "context": {
+    "book_id": null,
+    "metadata_file": "metadata.yaml",
+    "workflow_mode": "standard"
+  },
+  "checkpoints": [],
+  "todos": [],
+  "metrics": {
+    "total_time": 0,
+    "phase_times": {}
+  }
+}

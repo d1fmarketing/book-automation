@@ -79,6 +79,13 @@ jobs:
         set -euo pipefail
         npm run build:pdf
         
+    - name: 🔍 PDF Quality Check
+      run: |
+        set -euo pipefail
+        echo "🔍 Running PDF quality checks..."
+        node scripts/pdf-qa-loop-real.js
+        echo "✅ PDF quality checks passed!"
+        
     - name: 📚 Build EPUB
       run: |
         set -euo pipefail

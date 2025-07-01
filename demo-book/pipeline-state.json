@@ -1,0 +1,26 @@
+{
+  "session_id": "book-2025-07-01-1b552f25",
+  "created_at": "2025-07-01T08:30:09.173Z",
+  "updated_at": "2025-07-01T08:38:46.964Z",
+  "current_phase": null,
+  "phases": {},
+  "context": {
+    "book_id": null,
+    "metadata_file": "metadata.yaml",
+    "workflow_mode": "standard"
+  },
+  "checkpoints": [
+    {
+      "id": "2025-07-01T08-38-46-948Z-demo-test-checkpoint",
+      "created_at": "2025-07-01T08:38:46.963Z",
+      "label": "demo-test-checkpoint",
+      "phase": null,
+      "size": "349.7KB"
+    }
+  ],
+  "todos": [],
+  "metrics": {
+    "total_time": 0,
+    "phase_times": {}
+  }
+}

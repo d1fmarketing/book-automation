@@ -1,0 +1,184 @@
+# AI Anti-Patterns to Avoid
+# Common patterns that immediately identify text as AI-generated
+
+forbidden_phrases:
+  # Academic/formal phrases rarely used in conversational writing
+  academic_markers:
+    - "In conclusion"
+    - "Furthermore"
+    - "Moreover" 
+    - "Nevertheless"
+    - "Notwithstanding"
+    - "Henceforth"
+    - "Albeit"
+    - "Thus"
+    - "Hence"
+    - "Whereby"
+    - "Thereof"
+    - "Herein"
+    
+  portuguese_formal:
+    - "Em suma"
+    - "Ademais"
+    - "Não obstante"
+    - "Destarte"
+    - "Outrossim"
+    - "Por conseguinte"
+    - "Porquanto"
+    - "Consoante"
+    - "Mormente"
+    
+  overused_transitions:
+    - "It's important to note that"
+    - "It should be mentioned that"
+    - "It's worth noting that"
+    - "One might argue that"
+    - "It goes without saying"
+    - "At the end of the day"
+    - "When all is said and done"
+    
+  ai_favorites_portuguese:
+    - "É importante notar que"
+    - "Vale ressaltar que"
+    - "Cumpre destacar que"
+    - "Convém mencionar que"
+    - "É mister salientar"
+    - "Faz-se necessário"
+
+structural_patterns:
+  # Patterns that scream "AI wrote this"
+  
+  perfect_lists:
+    description: "Always using same format for lists"
+    examples:
+      bad: |
+        1. First, we need to...
+        2. Second, we need to...  
+        3. Third, we need to...
+        4. Finally, we need to...
+      good: |
+        1. Começar pelo básico
+        2. Depois a gente vai precisar...
+        3. Aí vem a parte chata: configuração
+        4. Por último (ufa!), os testes
+  
+  mechanical_conclusions:
+    description: "Formulaic paragraph endings"
+    avoid:
+      - "In summary, [repeat everything]"
+      - "To recap what we learned"
+      - "In conclusion, we can see that"
+      - "This demonstrates that"
+    prefer:
+      - "É isso aí!"
+      - "Sacou?"
+      - "Faz sentido?"
+      - "E assim funciona..."
+  
+  robotic_introductions:
+    description: "Starting every section the same way"
+    avoid:
+      - "In this section, we will..."
+      - "This chapter covers..."
+      - "We will explore..."
+      - "Let's dive into..."
+    prefer:
+      - Direct start with content
+      - Question to reader
+      - Anecdote or example
+      - Bold statement
+
+content_patterns:
+  balanced_presentation:
+    description: "Always showing both sides equally"
+    red_flag: "On one hand... On the other hand..."
+    human_way: "Pick a side, acknowledge counter-arguments briefly"
+  
+  excessive_hedging:
+    description: "Being too careful with claims"
+    avoid:
+      - "It might be possible that perhaps"
+      - "One could potentially argue"
+      - "It seems that maybe"
+    prefer:
+      - Take a stance
+      - Be confident (with occasional uncertainty)
+      - Natural confidence variations
+  
+  perfect_explanations:
+    description: "Never struggling to explain"
+    add_humanity:
+      - "Como posso explicar isso..."
+      - "Não é fácil explicar, mas..."
+      - "Ok, deixa eu tentar de novo..."
+      - "Sabe o que? Esquece o que eu disse..."
+
+stylistic_giveaways:
+  uniform_enthusiasm:
+    problem: "Maintaining same energy throughout"
+    solution: "Vary energy based on content"
+    
+  no_personality_evolution:
+    problem: "Same voice from start to finish"
+    solution: "Show fatigue, excitement, frustration naturally"
+    
+  perfect_memory:
+    problem: "Never forgetting what was said"
+    solution: 
+      - "Como falei... quer dizer, acho que falei..."
+      - "Mencionei isso antes? Bom, vale repetir..."
+      - "Ah é, esqueci de falar..."
+  
+  no_favorites:
+    problem: "Treating all options equally"
+    solution:
+      - "Meu favorito é..."
+      - "Pessoalmente, prefiro..."
+      - "Se me perguntar, eu uso..."
+
+detection_patterns:
+  # Patterns that automated detectors look for
+  
+  sentence_starters:
+    ai_pattern: "70%+ sentences start with article or pronoun"
+    human_pattern: "Mix of starts: verbs, adverbs, conjunctions, names"
+    
+  paragraph_structure:
+    ai_pattern: "All paragraphs 3-5 sentences"
+    human_pattern: "Wild variation: 1-8 sentences"
+    
+  vocabulary_distribution:
+    ai_pattern: "Consistent complexity throughout"
+    human_pattern: "Simple in casual parts, complex in technical"
+    
+  punctuation_perfection:
+    ai_pattern: "100% correct punctuation"
+    human_pattern: "Occasional dash — like this, or... trailing off"
+
+correction_rules:
+  when_detected:
+    - phrase: "Furthermore"
+      replace_with: ["E mais", "Além disso", "Ah, e tem mais"]
+      
+    - phrase: "It's important to note"
+      replace_with: ["Olha só", "Repara", "Detalhe importante"]
+      
+    - phrase: "In conclusion"
+      replace_with: ["Resumindo", "No final das contas", "É isso"]
+      
+    - phrase: "One might argue"
+      replace_with: ["Alguns dizem", "Tem gente que acha", "Você pode pensar"]
+
+# Meta-rule: The goal is not perfection, but authenticity
+philosophy: |
+  Humans write with:
+  - Inconsistent energy
+  - Personal preferences  
+  - Memory lapses
+  - Emotional variations
+  - Strong opinions
+  - Occasional confusion
+  - Natural rhythm changes
+  - Cultural references
+  - Inside jokes
+  - Assumed context

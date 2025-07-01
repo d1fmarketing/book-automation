@@ -228,6 +228,26 @@ async function generatePDF() {
         console.log(chalk.green(`PDF generated successfully!`));
         console.log(chalk.dim(`Output: ${finalOutput} (${(stats.size / 1024 / 1024).toFixed(2)} MB)`));
         
+        // Run PDF QA verification
+        if (!process.env.SKIP_PDF_QA) {
+            console.log(chalk.blue('\nRunning PDF quality checks...'));
+            const { execSync } = require('child_process');
+            try {
+                // Copy PDF to release directory for QA script
+                const releaseDir = path.join(process.cwd(), 'release');
+                await fs.ensureDir(releaseDir);
+                await fs.copy(finalOutput, path.join(releaseDir, 'ebook.pdf'));
+                
+                // Run QA script
+                execSync('node scripts/pdf-qa-loop-real.js', { stdio: 'inherit' });
+                console.log(chalk.green('✅ PDF quality checks passed!'));
+            } catch (qaError) {
+                console.error(chalk.red('❌ PDF quality checks failed!'));
+                console.error(chalk.yellow('Fix the issues and run again, or use SKIP_PDF_QA=1 to bypass'));
+                process.exit(1);
+            }
+        }
+        
     } catch (error) {
         console.error(chalk.red('Error generating PDF:'), error);
         process.exit(1);

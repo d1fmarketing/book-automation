@@ -1,0 +1,344 @@
+/* Professional PDF Styles for Book Generation */
+
+/* Import Professional Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;600;700&display=swap');
+
+/* Page Setup */
+@page {
+    size: 6in 9in;
+    margin: 1in 1.25in 1in 0.75in;
+    
+    @top-left {
+        content: string(book-title);
+        font-family: 'Crimson Text', serif;
+        font-size: 9pt;
+        color: #666;
+    }
+    
+    @top-right {
+        content: string(chapter-title);
+        font-family: 'Crimson Text', serif;
+        font-size: 9pt;
+        color: #666;
+    }
+    
+    @bottom-center {
+        /* content: counter(page); -- Removido para evitar duplicação */
+        font-family: 'Crimson Text', serif;
+        font-size: 10pt;
+        color: #444;
+    }
+}
+
+@page :first {
+    @top-left { content: none; }
+    @top-right { content: none; }
+    @bottom-center { content: none; }
+}
+
+@page chapter {
+    @top-left { content: none; }
+    @top-right { content: none; }
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 11pt;
+    line-height: 1.6;
+}
+
+body {
+    font-family: 'Crimson Text', serif;
+    color: #1a1a1a;
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    letter-spacing: 0.01em;
+    word-spacing: 0.05em;
+}
+
+/* Headers - Running Headers */
+.book-title {
+    string-set: book-title content();
+    display: none;
+}
+
+.chapter-title-string {
+    string-set: chapter-title content();
+    display: none;
+}
+
+/* Cover Page */
+.cover-page {
+    page: cover;
+    page-break-after: always;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.cover-page img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Title Page */
+.title-page {
+    page: title;
+    page-break-after: always;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+}
+
+.title-page h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 36pt;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.5em;
+    color: #1a1a1a;
+}
+
+.title-page .subtitle {
+    font-family: 'Crimson Text', serif;
+    font-size: 18pt;
+    font-style: italic;
+    color: #666;
+    margin-bottom: 3em;
+}
+
+.title-page .author {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16pt;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #444;
+}
+
+/* Copyright Page */
+.copyright-page {
+    page-break-after: always;
+    font-size: 9pt;
+    line-height: 1.4;
+    text-align: center;
+    padding-top: 60%;
+    color: #666;
+}
+
+/* Table of Contents */
+.toc-page {
+    /* page-break-after removido para evitar página em branco */
+    min-height: 8.5in;
+    padding-bottom: 1in;
+}
+
+.toc-page h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28pt;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 2em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1a1a1a;
+}
+
+.toc-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.8em;
+    font-size: 11pt;
+}
+
+.toc-entry::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px dotted #999;
+    margin: 0 0.5em;
+}
+
+.toc-title {
+    padding-right: 0.5em;
+}
+
+.toc-page-num {
+    padding-left: 0.5em;
+}
+
+/* Chapter Pages - FORÇAR NOVA PÁGINA */
+.chapter {
+    page: chapter;
+    page-break-before: always !important;
+    break-before: page !important;
+    padding-top: 3in;
+    min-height: 9in;
+    position: relative;
+}
+
+/* Primeiro capítulo - SEM forçar nova página */
+.chapter-first {
+    /* SEM page: chapter para evitar forçar nova página */
+    /* SEM page-break-before para evitar página em branco */
+    padding-top: 1in; /* Menos espaço no topo para caber na mesma página */
+    position: relative;
+}
+
+/* Garantir que o capítulo comece em nova página */
+.chapter::before {
+    content: "";
+    display: block;
+    page-break-before: always !important;
+    break-before: page !important;
+}
+
+/* Primeiro capítulo não deve ter ::before com page-break */
+.chapter-first::before {
+    content: none;
+    display: none;
+}
+
+.chapter h1, .chapter h2, .chapter-first h1, .chapter-first h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 42pt;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.5em;
+    letter-spacing: -0.02em;
+    page-break-after: avoid;
+    color: #1a1a1a;
+    text-transform: uppercase;
+}
+
+.chapter h1::after, .chapter h2::after, .chapter-first h1::after, .chapter-first h2::after {
+    content: "❦";
+    display: block;
+    font-size: 24pt;
+    color: #666;
+    margin: 0.5em auto 2em;
+    font-weight: normal;
+}
+
+/* Paragraphs */
+p {
+    margin-bottom: 0;
+    text-indent: 1.5em;
+    orphans: 3;
+    widows: 3;
+}
+
+p:first-of-type,
+h1 + p,
+h2 + p,
+h3 + p,
+.scene-break + p {
+    text-indent: 0;
+}
+
+/* Drop Caps - COLORIDO E ESTILIZADO */
+.chapter > p:first-of-type::first-letter, .chapter-first > p:first-of-type::first-letter {
+    float: left;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 72pt;
+    line-height: 0.65;
+    margin: 0.1em 0.1em -0.1em 0;
+    font-weight: 900;
+    color: #1e3c72;
+    text-shadow: 
+        0 2px 4px rgba(44, 90, 160, 0.3),
+        2px 4px 8px rgba(30, 60, 114, 0.2),
+        -1px -1px 0 #2c5aa0,
+        1px -1px 0 #2c5aa0,
+        -1px 1px 0 #1e3c72,
+        1px 1px 0 #1e3c72;
+}
+
+/* First Line Small Caps */
+.chapter > p:first-of-type::first-line, .chapter-first > p:first-of-type::first-line {
+    font-variant: small-caps;
+    letter-spacing: 0.05em;
+}
+
+/* Scene Breaks */
+.scene-break {
+    text-align: center;
+    margin: 1.5em 0;
+    page-break-inside: avoid;
+}
+
+.scene-break::before {
+    content: "* * *";
+    font-size: 12pt;
+    letter-spacing: 0.5em;
+    color: #999;
+}
+
+/* Block Quotes */
+blockquote {
+    margin: 1em 2em;
+    font-style: italic;
+    font-size: 10pt;
+    line-height: 1.5;
+}
+
+/* Lists */
+ul, ol {
+    margin: 1em 0 1em 2em;
+}
+
+li {
+    margin-bottom: 0.3em;
+    line-height: 1.5;
+}
+
+/* Page Breaks */
+.page-break {
+    page-break-after: always;
+}
+
+/* Prevent Widows and Orphans */
+h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+}
+
+p {
+    page-break-inside: avoid;
+}
+
+/* Final Adjustments */
+.acknowledgments,
+.about-author {
+    margin-top: 3em;
+}
+
+/* Small Text */
+.small-text {
+    font-size: 9pt;
+    line-height: 1.4;
+}
+
+/* Centered Text */
+.centered {
+    text-align: center;
+    text-indent: 0;
+}

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1920" height="1080" fill="#F5F5F5"/>
+  
+  <text x="960" y="80" font-family="Inter, Arial" font-size="42" font-weight="200" text-anchor="middle" fill="#1A1A1A">
+    Multi-Platform Publishing Dashboard
+  </text>
+  
+  <!-- Central book -->
+  <g transform="translate(960, 400)">
+    <rect x="-100" y="-150" width="200" height="300" fill="#0066CC" rx="5"/>
+    <text y="0" font-family="Inter, Arial" font-size="24" font-weight="300" fill="white" text-anchor="middle">YOUR</text>
+    <text y="40" font-family="Inter, Arial" font-size="24" font-weight="300" fill="white" text-anchor="middle">BOOK</text>
+  </g>
+  
+  <!-- Platform connections -->
+  
+    <g>
+      <line x1="960" y1="400" x2="300" y2="300" stroke="#E0E0E0" stroke-width="2" stroke-dasharray="5,5"/>
+      <rect x="180" y="260" width="240" height="80" fill="white" stroke="#FF9900" stroke-width="2" rx="10"/>
+      <text x="300" y="295" font-family="Inter, Arial" font-size="18" font-weight="500" text-anchor="middle" fill="#1A1A1A">Amazon KDP</text>
+      <text x="300" y="320" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#7A7A7A">✓ Optimized</text>
+    </g>
+  
+    <g>
+      <line x1="960" y1="400" x2="300" y2="500" stroke="#E0E0E0" stroke-width="2" stroke-dasharray="5,5"/>
+      <rect x="180" y="460" width="240" height="80" fill="white" stroke="#A2AAAD" stroke-width="2" rx="10"/>
+      <text x="300" y="495" font-family="Inter, Arial" font-size="18" font-weight="500" text-anchor="middle" fill="#1A1A1A">Apple Books</text>
+      <text x="300" y="520" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#7A7A7A">✓ Optimized</text>
+    </g>
+  
+    <g>
+      <line x1="960" y1="400" x2="1620" y2="300" stroke="#E0E0E0" stroke-width="2" stroke-dasharray="5,5"/>
+      <rect x="1500" y="260" width="240" height="80" fill="white" stroke="#4285F4" stroke-width="2" rx="10"/>
+      <text x="1620" y="295" font-family="Inter, Arial" font-size="18" font-weight="500" text-anchor="middle" fill="#1A1A1A">Google Play</text>
+      <text x="1620" y="320" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#7A7A7A">✓ Optimized</text>
+    </g>
+  
+    <g>
+      <line x1="960" y1="400" x2="1620" y2="500" stroke="#E0E0E0" stroke-width="2" stroke-dasharray="5,5"/>
+      <rect x="1500" y="460" width="240" height="80" fill="white" stroke="#E32B16" stroke-width="2" rx="10"/>
+      <text x="1620" y="495" font-family="Inter, Arial" font-size="18" font-weight="500" text-anchor="middle" fill="#1A1A1A">Kobo</text>
+      <text x="1620" y="520" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#7A7A7A">✓ Optimized</text>
+    </g>
+  
+    <g>
+      <line x1="960" y1="400" x2="960" y2="700" stroke="#E0E0E0" stroke-width="2" stroke-dasharray="5,5"/>
+      <rect x="840" y="660" width="240" height="80" fill="white" stroke="#5A7550" stroke-width="2" rx="10"/>
+      <text x="960" y="695" font-family="Inter, Arial" font-size="18" font-weight="500" text-anchor="middle" fill="#1A1A1A">Barnes &amp; Noble</text>
+      <text x="960" y="720" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#7A7A7A">✓ Optimized</text>
+    </g>
+  
+  
+  <!-- Stats -->
+  <g transform="translate(960, 900)">
+    <rect x="-400" y="-60" width="800" height="120" fill="white" stroke="#E0E0E0" stroke-width="2" rx="10"/>
+    <text y="-10" font-family="Inter, Arial" font-size="20" font-weight="400" text-anchor="middle" fill="#1A1A1A">
+      Publishing to 40+ platforms • One-click distribution • Real-time royalty tracking
+    </text>
+    <text y="30" font-family="Inter, Arial" font-size="32" font-weight="200" text-anchor="middle" fill="#0066CC">
+      $45,230 total revenue • 12,847 copies sold
+    </text>
+  </g>
+</svg>

@@ -1,0 +1,144 @@
+# Personal Stories Bank
+# Fictional anecdotes to inject humanity into the writing
+
+story_categories:
+  failures:
+    beginner_mistakes:
+      - story: "Quando comecei com {topic}, achei que bastava {common_misconception}. Quebrei a cara!"
+        lesson: "Aprendi que {correct_approach} é fundamental."
+        emotion: humility
+        
+      - story: "Lembro do meu primeiro {situation}, eu {embarrassing_mistake}. Todo mundo riu, mas foi um aprendizado."
+        lesson: "Hoje sei que {wisdom_gained}."
+        emotion: growth
+        
+      - story: "Gastei 3 meses fazendo {wrong_approach} até descobrir que existia {right_tool}."
+        lesson: "Às vezes a gente complica o que é simples."
+        emotion: realization
+        
+      - story: "Um cliente uma vez me pediu {request} e eu, todo confiante, disse que era fácil. Levei o dobro do tempo previsto."
+        lesson: "Humildade é estimar com margem de erro."
+        emotion: wisdom
+    
+    learning_moments:
+      - story: "No meu primeiro emprego, meu chefe me disse: '{advice}'. Na hora não entendi, hoje é meu mantra."
+        context: professional_growth
+        
+      - story: "Estava debugando um código por horas até minha filha de 7 anos passar e perguntar: 'Por que não {obvious_solution}?'"
+        context: fresh_perspective
+        
+      - story: "Perdi um projeto importante porque {mistake}. Doeu, mas nunca mais cometi esse erro."
+        context: hard_lessons
+
+  successes:
+    breakthrough_moments:
+      - story: "A ficha caiu quando {realization_moment}. Foi como se tudo fizesse sentido de repente."
+        emotion: eureka
+        trigger: after_struggle
+        
+      - story: "Depois de testar {many_approaches} formas, descobri que {simple_solution} resolvia tudo."
+        emotion: relief
+        trigger: after_complexity
+        
+      - story: "Um mentor me disse: 'Tenta {unconventional_approach}'. Parecia loucura, mas funcionou perfeitamente."
+        emotion: surprise
+        trigger: when_stuck
+    
+    proud_achievements:
+      - story: "Quando finalmente {achievement}, senti que tinha subido de nível profissionalmente."
+        emotion: pride
+        
+      - story: "Meu primeiro {milestone} me fez perceber que eu realmente sabia o que estava fazendo."
+        emotion: confidence
+        
+      - story: "Automatizei {tedious_task} e ganhei 3 horas por dia. Melhor investimento de tempo da vida."
+        emotion: satisfaction
+
+  daily_life:
+    relatable_moments:
+      - story: "Outro dia no café, estava {observing_situation} e percebi que é exatamente como {technical_concept}."
+        context: coffee_shop
+        
+      - story: "Minha mãe sempre dizia: '{folk_wisdom}'. Só fui entender o valor disso quando {professional_situation}."
+        context: family_wisdom
+        
+      - story: "É tipo quando você {everyday_situation}. O princípio é o mesmo."
+        context: analogy
+        
+      - story: "Acordei 3 da manhã com a solução. Acontece quando a gente menos espera."
+        context: subconscious_work
+    
+    observations:
+      - story: "Observando {common_situation}, notei que {insight}. É fascinante como {connection}."
+        tone: curious
+        
+      - story: "Todo mundo faz {common_practice}, mas poucos percebem que {hidden_detail}."
+        tone: insightful
+
+  metaphorical:
+    sports:
+      - story: "É como no futebol: {sports_analogy}. No {tech_topic} funciona igual."
+        audience: sports_fans
+        
+      - story: "Lembra daquela jogada do {famous_play}? {Tech_concept} é a mesma estratégia."
+        audience: brazilian
+    
+    cooking:
+      - story: "Programar é que nem cozinhar: {cooking_analogy}. Sem {ingredient}, não sai direito."
+        audience: general
+        
+      - story: "Assim como um bom {dish}, {tech_concept} precisa de tempo para ficar no ponto."
+        audience: foodies
+    
+    everyday_tech:
+      - story: "Sabe quando seu celular {common_phone_issue}? É o mesmo princípio."
+        audience: everyone
+        
+      - story: "É tipo GPS: {navigation_analogy}. Às vezes precisa recalcular a rota."
+        audience: drivers
+
+# Story injection rules
+injection_rules:
+  frequency:
+    per_chapter: 1-2
+    per_section: 0-1
+    after_complex_explanation: 0.7  # 70% chance
+    
+  placement:
+    preferred:
+      - after_technical_section
+      - before_practical_exercise
+      - as_chapter_opener
+      - to_illustrate_point
+    
+    avoid:
+      - in_middle_of_explanation
+      - back_to_back_stories
+      - in_reference_sections
+      
+  selection:
+    match_emotion: true  # Match story emotion to content mood
+    vary_categories: true  # Don't repeat same category
+    consider_audience: true  # Pick stories that resonate
+
+# Cultural references (Brazilian context)
+cultural_touchpoints:
+  expressions:
+    - "Jeitinho brasileiro"
+    - "Gambiarra que funciona"
+    - "Na raça"
+    - "Desenrola"
+    - "Corre que dá tempo"
+  
+  situations:
+    - "Fila do banco"
+    - "Trânsito de São Paulo"
+    - "Cafezinho após almoço"
+    - "Pelada de domingo"
+    - "Churrasco de família"
+  
+  values:
+    - "Relacionamento é tudo"
+    - "Brasileiro não desiste nunca"
+    - "Com calma e jeito"
+    - "União faz a força"

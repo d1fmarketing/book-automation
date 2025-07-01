@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1600" height="900" fill="#F5F5F5"/>
+  
+  <!-- Window frame -->
+  <rect x="100" y="100" width="1400" height="700" fill="#FFFFFF" rx="10" filter="url(#shadow)"/>
+  
+  <!-- Title bar -->
+  <rect x="100" y="100" width="1400" height="60" fill="#1A1A1A" rx="10 10 0 0"/>
+  <text x="130" y="140" font-family="Inter, Arial" font-size="24" font-weight="400" fill="#FFFFFF">Quality Agent Dashboard</text>
+  
+  <!-- Window controls -->
+  <circle cx="1450" cy="130" r="8" fill="#FF6600"/>
+  <circle cx="1420" cy="130" r="8" fill="#00AA44"/>
+  <circle cx="1390" cy="130" r="8" fill="#0066CC"/>
+  
+  <!-- Content sections -->
+  <!-- Grammar Issues Panel -->
+  <g transform="translate(130, 200)">
+    <rect width="400" height="250" fill="#FFFFFF" stroke="#DADADA" rx="5"/>
+    <rect width="400" height="40" fill="#0066CC" rx="5 5 0 0"/>
+    <text x="20" y="28" font-family="Inter, Arial" font-size="18" font-weight="500" fill="#FFFFFF">Grammar Issues</text>
+    
+    <!-- Issue items -->
+    <g transform="translate(20, 60)">
+      <rect width="360" height="50" fill="#F5F5F5" rx="5"/>
+      <circle cx="25" cy="25" r="8" fill="#FF6600"/>
+      <text x="45" y="20" font-family="Inter, Arial" font-size="14" font-weight="400" fill="#1A1A1A">Missing comma in compound sentence</text>
+      <text x="45" y="35" font-family="Inter, Arial" font-size="12" font-weight="300" fill="#7A7A7A">Line 42: "...pipeline processes data the agents..."</text>
+    </g>
+    
+    <g transform="translate(20, 120)">
+      <rect width="360" height="50" fill="#F5F5F5" rx="5"/>
+      <circle cx="25" cy="25" r="8" fill="#00AA44"/>
+      <text x="45" y="20" font-family="Inter, Arial" font-size="14" font-weight="400" fill="#1A1A1A">Passive voice detected</text>
+      <text x="45" y="35" font-family="Inter, Arial" font-size="12" font-weight="300" fill="#7A7A7A">Line 78: "The book was written by..."</text>
+    </g>
+  </g>
+  
+  <!-- Style Metrics -->
+  <g transform="translate(570, 200)">
+    <rect width="400" height="250" fill="#FFFFFF" stroke="#DADADA" rx="5"/>
+    <rect width="400" height="40" fill="#00AA44" rx="5 5 0 0"/>
+    <text x="20" y="28" font-family="Inter, Arial" font-size="18" font-weight="500" fill="#FFFFFF">Style Metrics</text>
+    
+    <!-- Metrics -->
+    <g transform="translate(20, 60)">
+      <text font-family="Inter, Arial" font-size="14" font-weight="400" fill="#1A1A1A">Readability Score</text>
+      <text x="300" font-family="Inter, Arial" font-size="24" font-weight="300" fill="#0066CC" text-anchor="end">8.5/10</text>
+      <rect y="30" width="360" height="4" fill="#DADADA" rx="2"/>
+      <rect y="30" width="306" height="4" fill="#0066CC" rx="2"/>
+    </g>
+    
+    <g transform="translate(20, 120)">
+      <text font-family="Inter, Arial" font-size="14" font-weight="400" fill="#1A1A1A">Sentence Complexity</text>
+      <text x="300" font-family="Inter, Arial" font-size="24" font-weight="300" fill="#00AA44" text-anchor="end">Medium</text>
+    </g>
+    
+    <g transform="translate(20, 170)">
+      <text font-family="Inter, Arial" font-size="14" font-weight="400" fill="#1A1A1A">Consistency Score</text>
+      <text x="300" font-family="Inter, Arial" font-size="24" font-weight="300" fill="#00AA44" text-anchor="end">94%</text>
+    </g>
+  </g>
+  
+  <!-- Suggestions -->
+  <g transform="translate(1010, 200)">
+    <rect width="460" height="250" fill="#FFFFFF" stroke="#DADADA" rx="5"/>
+    <rect width="460" height="40" fill="#FF6600" rx="5 5 0 0"/>
+    <text x="20" y="28" font-family="Inter, Arial" font-size="18" font-weight="500" fill="#FFFFFF">AI Suggestions</text>
+    
+    <g transform="translate(20, 60)">
+      <text font-family="Inter, Arial" font-size="14" font-weight="400" fill="#1A1A1A">✨ Consider varying sentence openings in Ch. 3</text>
+    </g>
+    <g transform="translate(20, 90)">
+      <text font-family="Inter, Arial" font-size="14" font-weight="400" fill="#1A1A1A">📊 Technical terms could use more explanation</text>
+    </g>
+    <g transform="translate(20, 120)">
+      <text font-family="Inter, Arial" font-size="14" font-weight="400" fill="#1A1A1A">🎯 Strong narrative flow detected - keep it up!</text>
+    </g>
+  </g>
+  
+  <!-- Live preview -->
+  <g transform="translate(130, 480)">
+    <rect width="1340" height="280" fill="#FFFFFF" stroke="#DADADA" rx="5"/>
+    <text x="20" y="30" font-family="Inter, Arial" font-size="16" font-weight="500" fill="#1A1A1A">Live Document Preview</text>
+    <line x1="0" y1="50" x2="1340" y2="50" stroke="#DADADA"/>
+    
+    <!-- Sample text with highlights -->
+    <text x="20" y="80" font-family="Georgia, serif" font-size="14" fill="#1A1A1A">
+      The Claude Elite Pipeline represents a paradigm shift in automated publishing.
+    </text>
+    <rect x="250" y="65" width="60" height="20" fill="#FF6600" opacity="0.2" rx="2"/>
+    
+    <text x="20" y="105" font-family="Georgia, serif" font-size="14" fill="#1A1A1A">
+      Each agent <tspan fill="#00AA44" font-weight="600">collaborates</tspan> seamlessly to transform raw text into polished books.
+    </text>
+  </g>
+</svg>

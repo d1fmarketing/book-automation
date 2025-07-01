@@ -1,0 +1,158 @@
+# Voice Templates for Different Content Types
+# Each template defines how to adjust voice based on content
+
+voice_variations:
+  introduction:
+    style: amigo_empolgado
+    energy: high
+    formality: low
+    phrases:
+      - "Cara, você não vai acreditar..."
+      - "Sabe o que é mais legal?"
+      - "Olha só que interessante..."
+      - "Preparado para uma jornada?"
+      - "Vou te contar um segredo..."
+    sentence_starters:
+      - "Imagina só..."
+      - "Pensa comigo..."
+      - "Lembra quando..."
+      - "Sabe aquela sensação de..."
+  
+  technical_explanation:
+    style: professor_paciente
+    energy: medium
+    formality: medium
+    phrases:
+      - "Vamos com calma aqui..."
+      - "Não se preocupe se parecer complicado..."
+      - "Deixa eu explicar de outro jeito..."
+      - "A sacada é a seguinte..."
+      - "Simplificando ao máximo..."
+    transitions:
+      - "Agora, o importante é entender que..."
+      - "Com isso em mente..."
+      - "O próximo passo é..."
+      - "Mas calma, tem mais..."
+  
+  motivation:
+    style: coach_realista
+    energy: high
+    formality: low
+    phrases:
+      - "Não vou mentir, vai dar trabalho, mas..."
+      - "Todo mundo passa por isso..."
+      - "O segredo que ninguém conta é..."
+      - "Respira fundo e vamos lá..."
+      - "Você consegue, eu sei disso!"
+    power_words:
+      - "transformar"
+      - "conquistar"
+      - "superar"
+      - "dominar"
+      - "decolar"
+  
+  storytelling:
+    style: contador_de_casos
+    energy: medium
+    formality: low
+    phrases:
+      - "Deixa eu te contar uma história..."
+      - "Teve uma vez que..."
+      - "Nunca vou esquecer quando..."
+      - "Parece mentira, mas..."
+      - "Foi aí que a ficha caiu..."
+    story_transitions:
+      - "Moral da história..."
+      - "O que aprendi com isso foi..."
+      - "Desde então..."
+      - "E é por isso que..."
+  
+  problem_solving:
+    style: mentor_prático
+    energy: medium
+    formality: medium
+    phrases:
+      - "Vamos atacar isso passo a passo..."
+      - "A primeira coisa a fazer é..."
+      - "Um erro comum aqui é..."
+      - "Na prática, funciona assim..."
+      - "Minha dica de ouro é..."
+    action_verbs:
+      - "implementar"
+      - "testar"
+      - "ajustar"
+      - "otimizar"
+      - "validar"
+  
+  reflection:
+    style: filosofo_casual
+    energy: low
+    formality: medium
+    phrases:
+      - "Pausa para reflexão..."
+      - "Já parou para pensar..."
+      - "O que isso significa na prática?"
+      - "No fundo, a questão é..."
+      - "Isso me faz pensar em..."
+    deep_questions:
+      - "Por que fazemos isso?"
+      - "Qual o real objetivo?"
+      - "O que realmente importa?"
+      - "Como isso muda tudo?"
+
+# Chapter personality presets
+chapter_personalities:
+  opening_chapter:
+    primary_voice: introduction
+    secondary_voice: motivation
+    quirks:
+      - "Sempre começa com uma pergunta provocativa"
+      - "Usa metáforas do cotidiano"
+      - "Cria expectativa sem prometer demais"
+    
+  technical_chapter:
+    primary_voice: technical_explanation
+    secondary_voice: problem_solving
+    quirks:
+      - "Intercala teoria com exemplos práticos"
+      - "Usa diagramas mentais ('imagina uma árvore...')"
+      - "Sempre tem uma seção 'mão na massa'"
+  
+  case_study_chapter:
+    primary_voice: storytelling
+    secondary_voice: reflection
+    quirks:
+      - "Começa in media res"
+      - "Revela lições aos poucos"
+      - "Termina com plot twist educativo"
+  
+  action_chapter:
+    primary_voice: problem_solving
+    secondary_voice: motivation
+    quirks:
+      - "Lista numerada de passos"
+      - "Checkpoints de progresso"
+      - "Celebra pequenas vitórias"
+
+# Tone modulation based on content
+tone_modulation:
+  # When explaining difficult concepts
+  complexity_high:
+    - slow_down: true
+    - add_analogies: true
+    - break_into_steps: true
+    - reassure_reader: true
+  
+  # When reader might be frustrated
+  frustration_point:
+    - acknowledge_difficulty: true
+    - share_struggle: true
+    - provide_encouragement: true
+    - offer_alternative: true
+  
+  # When celebrating achievement
+  success_moment:
+    - increase_energy: true
+    - use_exclamations: true
+    - reinforce_progress: true
+    - preview_next_level: true

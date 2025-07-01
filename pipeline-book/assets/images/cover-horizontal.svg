@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="coverBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#001F3F" />
+      <stop offset="50%" style="stop-color:#0066CC" />
+      <stop offset="100%" style="stop-color:#00AA44" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#coverBg)"/>
+  
+  <!-- Grid pattern -->
+  <g opacity="0.1">
+    <line x1="0" y1="0" x2="0" y2="1080" stroke="white" stroke-width="0.5"/><line x1="100" y1="0" x2="100" y2="1080" stroke="white" stroke-width="0.5"/><line x1="200" y1="0" x2="200" y2="1080" stroke="white" stroke-width="0.5"/><line x1="300" y1="0" x2="300" y2="1080" stroke="white" stroke-width="0.5"/><line x1="400" y1="0" x2="400" y2="1080" stroke="white" stroke-width="0.5"/><line x1="500" y1="0" x2="500" y2="1080" stroke="white" stroke-width="0.5"/><line x1="600" y1="0" x2="600" y2="1080" stroke="white" stroke-width="0.5"/><line x1="700" y1="0" x2="700" y2="1080" stroke="white" stroke-width="0.5"/><line x1="800" y1="0" x2="800" y2="1080" stroke="white" stroke-width="0.5"/><line x1="900" y1="0" x2="900" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1000" y1="0" x2="1000" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1100" y1="0" x2="1100" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1200" y1="0" x2="1200" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1300" y1="0" x2="1300" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1400" y1="0" x2="1400" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1500" y1="0" x2="1500" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1600" y1="0" x2="1600" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1700" y1="0" x2="1700" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1800" y1="0" x2="1800" y2="1080" stroke="white" stroke-width="0.5"/><line x1="1900" y1="0" x2="1900" y2="1080" stroke="white" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="1920" y2="0" stroke="white" stroke-width="0.5"/><line x1="0" y1="100" x2="1920" y2="100" stroke="white" stroke-width="0.5"/><line x1="0" y1="200" x2="1920" y2="200" stroke="white" stroke-width="0.5"/><line x1="0" y1="300" x2="1920" y2="300" stroke="white" stroke-width="0.5"/><line x1="0" y1="400" x2="1920" y2="400" stroke="white" stroke-width="0.5"/><line x1="0" y1="500" x2="1920" y2="500" stroke="white" stroke-width="0.5"/><line x1="0" y1="600" x2="1920" y2="600" stroke="white" stroke-width="0.5"/><line x1="0" y1="700" x2="1920" y2="700" stroke="white" stroke-width="0.5"/><line x1="0" y1="800" x2="1920" y2="800" stroke="white" stroke-width="0.5"/><line x1="0" y1="900" x2="1920" y2="900" stroke="white" stroke-width="0.5"/><line x1="0" y1="1000" x2="1920" y2="1000" stroke="white" stroke-width="0.5"/><line x1="0" y1="1100" x2="1920" y2="1100" stroke="white" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Left side - Title -->
+  <g transform="translate(200, 540)">
+    <text y="-120" font-family="Inter, Arial" font-size="120" font-weight="100" fill="white" text-anchor="start">THE CLAUDE ELITE</text>
+    <text y="0" font-family="Inter, Arial" font-size="120" font-weight="100" fill="white" text-anchor="start">PIPELINE</text>
+    <text y="80" font-family="Inter, Arial" font-size="36" font-weight="300" fill="#00AA44" text-anchor="start">Mastering Automated Ebook Creation</text>
+    <text y="150" font-family="Inter, Arial" font-size="32" font-weight="200" fill="white" text-anchor="start">Claude Elite Team</text>
+  </g>
+  
+  <!-- Right side - Agent visualization -->
+  <g transform="translate(1400, 540)">
+    <!-- Central hub -->
+    <circle cx="0" cy="0" r="100" fill="none" stroke="white" stroke-width="3" opacity="0.8" filter="url(#glow)"/>
+    
+    <!-- Five agents in circle -->
+    
+        <g transform="translate(1.2246467991473532e-14, -200)">
+            <circle r="60" fill="white" opacity="0.9"/>
+            <text y="5" font-family="Inter, Arial" font-size="16" font-weight="600" text-anchor="middle" fill="#0066CC">CONTENT</text>
+        </g>
+        <line x1="0" y1="0" x2="1.2246467991473532e-14" y2="-200" stroke="white" stroke-width="2" opacity="0.5"/>
+        <g transform="translate(190.2113032590307, -61.803398874989476)">
+            <circle r="60" fill="white" opacity="0.9"/>
+            <text y="5" font-family="Inter, Arial" font-size="16" font-weight="600" text-anchor="middle" fill="#0066CC">FORMAT</text>
+        </g>
+        <line x1="0" y1="0" x2="190.2113032590307" y2="-61.803398874989476" stroke="white" stroke-width="2" opacity="0.5"/>
+        <g transform="translate(117.55705045849463, 161.80339887498948)">
+            <circle r="60" fill="white" opacity="0.9"/>
+            <text y="5" font-family="Inter, Arial" font-size="16" font-weight="600" text-anchor="middle" fill="#0066CC">QUALITY</text>
+        </g>
+        <line x1="0" y1="0" x2="117.55705045849463" y2="161.80339887498948" stroke="white" stroke-width="2" opacity="0.5"/>
+        <g transform="translate(-117.5570504584946, 161.80339887498948)">
+            <circle r="60" fill="white" opacity="0.9"/>
+            <text y="5" font-family="Inter, Arial" font-size="16" font-weight="600" text-anchor="middle" fill="#0066CC">MONITOR</text>
+        </g>
+        <line x1="0" y1="0" x2="-117.5570504584946" y2="161.80339887498948" stroke="white" stroke-width="2" opacity="0.5"/>
+        <g transform="translate(-190.2113032590307, -61.80339887498955)">
+            <circle r="60" fill="white" opacity="0.9"/>
+            <text y="5" font-family="Inter, Arial" font-size="16" font-weight="600" text-anchor="middle" fill="#0066CC">PUBLISH</text>
+        </g>
+        <line x1="0" y1="0" x2="-190.2113032590307" y2="-61.80339887498955" stroke="white" stroke-width="2" opacity="0.5"/>
+  </g>
+</svg>

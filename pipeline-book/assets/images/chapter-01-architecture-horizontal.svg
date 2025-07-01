@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1920" height="1080" fill="#F5F5F5"/>
+  
+  <text x="960" y="100" font-family="Inter, Arial" font-size="48" font-weight="200" text-anchor="middle" fill="#1A1A1A">
+    The Claude Elite Pipeline Architecture
+  </text>
+  
+  <!-- Pipeline flow diagram -->
+  <g transform="translate(100, 300)">
+    <!-- Input -->
+    <rect x="0" y="0" width="200" height="400" fill="white" stroke="#0066CC" stroke-width="2" rx="10"/>
+    <text x="100" y="50" font-family="Inter, Arial" font-size="24" font-weight="500" text-anchor="middle" fill="#1A1A1A">INPUT</text>
+    <text x="100" y="200" font-family="Inter, Arial" font-size="18" font-weight="300" text-anchor="middle" fill="#7A7A7A">Markdown</text>
+    <text x="100" y="230" font-family="Inter, Arial" font-size="18" font-weight="300" text-anchor="middle" fill="#7A7A7A">Chapters</text>
+    
+    <!-- Arrow -->
+    <path d="M 200 200 L 280 200" stroke="#7A7A7A" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+    
+    <!-- Five Agents -->
+    <g transform="translate(300, 0)">
+      
+        <rect x="0" y="0" width="200" height="400" fill="white" stroke="#0066CC" stroke-width="2" rx="10"/>
+        <text x="100" y="50" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Content</text>
+        <text x="100" y="80" font-family="Inter, Arial" font-size="16" font-weight="300" text-anchor="middle" fill="#7A7A7A">Agent</text>
+        
+        <!-- Agent features -->
+        <text x="100" y="150" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Context tracking
+        </text>
+        <text x="100" y="180" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Consistency
+        </text>
+        
+        <path d="M 200 200 L 220 200" stroke="#7A7A7A" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+      
+        <rect x="220" y="0" width="200" height="400" fill="white" stroke="#00AA44" stroke-width="2" rx="10"/>
+        <text x="320" y="50" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Format</text>
+        <text x="320" y="80" font-family="Inter, Arial" font-size="16" font-weight="300" text-anchor="middle" fill="#7A7A7A">Agent</text>
+        
+        <!-- Agent features -->
+        <text x="320" y="150" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Typography
+        </text>
+        <text x="320" y="180" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Layout design
+        </text>
+        
+        <path d="M 420 200 L 440 200" stroke="#7A7A7A" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+      
+        <rect x="440" y="0" width="200" height="400" fill="white" stroke="#0066CC" stroke-width="2" rx="10"/>
+        <text x="540" y="50" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Quality</text>
+        <text x="540" y="80" font-family="Inter, Arial" font-size="16" font-weight="300" text-anchor="middle" fill="#7A7A7A">Agent</text>
+        
+        <!-- Agent features -->
+        <text x="540" y="150" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Grammar check
+        </text>
+        <text x="540" y="180" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Style guide
+        </text>
+        
+        <path d="M 640 200 L 660 200" stroke="#7A7A7A" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+      
+        <rect x="660" y="0" width="200" height="400" fill="white" stroke="#00AA44" stroke-width="2" rx="10"/>
+        <text x="760" y="50" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Monitor</text>
+        <text x="760" y="80" font-family="Inter, Arial" font-size="16" font-weight="300" text-anchor="middle" fill="#7A7A7A">Agent</text>
+        
+        <!-- Agent features -->
+        <text x="760" y="150" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Real-time stats
+        </text>
+        <text x="760" y="180" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Performance
+        </text>
+        
+        <path d="M 860 200 L 880 200" stroke="#7A7A7A" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+      
+        <rect x="880" y="0" width="200" height="400" fill="white" stroke="#0066CC" stroke-width="2" rx="10"/>
+        <text x="980" y="50" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Publish</text>
+        <text x="980" y="80" font-family="Inter, Arial" font-size="16" font-weight="300" text-anchor="middle" fill="#7A7A7A">Agent</text>
+        
+        <!-- Agent features -->
+        <text x="980" y="150" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Distribution
+        </text>
+        <text x="980" y="180" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#1A1A1A">
+          • Multi-platform
+        </text>
+        
+        
+      
+    </g>
+    
+    <!-- Output -->
+    <g transform="translate(1420, 0)">
+      <path d="M 0 200 L 80 200" stroke="#7A7A7A" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+      <rect x="100" y="0" width="200" height="400" fill="white" stroke="#FF6600" stroke-width="2" rx="10"/>
+      <text x="200" y="50" font-family="Inter, Arial" font-size="24" font-weight="500" text-anchor="middle" fill="#1A1A1A">OUTPUT</text>
+      <text x="200" y="180" font-family="Inter, Arial" font-size="18" font-weight="300" text-anchor="middle" fill="#7A7A7A">PDF</text>
+      <text x="200" y="210" font-family="Inter, Arial" font-size="18" font-weight="300" text-anchor="middle" fill="#7A7A7A">EPUB</text>
+      <text x="200" y="240" font-family="Inter, Arial" font-size="18" font-weight="300" text-anchor="middle" fill="#7A7A7A">Published</text>
+    </g>
+  </g>
+  
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#7A7A7A"/>
+    </marker>
+  </defs>
+  
+  <!-- Stats at bottom -->
+  <g transform="translate(960, 850)">
+    <text font-family="Inter, Arial" font-size="24" font-weight="300" text-anchor="middle" fill="#0066CC">
+      90% faster • 75% fewer errors • 100% validation rate • 5x productivity
+    </text>
+  </g>
+</svg>

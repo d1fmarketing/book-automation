@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1920" height="1080" fill="#f8f9fa"/>
+  
+  <text x="960" y="80" font-family="Inter, Arial" font-size="42" font-weight="200" text-anchor="middle" fill="#1A1A1A">
+    Quality Agent Dashboard
+  </text>
+  
+  <!-- Three panels side by side -->
+  <g transform="translate(100, 150)">
+    <!-- Grammar Panel -->
+    <rect width="550" height="700" fill="white" stroke="#E0E0E0" rx="10"/>
+    <rect width="550" height="60" fill="#0066CC" rx="10 10 0 0"/>
+    <text x="275" y="40" font-family="Inter, Arial" font-size="24" font-weight="400" fill="white" text-anchor="middle">Grammar Analysis</text>
+    
+    <!-- Sample issues -->
+    
+      <g transform="translate(30, 100)">
+        <rect width="490" height="60" fill="#F5F5F5" rx="5"/>
+        <circle cx="30" cy="30" r="8" fill="#00AA44"/>
+        <text x="55" y="35" font-family="Inter, Arial" font-size="16" font-weight="400" fill="#1A1A1A">Passive voice detected</text>
+      </g>
+    
+      <g transform="translate(30, 180)">
+        <rect width="490" height="60" fill="#F5F5F5" rx="5"/>
+        <circle cx="30" cy="30" r="8" fill="#FF6600"/>
+        <text x="55" y="35" font-family="Inter, Arial" font-size="16" font-weight="400" fill="#1A1A1A">Missing comma in compound sentence</text>
+      </g>
+    
+      <g transform="translate(30, 260)">
+        <rect width="490" height="60" fill="#F5F5F5" rx="5"/>
+        <circle cx="30" cy="30" r="8" fill="#FF6600"/>
+        <text x="55" y="35" font-family="Inter, Arial" font-size="16" font-weight="400" fill="#1A1A1A">Inconsistent tense usage</text>
+      </g>
+    
+    
+    <!-- Metrics Panel -->
+    <g transform="translate(600, 0)">
+      <rect width="550" height="700" fill="white" stroke="#E0E0E0" rx="10"/>
+      <rect width="550" height="60" fill="#00AA44" rx="10 10 0 0"/>
+      <text x="275" y="40" font-family="Inter, Arial" font-size="24" font-weight="400" fill="white" text-anchor="middle">Style Metrics</text>
+      
+      <!-- Circular progress indicators -->
+      <g transform="translate(275, 200)">
+        <circle cx="0" cy="0" r="80" fill="none" stroke="#E0E0E0" stroke-width="20"/>
+        <circle cx="0" cy="0" r="80" fill="none" stroke="#0066CC" stroke-width="20" 
+                stroke-dasharray="377" stroke-dashoffset="94" transform="rotate(-90)"/>
+        <text y="10" font-family="Inter, Arial" font-size="36" font-weight="300" text-anchor="middle" fill="#1A1A1A">85%</text>
+        <text y="120" font-family="Inter, Arial" font-size="18" font-weight="300" text-anchor="middle" fill="#7A7A7A">Readability</text>
+      </g>
+      
+      <g transform="translate(275, 400)">
+        <rect x="-200" y="0" width="400" height="8" fill="#E0E0E0" rx="4"/>
+        <rect x="-200" y="0" width="360" height="8" fill="#00AA44" rx="4"/>
+        <text y="40" font-family="Inter, Arial" font-size="18" font-weight="300" text-anchor="middle" fill="#1A1A1A">Consistency: 90%</text>
+      </g>
+    </g>
+    
+    <!-- AI Suggestions Panel -->
+    <g transform="translate(1200, 0)">
+      <rect width="550" height="700" fill="white" stroke="#E0E0E0" rx="10"/>
+      <rect width="550" height="60" fill="#FF6600" rx="10 10 0 0"/>
+      <text x="275" y="40" font-family="Inter, Arial" font-size="24" font-weight="400" fill="white" text-anchor="middle">AI Insights</text>
+      
+      <text x="30" y="120" font-family="Inter, Arial" font-size="18" font-weight="400" fill="#1A1A1A">
+        ✨ Chapter pacing is excellent
+      </text>
+      <text x="30" y="160" font-family="Inter, Arial" font-size="18" font-weight="400" fill="#1A1A1A">
+        📊 Technical terms well explained
+      </text>
+      <text x="30" y="200" font-family="Inter, Arial" font-size="18" font-weight="400" fill="#1A1A1A">
+        🎯 Consider varying sentence openings
+      </text>
+      
+      <!-- Word cloud visualization -->
+      <g transform="translate(275, 400)">
+        <text font-family="Inter, Arial" font-size="32" font-weight="300" text-anchor="middle" fill="#0066CC">pipeline</text>
+        <text x="-100" y="30" font-family="Inter, Arial" font-size="24" font-weight="300" fill="#00AA44">automation</text>
+        <text x="80" y="-20" font-family="Inter, Arial" font-size="20" font-weight="300" fill="#FF6600">agent</text>
+        <text x="-60" y="-40" font-family="Inter, Arial" font-size="18" font-weight="300" fill="#7A7A7A">quality</text>
+        <text x="100" y="40" font-family="Inter, Arial" font-size="22" font-weight="300" fill="#0066CC">ebook</text>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,14 @@
+{
+  "retention_days": 30,
+  "auto_clean": true,
+  "organization": {
+    "by_date": true,
+    "by_type": true,
+    "compress_old": true
+  },
+  "stats": {
+    "total_trashed": 2,
+    "total_size_mb": 0.00006389617919921875,
+    "last_cleaned": null
+  }
+}

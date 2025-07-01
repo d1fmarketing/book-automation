@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "initialized": "2025-07-01T00:00:00.000Z",
+  "features": {
+    "mcp": true,
+    "smartCache": true,
+    "performanceMonitoring": true,
+    "autoRecovery": true
+  },
+  "project": {
+    "name": "book-automation",
+    "type": "ebook-pipeline",
+    "enhanced": true
+  }
+}

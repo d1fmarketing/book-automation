@@ -216,6 +216,9 @@ make epub
 
 # Generate all formats
 make all
+
+# Generate with live preview
+npm run preview
 ```
 
 ## 🎨 Image Generation
@@ -248,6 +251,30 @@ The EmotionPaletteEngine automatically detects emotions and applies appropriate 
 - 😢 Sad → Cool, muted tones
 - 😨 Tense → Dark, high contrast
 - 💜 Luxurious → Rich, sophisticated hues
+
+## 🖼️ Live Preview System
+
+Generate PDFs with real-time visual feedback:
+
+```bash
+# Generate with live preview
+npm run preview
+
+# Custom preset with preview
+npm run build:pdf:preview -- --preset clean
+
+# Preview on different port
+npm run preview -- --preview-port 3002
+```
+
+Features:
+- Real-time page rendering
+- Progress tracking with percentages
+- Page navigation and zoom controls
+- WebSocket updates
+- Secure token authentication
+
+See [preview-system/README.md](preview-system/README.md) for details.
 
 ## 📖 Context Management
 

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="archGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F5F5F5" />
+      <stop offset="100%" style="stop-color:#FFFFFF" />
+    </linearGradient>
+    <filter id="cardShadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1600" height="900" fill="url(#archGrad)"/>
+  
+  <!-- Grid -->
+  <g stroke="#E0E0E0" stroke-width="0.5" opacity="0.3">
+    <line x1="0" y1="0" x2="0" y2="900"/><line x1="100" y1="0" x2="100" y2="900"/><line x1="200" y1="0" x2="200" y2="900"/><line x1="300" y1="0" x2="300" y2="900"/><line x1="400" y1="0" x2="400" y2="900"/><line x1="500" y1="0" x2="500" y2="900"/><line x1="600" y1="0" x2="600" y2="900"/><line x1="700" y1="0" x2="700" y2="900"/><line x1="800" y1="0" x2="800" y2="900"/><line x1="900" y1="0" x2="900" y2="900"/><line x1="1000" y1="0" x2="1000" y2="900"/><line x1="1100" y1="0" x2="1100" y2="900"/><line x1="1200" y1="0" x2="1200" y2="900"/><line x1="1300" y1="0" x2="1300" y2="900"/><line x1="1400" y1="0" x2="1400" y2="900"/><line x1="1500" y1="0" x2="1500" y2="900"/>
+    <line x1="0" y1="0" x2="1600" y2="0"/><line x1="0" y1="100" x2="1600" y2="100"/><line x1="0" y1="200" x2="1600" y2="200"/><line x1="0" y1="300" x2="1600" y2="300"/><line x1="0" y1="400" x2="1600" y2="400"/><line x1="0" y1="500" x2="1600" y2="500"/><line x1="0" y1="600" x2="1600" y2="600"/><line x1="0" y1="700" x2="1600" y2="700"/><line x1="0" y1="800" x2="1600" y2="800"/>
+  </g>
+  
+  <!-- Title -->
+  <text x="800" y="80" font-family="Inter, Arial" font-size="48" font-weight="200" text-anchor="middle" fill="#1A1A1A">
+    Five-Agent Architecture
+  </text>
+  
+  <!-- Central Hub -->
+  <g transform="translate(800, 450)">
+    <rect x="-100" y="-60" width="200" height="120" fill="#FFFFFF" stroke="#0066CC" stroke-width="2" rx="10" filter="url(#cardShadow)"/>
+    <text y="-10" font-family="Inter, Arial" font-size="24" font-weight="400" text-anchor="middle" fill="#1A1A1A">Pipeline Core</text>
+    <text y="20" font-family="Inter, Arial" font-size="16" font-weight="300" text-anchor="middle" fill="#4A4A4A">Event-Driven Hub</text>
+  </g>
+  
+  <!-- Agent Cards -->
+  <g id="agent-cards">
+    <!-- Content Agent -->
+    <g transform="translate(800, 200)">
+      <rect x="-120" y="-50" width="240" height="100" fill="#FFFFFF" stroke="#0066CC" stroke-width="2" rx="10" filter="url(#cardShadow)"/>
+      <text y="-10" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Content Agent</text>
+      <text y="15" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#4A4A4A">Narrative Intelligence</text>
+      <circle cx="90" cy="-25" r="8" fill="#00AA44"/>
+    </g>
+    
+    <!-- Format Agent -->
+    <g transform="translate(1100, 350)">
+      <rect x="-120" y="-50" width="240" height="100" fill="#FFFFFF" stroke="#00AA44" stroke-width="2" rx="10" filter="url(#cardShadow)"/>
+      <text y="-10" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Format Agent</text>
+      <text y="15" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#4A4A4A">Typography Master</text>
+      <circle cx="90" cy="-25" r="8" fill="#0066CC"/>
+    </g>
+    
+    <!-- Quality Agent -->
+    <g transform="translate(1100, 550)">
+      <rect x="-120" y="-50" width="240" height="100" fill="#FFFFFF" stroke="#FF6600" stroke-width="2" rx="10" filter="url(#cardShadow)"/>
+      <text y="-10" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Quality Agent</text>
+      <text y="15" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#4A4A4A">Editorial Excellence</text>
+      <circle cx="90" cy="-25" r="8" fill="#00AA44"/>
+    </g>
+    
+    <!-- Monitor Agent -->
+    <g transform="translate(500, 550)">
+      <rect x="-120" y="-50" width="240" height="100" fill="#FFFFFF" stroke="#0066CC" stroke-width="2" rx="10" filter="url(#cardShadow)"/>
+      <text y="-10" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Monitor Agent</text>
+      <text y="15" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#4A4A4A">Real-time Analytics</text>
+      <circle cx="90" cy="-25" r="8" fill="#FF6600"/>
+    </g>
+    
+    <!-- Publish Agent -->
+    <g transform="translate(500, 350)">
+      <rect x="-120" y="-50" width="240" height="100" fill="#FFFFFF" stroke="#00AA44" stroke-width="2" rx="10" filter="url(#cardShadow)"/>
+      <text y="-10" font-family="Inter, Arial" font-size="20" font-weight="500" text-anchor="middle" fill="#1A1A1A">Publish Agent</text>
+      <text y="15" font-family="Inter, Arial" font-size="14" font-weight="300" text-anchor="middle" fill="#4A4A4A">Distribution Pro</text>
+      <circle cx="90" cy="-25" r="8" fill="#0066CC"/>
+    </g>
+  </g>
+  
+  <!-- Connection Lines with arrows -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4A4A4A"/>
+    </marker>
+  </defs>
+  
+  <g stroke="#4A4A4A" stroke-width="2" fill="none" marker-end="url(#arrowhead)">
+    <line x1="800" y1="300" x2="800" y2="380"/>
+    <line x1="880" y1="420" x2="970" y2="350"/>
+    <line x1="880" y1="480" x2="970" y2="550"/>
+    <line x1="720" y1="480" x2="630" y2="550"/>
+    <line x1="720" y1="420" x2="630" y2="350"/>
+  </g>
+</svg>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <!-- Dark theme background -->
+  <rect width="1600" height="900" fill="#0f172a"/>
+  
+  <!-- Main editor window -->
+  <rect x="50" y="50" width="1100" height="800" fill="#1e293b" rx="10" filter="url(#shadow)"/>
+  
+  <!-- Editor header -->
+  <rect x="50" y="50" width="1100" height="60" fill="#334155" rx="10 10 0 0"/>
+  <text x="80" y="88" font-family="Inter, Arial" font-size="20" font-weight="400" fill="#f1f5f9">🤖 AI Writing Assistant - Chapter 3</text>
+  
+  <!-- Toolbar -->
+  <g transform="translate(80, 130)">
+    <rect width="120" height="36" fill="#2563eb" rx="6"/>
+    <text x="60" y="24" font-family="Inter, Arial" font-size="14" font-weight="500" fill="white" text-anchor="middle">✨ Humanize</text>
+    
+    <rect x="130" width="120" height="36" fill="#7c3aed" rx="6"/>
+    <text x="190" y="24" font-family="Inter, Arial" font-size="14" font-weight="500" fill="white" text-anchor="middle">📝 Check Style</text>
+    
+    <rect x="260" width="140" height="36" fill="#10b981" rx="6"/>
+    <text x="330" y="24" font-family="Inter, Arial" font-size="14" font-weight="500" fill="white" text-anchor="middle">✏️ Grammar Check</text>
+  </g>
+  
+  <!-- Word count -->
+  <text x="1070" y="154" font-family="Inter, Arial" font-size="14" font-weight="300" fill="#cbd5e1" text-anchor="end">Words: 1,247</text>
+  
+  <!-- Editor content -->
+  <g transform="translate(80, 200)">
+    <text font-family="Monaco, monospace" font-size="16" fill="#f1f5f9">
+      <tspan x="0" y="0">## Setting Up Your Environment</tspan>
+      <tspan x="0" y="30"></tspan>
+      <tspan x="0" y="60">Before crafting your masterpiece, let's ensure your workspace</tspan>
+      <tspan x="0" y="90">is properly configured. The pipeline requires minimal setup</tspan>
+      <tspan x="0" y="120">but rewards attention to detail.</tspan>
+      <tspan x="0" y="150"></tspan>
+      <tspan x="0" y="180">### Installation Symphony</tspan>
+      <tspan x="0" y="210"></tspan>
+      <tspan x="0" y="240">Begin with the orchestrated installation process:</tspan>
+    </text>
+    
+    <!-- Cursor -->
+    <rect x="420" y="225" width="2" height="20" fill="#2563eb">
+      <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  
+  <!-- AI Suggestion popup -->
+  <g transform="translate(450, 350)">
+    <rect width="300" height="120" fill="#334155" rx="8" filter="url(#shadow)"/>
+    <text x="15" y="25" font-family="Inter, Arial" font-size="14" font-weight="500" fill="#f1f5f9">💡 AI Suggestion</text>
+    <text x="15" y="50" font-family="Inter, Arial" font-size="13" font-weight="300" fill="#cbd5e1">Consider adding a code example here</text>
+    <text x="15" y="70" font-family="Inter, Arial" font-size="13" font-weight="300" fill="#cbd5e1">to illustrate the installation steps.</text>
+    <rect x="15" y="85" width="80" height="24" fill="#2563eb" rx="4"/>
+    <text x="55" y="101" font-family="Inter, Arial" font-size="12" font-weight="500" fill="white" text-anchor="middle">Apply</text>
+  </g>
+  
+  <!-- Side panel -->
+  <rect x="1200" y="50" width="350" height="800" fill="#1e293b" rx="10" filter="url(#shadow)"/>
+  
+  <!-- Grammar panel -->
+  <g transform="translate(1220, 80)">
+    <text font-family="Inter, Arial" font-size="18" font-weight="500" fill="#f1f5f9">✏️ Grammar & Spelling</text>
+    
+    <g transform="translate(0, 40)">
+      <rect width="310" height="60" fill="#334155" rx="6"/>
+      <circle cx="20" cy="30" r="6" fill="#ef4444"/>
+      <text x="35" y="25" font-family="Inter, Arial" font-size="13" font-weight="400" fill="#f1f5f9">Missing article</text>
+      <text x="35" y="42" font-family="Inter, Arial" font-size="11" font-weight="300" fill="#94a3b8">"pipeline requires" → "the pipeline requires"</text>
+    </g>
+    
+    <g transform="translate(0, 110)">
+      <rect width="310" height="60" fill="#334155" rx="6"/>
+      <circle cx="20" cy="30" r="6" fill="#f59e0b"/>
+      <text x="35" y="25" font-family="Inter, Arial" font-size="13" font-weight="400" fill="#f1f5f9">Passive voice</text>
+      <text x="35" y="42" font-family="Inter, Arial" font-size="11" font-weight="300" fill="#94a3b8">Consider active voice for clarity</text>
+    </g>
+  </g>
+  
+  <!-- Humanity score -->
+  <g transform="translate(1220, 750)">
+    <text font-family="Inter, Arial" font-size="16" font-weight="400" fill="#f1f5f9">Humanity Score</text>
+    <text x="280" font-family="Inter, Arial" font-size="24" font-weight="300" fill="#10b981" text-anchor="end">87%</text>
+    <rect y="30" width="280" height="6" fill="#334155" rx="3"/>
+    <rect y="30" width="244" height="6" fill="#10b981" rx="3"/>
+  </g>
+</svg>

@@ -1,0 +1,120 @@
+# Pipeline Automation Book Metadata
+title: "The Claude Elite Pipeline"
+subtitle: "Mastering Automated Ebook Creation"
+author: "Claude Elite Team"
+isbn: "978-1-234567-89-0"
+publisher: "TechBooks Press"
+publication_date: "2025"
+language: "en-US"
+keywords:
+  - automation
+  - ebook
+  - pipeline
+  - AI
+  - publishing
+description: |
+  A comprehensive guide to building and using the Claude Elite 
+  pipeline for automated ebook creation. From concept to publication
+  in five essential chapters.
+
+# Cover Settings
+cover_image: "assets/images/cover-professional.svg"
+cover_designer: "Claude Elite Design Team"
+
+# PDF Settings
+pdf:
+  page_size: "6in 9in"
+  margins:
+    top: "0.75in"
+    bottom: "0.75in"
+    left: "0.75in"
+    right: "0.75in"
+  font_size: "11pt"
+  line_height: "1.6"
+  font_family: "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+  chapter_start_page: "right"
+  page_numbers: true
+  header_footer: true
+
+# EPUB Settings
+epub:
+  version: "3.0"
+  cover_image: "assets/images/cover.svg"
+  stylesheet: "assets/css/epub-ultra-thin.css"
+  toc_depth: 2
+  guide:
+    - type: "cover"
+      title: "Cover"
+      href: "cover.xhtml"
+    - type: "toc"
+      title: "Table of Contents"
+      href: "toc.xhtml"
+
+# Chapter Settings
+chapters:
+  number_format: "decimal"  # decimal, roman, or none
+  title_format: "Chapter {number}: {title}"
+  
+# Build Options
+build:
+  output_dir: "../build/dist"
+  formats: ["pdf", "epub"]
+  table_of_contents: true
+  index: false
+  glossary: false
+  
+# Ultra-thin Design Theme
+theme:
+  name: "ultra-thin"
+  primary_color: "#0066CC"
+  secondary_color: "#00AA44"
+  accent_color: "#FF6600"
+  background: "#FFFFFF"
+  text_color: "#1A1A1A"
+  font_weight: "300"
+  heading_weight: "200"
+  spacing: "loose"
+
+# Visual Enhancement Theme (Premium Features)
+visual_theme:
+  # Gradient colors for callout boxes and highlights
+  primary_gradient: ["#667eea", "#764ba2"]
+  secondary_gradient: ["#f093fb", "#f5576c"]
+  accent_color: "#FFD700"
+  
+  # Code syntax highlighting theme
+  code_theme: "prism" # Options: prism, dracula, monokai, github
+  
+  # Callout box styles
+  callout_boxes:
+    tip: 
+      gradient: ["#a8edea", "#fed6e3"]
+      border: "#00bcd4"
+    warning:
+      gradient: ["#ff9a9e", "#fecfef"]
+      border: "#f44336"
+    success:
+      gradient: ["#84fab0", "#8fd3f4"]
+      border: "#4caf50"
+    info:
+      gradient: ["#667eea", "#764ba2"]
+      border: "#3f51b5"
+    quote:
+      gradient: ["#fa709a", "#fee140"]
+      border: "#9c27b0"
+    key:
+      gradient: ["#ffecd2", "#fcb69f"]
+      border: "#FFD700"
+  
+  # Typography enhancements
+  typography:
+    chapter_number_style: "gradient" # solid, gradient, outline
+    drop_caps: true
+    ligatures: true
+    
+  # Page elements
+  page_elements:
+    section_dividers: true
+    progress_indicators: false
+    chapter_images: true
+    qr_codes: false

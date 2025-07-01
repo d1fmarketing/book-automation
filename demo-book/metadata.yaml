@@ -1,0 +1,151 @@
+# Demo Book Metadata - Pipeline Sanity Check
+book:
+  title: "Pipeline Sanity Check"
+  subtitle: "A Test Book for Validating the Claude Elite Pipeline"
+  author: "Claude Elite Test Suite"
+  isbn: "978-0-00000-000-0"
+  publisher: "Pipeline Test Publishers"
+  publication_date: "2025-01-01"
+  language: "en"
+  description: "A comprehensive test book to validate all pipeline features including file locking, WebSocket authentication, checkpoint system, and multi-agent coordination."
+  keywords:
+    - test
+    - pipeline
+    - validation
+    - demo
+  categories:
+    - "Technology"
+    - "Testing"
+
+# Target audience
+target_audience:
+  primary: "QA Engineers"
+  age_range: "18+"
+  education_level: "Technical"
+  interests:
+    - "Software Testing"
+    - "Automation"
+    - "CI/CD"
+
+# Book specifications
+specifications:
+  page_count_estimate: 50
+  trim_size: "6x9"
+  paper_type: "white"
+  binding: "perfect"
+  cover_finish: "matte"
+
+# Writing style
+style:
+  tone: "technical and precise"
+  approach: "systematic validation"
+  features:
+    - code_examples
+    - test_scenarios
+    - validation_checklists
+    - metrics_tracking
+
+# Chapter configuration
+chapters:
+  - number: 1
+    title: "Introduction to Pipeline Testing"
+    description: "Overview of the book automation pipeline and testing objectives"
+    key_points:
+      - "Pipeline architecture overview"
+      - "Testing methodology"
+      - "Success criteria"
+    word_target: 1000
+    images_needed: 2
+    
+  - number: 2
+    title: "File System Operations"
+    description: "Testing file locking, safe trash, and checkpoint systems"
+    key_points:
+      - "Concurrent access handling"
+      - "Safe deletion and recovery"
+      - "State persistence"
+    word_target: 1200
+    images_needed: 3
+    
+  - number: 3
+    title: "Real-time Monitoring"
+    description: "WebSocket authentication and monitoring validation"
+    key_points:
+      - "Authentication mechanisms"
+      - "Rate limiting"
+      - "Event streaming"
+    word_target: 1100
+    images_needed: 2
+    
+  - number: 4
+    title: "Pipeline Integration"
+    description: "End-to-end workflow validation and results"
+    key_points:
+      - "Phase coordination"
+      - "Error recovery"
+      - "Performance metrics"
+    word_target: 1000
+    images_needed: 2
+
+# Image specifications
+images:
+  cover:
+    width: 1800
+    height: 2700
+    format: "jpg"
+    style: "minimalist technical diagram"
+  
+  chapter_illustrations:
+    width: 1200
+    height: 800
+    format: "png"
+    style: "technical diagrams"
+    
+# Output formats
+outputs:
+  pdf:
+    enabled: true
+    settings:
+      margin_top: "0.75in"
+      margin_bottom: "0.75in"
+      margin_left: "0.75in"
+      margin_right: "0.75in"
+      font_size: "11pt"
+      line_height: 1.6
+      
+  epub:
+    enabled: true
+    settings:
+      include_toc: true
+      include_landmarks: true
+      
+# Pipeline settings
+pipeline:
+  phases:
+    writer:
+      enabled: true
+      auto_generate: true
+      
+    illustrator:
+      enabled: true
+      use_placeholders: true
+      
+    builder:
+      enabled: true
+      validate_output: true
+      
+    qa:
+      enabled: true
+      strict_mode: true
+      
+    publisher:
+      enabled: true
+      target: "staging"
+
+# Test configuration
+test_config:
+  enable_stress_test: true
+  concurrent_operations: 5
+  checkpoint_frequency: "after_each_phase"
+  monitor_all_events: true
+  validate_all_outputs: true

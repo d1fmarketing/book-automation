@@ -1,0 +1,46 @@
+{
+  "id": "2025-07-01T08-38-46-948Z-demo-test-checkpoint",
+  "created_at": "2025-07-01T08:38:46.949Z",
+  "label": "demo-test-checkpoint",
+  "phase": null,
+  "state_version": "book-2025-07-01-1b552f25",
+  "includes": [
+    {
+      "path": "chapters/",
+      "type": "directory",
+      "files": 4,
+      "size": 10815
+    },
+    {
+      "path": "assets/",
+      "type": "directory",
+      "files": 10,
+      "size": 340798
+    },
+    {
+      "path": "pipeline-state.json",
+      "type": "file",
+      "files": 1,
+      "size": 385
+    },
+    {
+      "path": ".claude/todos.json",
+      "type": "file",
+      "files": 1,
+      "size": 193
+    },
+    {
+      "path": ".claude/logs/",
+      "type": "directory",
+      "files": 4,
+      "size": 4516
+    },
+    {
+      "path": "trash/",
+      "type": "directory",
+      "files": 2,
+      "size": 347
+    }
+  ],
+  "stats": {}
+}

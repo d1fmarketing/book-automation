@@ -1,0 +1,235 @@
+# Custom Grammar and Style Rules for Book Writing
+
+# Language-specific settings
+languages:
+  pt-BR:
+    # Brazilian Portuguese specific rules
+    enabled_rules:
+      - REPEATED_WORDS_RULE
+      - COMMA_PARENTHESIS_WHITESPACE
+      - DOUBLE_PUNCTUATION
+      - UNPAIRED_BRACKETS
+      - PORTUGUESE_WORD_REPEAT_RULE
+      - CRASE
+      
+    disabled_rules:
+      # These often cause false positives in creative writing
+      - WHITESPACE_RULE  # Multiple spaces can be intentional
+      - UPPERCASE_SENTENCE_START  # Dialogue and fragments
+      - FRAGMENT_TWO_ARTICLES  # Common in informal writing
+      - HIFEN_CRASE  # Often flags compound words incorrectly
+      
+  en-US:
+    enabled_rules:
+      - ENGLISH_WORD_REPEAT_RULE
+      - COMMA_SPLICE
+      - PASSIVE_VOICE
+      
+    disabled_rules:
+      - WHITESPACE_RULE
+      - SENTENCE_FRAGMENT
+
+# Custom style rules for different book types
+book_styles:
+  fiction:
+    # Fiction allows more creative freedom
+    allow:
+      - sentence_fragments
+      - creative_punctuation
+      - dialogue_tags
+      - made_up_words
+    
+    check_for:
+      - character_name_consistency
+      - dialogue_punctuation
+      - scene_break_formatting
+      
+  non_fiction:
+    # Non-fiction needs clarity and precision
+    enforce:
+      - complete_sentences
+      - formal_language
+      - consistent_terminology
+      - citation_format
+      
+    avoid:
+      - passive_voice
+      - overly_complex_sentences
+      - jargon_without_explanation
+      
+  technical:
+    # Technical writing has specific needs
+    enforce:
+      - precise_terminology
+      - consistent_code_formatting
+      - clear_examples
+      
+    allow:
+      - technical_terms
+      - code_snippets
+      - command_examples
+
+# Pattern-based custom rules
+custom_patterns:
+  # Character name consistency
+  character_names:
+    description: "Check character names are spelled consistently"
+    pattern: "\\b(João|Maria|Pedro|Ana)\\b"
+    variations:
+      João: ["Joao", "joão", "JOÃO"]
+      Maria: ["maria", "MARIA", "Mária"]
+    
+  # Common typos in Portuguese
+  portuguese_typos:
+    description: "Common Portuguese typos"
+    replacements:
+      "por que": 
+        contexts: ["question"]
+        correct: "por que"
+      "porque":
+        contexts: ["reason"]
+        correct: "porque"
+      "porquê":
+        contexts: ["noun"]
+        correct: "porquê"
+        
+  # Dialogue formatting
+  dialogue_punctuation:
+    description: "Ensure proper dialogue punctuation"
+    rules:
+      - pattern: '"\s*,\s*disse'
+        suggestion: '", disse'
+      - pattern: '"\s*\.\s*disse'
+        suggestion: '", disse'
+      - pattern: '!\s*"\s*disse'
+        suggestion: '!" disse'
+        
+  # Technical writing
+  code_formatting:
+    description: "Code should be in backticks"
+    pattern: "\\b(function|class|const|let|var|def|import)\\b"
+    suggestion: "Wrap code terms in backticks: `{match}`"
+
+# Writing style preferences
+style_preferences:
+  # Sentence variety
+  sentence_length:
+    min: 5
+    max: 35
+    ideal_average: 15
+    variation_target: 0.3  # 30% variation
+    
+  # Paragraph structure
+  paragraph_length:
+    min_sentences: 2
+    max_sentences: 7
+    ideal_sentences: 4
+    
+  # Word choice
+  avoid_words:
+    - "very"  # muito
+    - "really"  # realmente
+    - "basically"  # basicamente
+    - "actually"  # na verdade
+    - "just"  # apenas/só
+    
+  prefer_active_voice:
+    threshold: 0.8  # 80% active voice
+    
+  # Readability targets
+  readability:
+    flesch_reading_ease:
+      min: 50  # Fairly difficult
+      target: 60-70  # Standard
+      max: 80  # Easy
+      
+# Context-aware rules
+context_rules:
+  # Chapter beginnings
+  chapter_start:
+    avoid:
+      - "In this chapter"
+      - "This chapter will"
+      - "We will discuss"
+    prefer:
+      - Direct engagement
+      - Story opening
+      - Question or quote
+      
+  # Chapter endings
+  chapter_end:
+    include:
+      - Clear conclusion
+      - Transition hint
+      - Call to action (non-fiction)
+      
+  # Scene breaks
+  scene_breaks:
+    format: "---"  # or "* * *"
+    spacing: "\n\n---\n\n"
+
+# Domain-specific dictionaries
+custom_dictionaries:
+  # Character names
+  characters:
+    - João
+    - Maria
+    - Astrid
+    - Claude
+    
+  # Location names  
+  locations:
+    - São Paulo
+    - Copacabana
+    - Liberdade
+    
+  # Technical terms
+  technical:
+    - API
+    - backend
+    - frontend
+    - DevOps
+    - CI/CD
+    
+  # Brand names
+  brands:
+    - GitHub
+    - OpenAI
+    - Anthropic
+    
+  # Made-up words (fiction)
+  fictional:
+    - technomancer
+    - neurallink
+    - datamancy
+
+# Reporting preferences
+reporting:
+  # Issue severity levels
+  severity_levels:
+    error:
+      - grammar_errors
+      - spelling_mistakes
+      - missing_punctuation
+    warning:
+      - style_inconsistency
+      - repetitive_words
+      - passive_voice_overuse
+    info:
+      - style_suggestions
+      - alternative_phrasings
+      - readability_tips
+      
+  # Report sections
+  include_in_report:
+    - summary_statistics
+    - issues_by_chapter
+    - top_repeated_errors
+    - readability_scores
+    - style_consistency_check
+    
+  # Thresholds
+  thresholds:
+    block_on_errors: true
+    max_errors_per_chapter: 10
+    max_warnings_per_chapter: 20

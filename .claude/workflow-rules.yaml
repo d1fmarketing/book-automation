@@ -1,0 +1,357 @@
+# Claude Elite Workflow Rules Engine
+# Defines phase dependencies, requirements, and validation rules
+# for the book automation pipeline
+
+version: "1.0.0"
+description: "Workflow control rules for multi-agent book pipeline"
+
+# Global settings
+global:
+  allow_parallel: false  # Set to true to allow parallel phase execution
+  auto_checkpoint: true  # Automatically checkpoint before each phase
+  strict_mode: true      # Fail fast on any requirement violation
+  trash_retention_days: 30
+
+# Phase definitions with dependencies and requirements
+phases:
+  # Initial setup phase
+  setup:
+    description: "Initialize project and validate environment"
+    requires:
+      files:
+        - "metadata.yaml"
+        - "CLAUDE.md"
+      environment:
+        - "AGENT_CLI_TEXT_MODEL"
+    produces:
+      directories:
+        - "chapters"
+        - "assets/images"
+        - "build/tmp"
+        - "build/dist"
+        - ".claude/checkpoints"
+        - "trash"
+    pre_checks:
+      - name: "validate_metadata"
+        script: "scripts/validate-metadata.py"
+      - name: "check_git_status"
+        command: "git status --porcelain"
+    blocks_if_missing: true
+
+  # Content planning phase
+  planner:
+    description: "Generate book outline and chapter structure"
+    requires:
+      files:
+        - "metadata.yaml"
+      context:
+        - "book_genre"
+        - "target_audience"
+        - "chapter_count"
+    produces:
+      files:
+        - "outline.yaml"
+        - "context/story-bible.yaml"
+        - "context/CONTEXT.md"
+    validation:
+      - "outline_has_chapters: true"
+      - "min_chapters: 3"
+      - "max_chapters: 50"
+    optional: true  # Can be skipped if outline exists
+
+  # Text generation phase
+  writer:
+    description: "Generate chapter content using AI"
+    requires:
+      files:
+        - "outline.yaml"
+        - "context/CONTEXT.md"
+      directories:
+        - "chapters"
+      environment:
+        - "AGENT_CLI_TEXT_MODEL"
+    produces:
+      files:
+        - "chapters/*.md"
+      metrics:
+        - "total_words"
+        - "chapters_written"
+    pre_checks:
+      - name: "context_freshness"
+        command: "make session-start"
+    validation:
+      - "min_words_per_chapter: 500"
+      - "max_words_per_chapter: 10000"
+      - "all_chapters_have_frontmatter: true"
+    post_hooks:
+      - "make wordcount"
+      - "make check-continuity"
+    blocks_if_missing: true
+
+  # Image generation phase
+  illustrator:
+    description: "Generate images for AI-IMAGE placeholders"
+    requires:
+      files:
+        - "chapters/*.md"
+      environment:
+        - "IMAGE_PROVIDER"
+        - "IDEOGRAM_API_KEY|OPENAI_API_KEY"  # Either one
+    produces:
+      files:
+        - "assets/images/*.{png,jpg,jpeg}"
+      manifest:
+        - "context/image-manifest.json"
+    validation:
+      - "all_placeholders_resolved: true"
+      - "min_image_resolution: 1024x1024"
+      - "max_image_size_mb: 10"
+    error_handling:
+      retry_count: 3
+      fallback: "use_placeholder_image"
+    blocks_if_missing: false  # Can continue without all images
+
+  # Format building phase
+  builder:
+    description: "Build PDF, EPUB, and other formats"
+    requires:
+      files:
+        - "chapters/*.md"
+        - "metadata.yaml"
+        - "assets/css/*.css"
+      directories:
+        - "assets/images"
+      tools:
+        - "pandoc"
+        - "node"
+    produces:
+      files:
+        - "build/dist/ebook.pdf"
+        - "build/dist/ebook.epub"
+        - "build/tmp/ebook.html"
+      optional:
+        - "build/dist/ebook.kpf"
+    pre_checks:
+      - name: "validate_chapters"
+        script: "scripts/validate-chapters.py"
+      - name: "check_images"
+        command: "find assets/images -type f -name '*.png' -o -name '*.jpg' | wc -l"
+    validation:
+      - "pdf_exists: true"
+      - "epub_exists: true"
+      - "html_mirror_exists: true"
+    post_hooks:
+      - "npm run validate:epub"
+    blocks_if_missing: true
+
+  # Quality assurance phase
+  qa:
+    description: "Visual and technical quality checks"
+    requires:
+      files:
+        - "build/dist/ebook.pdf"
+        - "build/dist/ebook.epub"
+        - "build/tmp/ebook.html"
+      tools:
+        - "mcp"
+        - "chromium|chrome"
+    produces:
+      files:
+        - "qa/qa-report.json"
+        - "qa/screens/*.png"
+      status:
+        - "qa_passed"
+    validation:
+      qa_checks:
+        typography:
+          - "font_size_range: [11.5, 14]"
+          - "line_height_range: [1.3, 1.6]"
+        contrast:
+          - "min_contrast_ratio: 4.5"
+        layout:
+          - "max_blank_percentage: 50"
+          - "max_orphan_lines: 2"
+          - "pdf_bleed_tolerance_mm: 3"
+        technical:
+          - "pdf_valid: true"
+          - "epub_valid: true"
+    error_handling:
+      max_retries: 5
+      auto_adjust_layout: true
+      fallback_presets:
+        - "standard"
+        - "tight"
+        - "loose"
+        - "comfortable"
+    blocks_if_missing: true
+
+  # Publishing phase
+  publisher:
+    description: "Publish to marketplaces"
+    requires:
+      files:
+        - "build/dist/ebook.pdf"
+        - "build/dist/ebook.epub"
+        - "qa/qa-report.json"
+      status:
+        - "qa_passed: true"
+      environment:
+        - "GUMROAD_API_KEY|KDP_CREDENTIALS"
+    produces:
+      files:
+        - "publish/publish-report.json"
+      urls:
+        - "gumroad_product_url"
+        - "kdp_draft_url"
+    validation:
+      - "all_formats_uploaded: true"
+      - "metadata_complete: true"
+    manual_approval: true  # Requires explicit confirmation
+    blocks_if_missing: false
+
+# Workflow rules and constraints
+rules:
+  # Phase execution order
+  execution_order:
+    - setup
+    - planner    # optional
+    - writer
+    - illustrator
+    - builder
+    - qa
+    - publisher  # optional
+
+  # Blocking conditions
+  blocking_conditions:
+    - name: "no_skip_phases"
+      description: "Cannot skip required phases"
+      condition: "all_required_phases_completed"
+    
+    - name: "qa_must_pass"
+      description: "Cannot publish without passing QA"
+      condition: "qa.status == 'passed'"
+    
+    - name: "context_sync"
+      description: "Context must be updated between writer sessions"
+      condition: "context_last_updated > last_writer_run"
+
+  # Automatic actions
+  auto_actions:
+    - trigger: "before_each_phase"
+      action: "create_checkpoint"
+      
+    - trigger: "phase_failure"
+      action: "save_error_state"
+      
+    - trigger: "file_deletion"
+      action: "move_to_trash"
+      
+    - trigger: "qa_failure_repeated"
+      condition: "failure_count > 3"
+      action: "alert_human_review"
+
+# Checkpoint configuration
+checkpoints:
+  auto_create: true
+  retention_policy:
+    max_checkpoints: 20
+    max_age_days: 7
+    keep_minimum: 5
+    keep_phase_completions: true  # Always keep checkpoints after phase completion
+  
+  checkpoint_includes:
+    - "chapters/"
+    - "assets/"
+    - "context/"
+    - "pipeline-state.json"
+    - ".claude/todos.json"
+    - ".claude/logs/"  # Include logs in checkpoints
+    - "trash/"  # Include trash for full recovery
+  
+  # Selective inclusion rules
+  inclusion_rules:
+    logs:
+      max_file_size_mb: 50  # Skip logs larger than 50MB
+      include_patterns:
+        - "*.log"
+        - "*.json"
+      exclude_patterns:
+        - "*.log.old"
+        - "debug-*.log"
+    trash:
+      max_age_days: 7  # Only include recent trash
+      compress: true  # Compress trash files in checkpoint
+
+# Trash management
+trash:
+  auto_clean: true
+  retention_days: 30
+  exclude_patterns:
+    - "*.checkpoint"
+    - "*.backup"
+  
+  organization:
+    by_date: true
+    by_type: true
+    compress_old: true
+
+# Monitoring and alerts
+monitoring:
+  log_level: "info"
+  metrics_enabled: true
+  
+  alerts:
+    - type: "phase_timeout"
+      threshold_minutes: 60
+      action: "log_warning"
+      
+    - type: "repeated_failure"
+      threshold_count: 3
+      action: "pause_pipeline"
+      
+    - type: "disk_space_low"
+      threshold_gb: 5
+      action: "clean_trash"
+
+# Recovery options
+recovery:
+  auto_recover: true
+  recovery_strategies:
+    - type: "checkpoint_restore"
+      condition: "phase_crash"
+      
+    - type: "retry_with_backoff"
+      condition: "api_error"
+      max_retries: 3
+      
+    - type: "fallback_preset"
+      condition: "qa_loop_stuck"
+      max_attempts: 5
+  
+  restore_options:
+    selective_restore: true  # Allow restoring only specific parts
+    dry_run_available: true  # Preview before restore
+    conflict_resolution: "backup"  # backup, overwrite, or skip
+    restore_components:
+      - state  # Pipeline state
+      - files  # Chapter and asset files
+      - logs   # Log files
+      - trash  # Deleted files
+      - context  # Context files
+
+# Integration points
+integrations:
+  claude_elite:
+    enabled: true
+    commands:
+      - "pipeline"
+      - "checkpoint"
+      - "recover"
+    
+  mcp_dashboard:
+    enabled: true
+    update_interval: 5000  # ms
+    
+  github_actions:
+    enabled: true
+    trigger_on: ["push", "workflow_dispatch"]

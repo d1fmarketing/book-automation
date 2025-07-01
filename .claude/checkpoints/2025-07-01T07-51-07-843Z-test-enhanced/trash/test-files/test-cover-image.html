@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cover Image Test</title>
+</head>
+<body>
+    <h1>Cover Image Test</h1>
+    <img src="file:///Users/d1f/Desktop/Ebooks/book-automation/assets/images/cover.jpg" alt="Test cover image">
+    
+    <div id="results"></div>
+    
+    <script>
+    // Find the image
+    const img = document.querySelector('img');
+    if (img) {
+        // Wait for image to load
+        img.onload = function() {
+            // Get image details
+            const rect = img.getBoundingClientRect();
+            const computedStyle = getComputedStyle(img);
+            
+            // Check if image is actually visible
+            const isVisible = rect.width > 0 && rect.height > 0;
+            
+            // Get the actual image URL
+            const actualSrc = img.src;
+            const expectedSrc = 'file:///Users/d1f/Desktop/Ebooks/book-automation/assets/images/cover.jpg';
+            
+            const results = {
+                image: {
+                    src: actualSrc,
+                    alt: img.alt,
+                    width: rect.width,
+                    height: rect.height,
+                    naturalWidth: img.naturalWidth,
+                    naturalHeight: img.naturalHeight,
+                    isVisible: isVisible,
+                    display: computedStyle.display,
+                    hasExpectedSrc: actualSrc.includes('cover.jpg'),
+                    loaded: img.complete && img.naturalHeight !== 0
+                }
+            };
+            
+            document.getElementById('results').innerHTML = '<pre>' + JSON.stringify(results, null, 2) + '</pre>';
+        };
+        
+        img.onerror = function() {
+            document.getElementById('results').innerHTML = '<pre>Error loading image!</pre>';
+        };
+    } else {
+        document.getElementById('results').innerHTML = '<pre>No image found</pre>';
+    }
+    </script>
+</body>
+</html>

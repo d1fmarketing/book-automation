@@ -1,0 +1,66 @@
+{
+  "testName": "trash-operations",
+  "duration": "17.4s",
+  "concurrency": 10,
+  "operations": {
+    "total": 1430,
+    "successful": 1422,
+    "failed": 8,
+    "successRate": "99.4%",
+    "throughput": "82.1 ops/sec"
+  },
+  "performance": {
+    "min": "1ms",
+    "max": "163ms",
+    "avg": "47.9ms",
+    "p50": "36ms",
+    "p95": "97ms",
+    "p99": "131ms"
+  },
+  "resources": {
+    "peakMemory": "28.6MB",
+    "avgHandles": 12
+  },
+  "errors": [
+    {
+      "command": "node",
+      "error": "Process exited with code null",
+      "duration": "4ms"
+    },
+    {
+      "command": "search-5-5",
+      "error": "Search failed with code null",
+      "duration": "4ms"
+    },
+    {
+      "command": "node",
+      "error": "Process exited with code null",
+      "duration": "31ms"
+    },
+    {
+      "command": "trash-test-file-7-33-7fbbafda.txt",
+      "error": "Trash failed with code null",
+      "duration": "31ms"
+    },
+    {
+      "command": "node",
+      "error": "Process exited with code null",
+      "duration": "43ms"
+    },
+    {
+      "command": "search-test-file-1",
+      "error": "Search failed with code null",
+      "duration": "43ms"
+    },
+    {
+      "command": "node",
+      "error": "Process exited with code null",
+      "duration": "56ms"
+    },
+    {
+      "command": "search-.txt-3",
+      "error": "Search failed with code null",
+      "duration": "56ms"
+    }
+  ]
+}

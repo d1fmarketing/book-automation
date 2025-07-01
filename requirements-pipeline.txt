@@ -1,0 +1,6 @@
+# Requirements for the 5-agent pipeline system
+aiofiles>=23.0.0
+websockets>=12.0
+psutil>=5.9.0
+Pillow>=10.0.0
+PyYAML>=6.0
