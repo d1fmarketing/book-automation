@@ -7,8 +7,16 @@
 
 const { spawn } = require('child_process');
 const path = require('path');
-const chalk = require('chalk');
 const fs = require('fs').promises;
+
+// ANSI colors
+const colors = {
+  blue: (text) => `\x1b[34m${text}\x1b[0m`,
+  green: (text) => `\x1b[32m${text}\x1b[0m`,
+  red: (text) => `\x1b[31m${text}\x1b[0m`,
+  yellow: (text) => `\x1b[33m${text}\x1b[0m`,
+  gray: (text) => `\x1b[90m${text}\x1b[0m`
+};
 
 // Available agents
 const AGENTS = {
@@ -22,13 +30,13 @@ const AGENTS = {
 
 // Show available agents
 function showAgents() {
-  console.log(chalk.blue('\n🤖 Available Agents\n'));
+  console.log(colors.blue('\n🤖 Available Agents\n'));
   
   Object.entries(AGENTS).forEach(([name, config]) => {
-    console.log(chalk.green(`  ${name}`));
-    console.log(chalk.gray(`    ${config.description}`));
+    console.log(colors.green(`  ${name}`));
+    console.log(colors.gray(`    ${config.description}`));
     if (config.args.length > 0) {
-      console.log(chalk.gray(`    Options: ${config.args.join(', ')}`));
+      console.log(colors.gray(`    Options: ${config.args.join(', ')}`));
     }
   });
   
@@ -44,7 +52,7 @@ async function launchAgent(agentName, args) {
   const agent = AGENTS[agentName];
   
   if (!agent) {
-    console.error(chalk.red(`Unknown agent: ${agentName}`));
+    console.error(colors.red(`Unknown agent: ${agentName}`));
     showAgents();
     process.exit(1);
   }
@@ -55,8 +63,8 @@ async function launchAgent(agentName, args) {
   try {
     await fs.access(agentPath);
   } catch (error) {
-    console.error(chalk.red(`Agent file not found: ${agentPath}`));
-    console.log(chalk.yellow('Building agents...'));
+    console.error(colors.red(`Agent file not found: ${agentPath}`));
+    console.log(colors.yellow('Building agents...'));
     
     // Try to build TypeScript agents
     const buildProcess = spawn('npm', ['run', 'build'], {
@@ -69,7 +77,7 @@ async function launchAgent(agentName, args) {
     });
   }
   
-  console.log(chalk.blue(`\n🚀 Launching ${agentName}...\n`));
+  console.log(colors.blue(`\n🚀 Launching ${agentName}...\n`));
   
   // Determine how to run the agent
   let command, commandArgs;
@@ -87,7 +95,7 @@ async function launchAgent(agentName, args) {
     command = 'python3';
     commandArgs = [agentPath, ...args];
   } else {
-    console.error(chalk.red('Unsupported agent type'));
+    console.error(colors.red('Unsupported agent type'));
     process.exit(1);
   }
   
@@ -101,15 +109,15 @@ async function launchAgent(agentName, args) {
   });
   
   agentProcess.on('error', (error) => {
-    console.error(chalk.red(`Failed to launch agent: ${error.message}`));
+    console.error(colors.red(`Failed to launch agent: ${error.message}`));
     process.exit(1);
   });
   
   agentProcess.on('exit', (code) => {
     if (code === 0) {
-      console.log(chalk.green(`\n✅ Agent completed successfully`));
+      console.log(colors.green(`\n✅ Agent completed successfully`));
     } else {
-      console.log(chalk.red(`\n❌ Agent exited with code ${code}`));
+      console.log(colors.red(`\n❌ Agent exited with code ${code}`));
     }
     process.exit(code || 0);
   });
@@ -132,7 +140,7 @@ async function main() {
 // Run
 if (require.main === module) {
   main().catch(error => {
-    console.error(chalk.red('Fatal error:'), error);
+    console.error(colors.red('Fatal error:'), error);
     process.exit(1);
   });
 }

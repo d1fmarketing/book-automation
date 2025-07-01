@@ -1,1 +1,0 @@
-../src/ebook_pipeline/generators/generate_images.py

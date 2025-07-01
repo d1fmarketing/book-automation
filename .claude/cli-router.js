@@ -66,6 +66,30 @@ const COMMANDS = {
   '/cache': {
     script: '.claude/scripts/cache-stats.js',
     description: 'Cache statistics and management'
+  },
+  
+  // Advanced features
+  '/ultrathink': {
+    script: '.claude/scripts/ultrathink.js',
+    description: 'Extended context processing'
+  },
+  '/puppeteer': {
+    script: '.claude/scripts/puppeteer-bridge.js',
+    description: 'Browser automation'
+  },
+  '/image': {
+    script: '.claude/scripts/image-processor.js',
+    description: 'Image processing pipeline'
+  },
+  
+  // MCP Management
+  '/mcp-dashboard': {
+    script: '.claude/mcp-dashboard.js',
+    description: 'Visual MCP dashboard'
+  },
+  '/mcp-install': {
+    script: '.claude/scripts/install-all-mcps-user.sh',
+    description: 'Install all Desktop MCPs'
   }
 };
 

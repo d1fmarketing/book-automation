@@ -175,20 +175,20 @@ FAILED_INSTALLS=0
 
 # Core MCPs
 install_mcp "brightdata" "npx @brightdata/mcp-server" \
-    "--api-key='$BRIGHTDATA_API_KEY' --zone='mcp_unlocker'" || ((FAILED_INSTALLS++))
+    "-e BRIGHTDATA_API_KEY='$BRIGHTDATA_API_KEY' -e BRIGHTDATA_ZONE='mcp_unlocker'" || ((FAILED_INSTALLS++))
 
 install_mcp "supabase" "npx @supabase/mcp-server" \
-    "--url='$SUPABASE_URL' --key='$SUPABASE_KEY'" || ((FAILED_INSTALLS++))
+    "-e SUPABASE_URL='$SUPABASE_URL' -e SUPABASE_KEY='$SUPABASE_KEY'" || ((FAILED_INSTALLS++))
 
 install_mcp "puppeteer" "npx @modelcontextprotocol/puppeteer-server" "" || ((FAILED_INSTALLS++))
 
 install_mcp "upstash" "npx @upstash/mcp-server" \
-    "--url='$UPSTASH_REDIS_URL' --token='$UPSTASH_REDIS_TOKEN'" || ((FAILED_INSTALLS++))
+    "-e UPSTASH_REDIS_URL='$UPSTASH_REDIS_URL' -e UPSTASH_REDIS_TOKEN='$UPSTASH_REDIS_TOKEN'" || ((FAILED_INSTALLS++))
 
 # Optional MCPs
 if [ ! -z "${SHOPIFY_STORE:-}" ] && [ ! -z "${SHOPIFY_ACCESS_TOKEN:-}" ]; then
     install_mcp "shopify" "npx @shopify/mcp-server" \
-        "--store='$SHOPIFY_STORE' --access-token='$SHOPIFY_ACCESS_TOKEN'" || ((FAILED_INSTALLS++))
+        "-e SHOPIFY_STORE='$SHOPIFY_STORE' -e SHOPIFY_ACCESS_TOKEN='$SHOPIFY_ACCESS_TOKEN'" || ((FAILED_INSTALLS++))
 fi
 
 # Verify installation

@@ -1,0 +1,37 @@
+{
+  "mcps": [
+    {
+      "name": "brightdata",
+      "command": "npx @brightdata/mcp-server",
+      "args": {
+        "api-key": "53ae65d7a9ca72028e3e76f87aec401ef1283aad0dbc729b4067504b61caa63a",
+        "zone": "mcp_unlocker"
+      },
+      "description": "Web scraping with proxy rotation"
+    },
+    {
+      "name": "supabase",
+      "command": "npx @supabase/mcp-server",
+      "args": {
+        "url": "https://kwuefaelimnttaycysfl.supabase.co",
+        "key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dWVmYWVsaW1udHRheWN5c2ZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzMjIwMjksImV4cCI6MjA2Njg5ODAyOX0.gt4BEK-osVfS7NpCKNrqBk51q_ix7rUmAgw_VIMXxFo"
+      },
+      "description": "Database and storage operations"
+    },
+    {
+      "name": "puppeteer",
+      "command": "npx @modelcontextprotocol/puppeteer-server",
+      "args": {},
+      "description": "Browser automation and screenshots"
+    },
+    {
+      "name": "upstash",
+      "command": "npx @upstash/mcp-server",
+      "args": {
+        "url": "redis://default:12883eaf-df4a-4e85-88fe-54675ce9d57b@us1-magnetic-gar-42018.upstash.io:6379",
+        "token": "12883eaf-df4a-4e85-88fe-54675ce9d57b"
+      },
+      "description": "Redis caching and queues"
+    }
+  ]
+}

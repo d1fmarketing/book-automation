@@ -2,7 +2,7 @@
 
 /**
  * Claude Elite CLI Entry Point
- * Provides the 'claude' command
+ * Provides the 'claude' command with headless support
  */
 
-require('./.claude/cli-router.js');
+require('./.claude/cli-headless.js');

@@ -273,9 +273,9 @@ function processDirectory(dirPath) {
     console.log(`${colors.cyan}Total replacements: ${totalReplacements}${colors.reset}`);
     
     // Also update the generator script to use icon font
-    const generatorPath = path.join(__dirname, 'generate-professional-pdf.js');
+    const generatorPath = path.join(__dirname, 'pdf-presets/professional.js');
     if (fs.existsSync(generatorPath)) {
-        console.log(`\n${colors.blue}📝 Updating PDF generator...${colors.reset}`);
+        console.log(`\n${colors.blue}📝 Updating PDF generator preset...${colors.reset}`);
         let generatorContent = fs.readFileSync(generatorPath, 'utf8');
         
         // Add icon font CSS

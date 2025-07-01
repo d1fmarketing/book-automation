@@ -77,9 +77,10 @@ echo "🔐 Verificando autenticação GitHub..."
 if gh auth status &> /dev/null; then
     echo -e "${GREEN}✓${NC} GitHub CLI autenticado"
 else
-    echo -e "${RED}✗${NC} GitHub CLI não autenticado"
-    echo -e "  ${YELLOW}Execute: gh auth login${NC}"
-    ((ERRORS++))
+    echo -e "${YELLOW}⚠${NC} GitHub CLI não autenticado (opcional para MCP)"
+    echo -e "  ${YELLOW}Para usar recursos do GitHub, execute: gh auth login${NC}"
+    # Não contar como erro crítico para instalação MCP
+    # ((ERRORS++))
 fi
 
 # 8. Verificar estrutura de diretórios

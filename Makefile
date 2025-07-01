@@ -2,7 +2,7 @@
 
 .PHONY: ebook
 ebook:
-	@./pipeline-real.sh
+	@./ebook-build.sh
 
 .PHONY: rebuild  
 rebuild:
