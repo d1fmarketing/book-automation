@@ -39,8 +39,14 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+.env.runtime
+API_KEYS_BACKUP.md
 
 # Temporary files
 *.tmp
 *.temp
 .cache/
+
+# Publishing formats
+*.kpf
+public_html/
