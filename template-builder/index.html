@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Machine Template Builder - Create Custom Ebook Templates</title>
+    <meta name="description" content="Visual template builder for creating custom ebook templates">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="builder-header">
+        <div class="header-left">
+            <h1 class="builder-title">
+                <i class="fas fa-palette"></i>
+                Template Builder
+            </h1>
+            <span class="subtitle">Create Custom Ebook Templates</span>
+        </div>
+        
+        <div class="header-center">
+            <div class="template-name">
+                <input type="text" id="template-name" placeholder="Untitled Template" value="My Template">
+                <button class="rename-btn" onclick="renameTemplate()">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="header-btn" onclick="previewTemplate()">
+                <i class="fas fa-eye"></i>
+                <span>Preview</span>
+            </button>
+            <button class="header-btn" onclick="exportTemplate()">
+                <i class="fas fa-download"></i>
+                <span>Export</span>
+            </button>
+            <button class="header-btn primary" onclick="saveTemplate()">
+                <i class="fas fa-save"></i>
+                <span>Save</span>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Layout -->
+    <div class="builder-layout">
+        <!-- Sidebar -->
+        <aside class="builder-sidebar">
+            <div class="sidebar-section">
+                <h3>Template Type</h3>
+                <select id="template-type" onchange="updateTemplateType()">
+                    <option value="business">Business</option>
+                    <option value="self-help">Self-Help</option>
+                    <option value="technical">Technical</option>
+                    <option value="fiction">Fiction</option>
+                    <option value="educational">Educational</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Components</h3>
+                <div class="component-list">
+                    <div class="component-item" draggable="true" data-component="cover">
+                        <i class="fas fa-book"></i>
+                        <span>Cover Page</span>
+                    </div>
+                    <div class="component-item" draggable="true" data-component="toc">
+                        <i class="fas fa-list"></i>
+                        <span>Table of Contents</span>
+                    </div>
+                    <div class="component-item" draggable="true" data-component="chapter">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Chapter</span>
+                    </div>
+                    <div class="component-item" draggable="true" data-component="callout">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Callout Box</span>
+                    </div>
+                    <div class="component-item" draggable="true" data-component="quote">
+                        <i class="fas fa-quote-left"></i>
+                        <span>Quote Block</span>
+                    </div>
+                    <div class="component-item" draggable="true" data-component="image">
+                        <i class="fas fa-image"></i>
+                        <span>Image</span>
+                    </div>
+                    <div class="component-item" draggable="true" data-component="list">
+                        <i class="fas fa-list-ul"></i>
+                        <span>List</span>
+                    </div>
+                    <div class="component-item" draggable="true" data-component="code">
+                        <i class="fas fa-code"></i>
+                        <span>Code Block</span>
+                    </div>
+                    <div class="component-item" draggable="true" data-component="divider">
+                        <i class="fas fa-minus"></i>
+                        <span>Divider</span>
+                    </div>
+                    <div class="component-item" draggable="true" data-component="footer">
+                        <i class="fas fa-shoe-prints"></i>
+                        <span>Footer</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Saved Templates</h3>
+                <div class="template-list" id="saved-templates">
+                    <!-- Dynamic template list -->
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="builder-content">
+            <!-- Toolbar -->
+            <div class="builder-toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="undoAction()" title="Undo">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="redoAction()" title="Redo">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                
+                <div class="toolbar-separator"></div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="toggleGrid()" title="Toggle Grid">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="toggleRulers()" title="Toggle Rulers">
+                        <i class="fas fa-ruler-combined"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="toggleGuides()" title="Toggle Guides">
+                        <i class="fas fa-arrows-alt"></i>
+                    </button>
+                </div>
+                
+                <div class="toolbar-separator"></div>
+                
+                <div class="toolbar-group">
+                    <select id="zoom-level" onchange="updateZoom()">
+                        <option value="50">50%</option>
+                        <option value="75">75%</option>
+                        <option value="100" selected>100%</option>
+                        <option value="125">125%</option>
+                        <option value="150">150%</option>
+                    </select>
+                </div>
+                
+                <div class="toolbar-separator"></div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn active" onclick="switchView('design')" title="Design View">
+                        <i class="fas fa-paint-brush"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="switchView('code')" title="Code View">
+                        <i class="fas fa-code"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="switchView('split')" title="Split View">
+                        <i class="fas fa-columns"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Canvas Area -->
+            <div class="canvas-container">
+                <div class="canvas-wrapper" id="design-view">
+                    <div class="canvas" id="template-canvas">
+                        <div class="drop-zone" id="drop-zone">
+                            <i class="fas fa-plus-circle"></i>
+                            <p>Drag components here to start building your template</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="code-editor hidden" id="code-view">
+                    <div class="code-tabs">
+                        <button class="code-tab active" data-lang="html">HTML</button>
+                        <button class="code-tab" data-lang="css">CSS</button>
+                        <button class="code-tab" data-lang="markdown">Markdown</button>
+                    </div>
+                    <pre class="code-content" id="code-content"><code></code></pre>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Properties Panel -->
+        <aside class="properties-panel">
+            <h3>Properties</h3>
+            
+            <div id="no-selection" class="empty-state">
+                <i class="fas fa-mouse-pointer"></i>
+                <p>Select a component to edit its properties</p>
+            </div>
+            
+            <div id="properties-content" class="properties-content hidden">
+                <!-- Dynamic properties based on selected component -->
+            </div>
+            
+            <!-- Global Styles -->
+            <div class="properties-section">
+                <h4>Global Styles</h4>
+                
+                <div class="property-group">
+                    <label>Font Family</label>
+                    <select id="global-font">
+                        <option value="Inter">Inter</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Helvetica">Helvetica</option>
+                    </select>
+                </div>
+                
+                <div class="property-group">
+                    <label>Primary Color</label>
+                    <div class="color-input">
+                        <input type="color" id="primary-color" value="#2563eb">
+                        <input type="text" value="#2563eb" onchange="updateColorFromText(this, 'primary-color')">
+                    </div>
+                </div>
+                
+                <div class="property-group">
+                    <label>Secondary Color</label>
+                    <div class="color-input">
+                        <input type="color" id="secondary-color" value="#10b981">
+                        <input type="text" value="#10b981" onchange="updateColorFromText(this, 'secondary-color')">
+                    </div>
+                </div>
+                
+                <div class="property-group">
+                    <label>Text Color</label>
+                    <div class="color-input">
+                        <input type="color" id="text-color" value="#1f2937">
+                        <input type="text" value="#1f2937" onchange="updateColorFromText(this, 'text-color')">
+                    </div>
+                </div>
+                
+                <div class="property-group">
+                    <label>Page Size</label>
+                    <select id="page-size">
+                        <option value="6x9">6×9 inches</option>
+                        <option value="5.5x8.5">5.5×8.5 inches</option>
+                        <option value="8.5x11">8.5×11 inches</option>
+                        <option value="a4">A4</option>
+                        <option value="a5">A5</option>
+                    </select>
+                </div>
+                
+                <div class="property-group">
+                    <label>Margins</label>
+                    <div class="margin-inputs">
+                        <input type="number" id="margin-top" placeholder="Top" value="1">
+                        <input type="number" id="margin-right" placeholder="Right" value="0.75">
+                        <input type="number" id="margin-bottom" placeholder="Bottom" value="1">
+                        <input type="number" id="margin-left" placeholder="Left" value="0.75">
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Modals -->
+    
+    <!-- Preview Modal -->
+    <div class="modal" id="preview-modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2>Template Preview</h2>
+                <button class="modal-close" onclick="closePreview()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-container" id="preview-container">
+                    <!-- Dynamic preview content -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <select id="preview-format">
+                    <option value="html">HTML</option>
+                    <option value="pdf">PDF</option>
+                    <option value="epub">EPUB</option>
+                </select>
+                <button class="btn-primary" onclick="generatePreview()">Generate Preview</button>
+                <button class="btn-secondary" onclick="closePreview()">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Modal -->
+    <div class="modal" id="export-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Export Template</h2>
+                <button class="modal-close" onclick="closeExport()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <h3>Export Format</h3>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="export-format" value="json" checked>
+                            <span>JSON Template</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="export-format" value="html">
+                            <span>HTML Files</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="export-format" value="package">
+                            <span>Complete Package (ZIP)</span>
+                        </label>
+                    </div>
+                    
+                    <h3>Include Assets</h3>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="include-css" checked>
+                            <span>CSS Styles</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" id="include-fonts" checked>
+                            <span>Fonts</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" id="include-images">
+                            <span>Sample Images</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="performExport()">Export</button>
+                <button class="btn-secondary" onclick="closeExport()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Component Editor Modal -->
+    <div class="modal" id="component-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="component-modal-title">Edit Component</h2>
+                <button class="modal-close" onclick="closeComponentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="component-editor">
+                    <!-- Dynamic component editor -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="saveComponent()">Save</button>
+                <button class="btn-secondary" onclick="closeComponentModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Context Menu -->
+    <div class="context-menu" id="context-menu">
+        <div class="context-item" onclick="editComponent()">
+            <i class="fas fa-edit"></i>
+            <span>Edit</span>
+        </div>
+        <div class="context-item" onclick="duplicateComponent()">
+            <i class="fas fa-copy"></i>
+            <span>Duplicate</span>
+        </div>
+        <div class="context-separator"></div>
+        <div class="context-item" onclick="moveComponent('up')">
+            <i class="fas fa-arrow-up"></i>
+            <span>Move Up</span>
+        </div>
+        <div class="context-item" onclick="moveComponent('down')">
+            <i class="fas fa-arrow-down"></i>
+            <span>Move Down</span>
+        </div>
+        <div class="context-separator"></div>
+        <div class="context-item danger" onclick="deleteComponent()">
+            <i class="fas fa-trash"></i>
+            <span>Delete</span>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="builder.js"></script>
+    <script src="components.js"></script>
+    <script src="templates.js"></script>
+    
+    <!-- Initialize -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            window.templateBuilder = new TemplateBuilder();
+            templateBuilder.init();
+        });
+    </script>
+</body>
+</html>

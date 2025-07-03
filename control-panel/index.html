@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Machine Control Panel - Advanced Pipeline Management</title>
+    <meta name="description" content="Advanced control panel for Money Machine ebook automation pipeline">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="control-header">
+        <div class="header-left">
+            <h1 class="control-title">
+                <i class="fas fa-cogs"></i>
+                Money Machine Control Panel
+            </h1>
+            <span class="version">v2.0 Advanced</span>
+        </div>
+        
+        <div class="header-center">
+            <div class="status-indicator">
+                <span class="status-dot" id="pipeline-status"></span>
+                <span class="status-text" id="pipeline-status-text">Pipeline Ready</span>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="header-btn" onclick="showAPISettings()">
+                <i class="fas fa-key"></i>
+                <span>API Keys</span>
+            </button>
+            <button class="header-btn" onclick="showHistory()">
+                <i class="fas fa-history"></i>
+                <span>History</span>
+            </button>
+            <button class="header-btn emergency" onclick="emergencyStop()">
+                <i class="fas fa-stop-circle"></i>
+                <span>STOP</span>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Layout -->
+    <div class="control-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="control-sidebar">
+            <nav class="control-nav">
+                <button class="nav-btn active" data-tab="overview">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Overview</span>
+                </button>
+                <button class="nav-btn" data-tab="pipeline">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Pipeline</span>
+                </button>
+                <button class="nav-btn" data-tab="config">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Configuration</span>
+                </button>
+                <button class="nav-btn" data-tab="queue">
+                    <i class="fas fa-list"></i>
+                    <span>Queue</span>
+                </button>
+                <button class="nav-btn" data-tab="monitor">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Monitor</span>
+                </button>
+                <button class="nav-btn" data-tab="logs">
+                    <i class="fas fa-terminal"></i>
+                    <span>Logs</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="api-status">
+                    <h4>API Status</h4>
+                    <div class="api-item">
+                        <span>OpenAI</span>
+                        <span class="api-indicator online"></span>
+                    </div>
+                    <div class="api-item">
+                        <span>Perplexity</span>
+                        <span class="api-indicator online"></span>
+                    </div>
+                    <div class="api-item">
+                        <span>Ideogram</span>
+                        <span class="api-indicator online"></span>
+                    </div>
+                    <div class="api-item">
+                        <span>Redis</span>
+                        <span class="api-indicator offline"></span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="control-content">
+            <!-- Overview Tab -->
+            <div class="tab-content active" id="overview-tab">
+                <h2 class="tab-title">Pipeline Overview</h2>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="action-btn primary" onclick="startFullPipeline()">
+                        <i class="fas fa-play"></i>
+                        <span>Start Full Pipeline</span>
+                    </button>
+                    <button class="action-btn secondary" onclick="startBatchMode()">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Batch Mode</span>
+                    </button>
+                    <button class="action-btn secondary" onclick="scheduleRun()">
+                        <i class="fas fa-clock"></i>
+                        <span>Schedule</span>
+                    </button>
+                    <button class="action-btn secondary" onclick="showPresets()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Presets</span>
+                    </button>
+                </div>
+                
+                <!-- Pipeline Visual -->
+                <div class="pipeline-visual">
+                    <div class="pipeline-phase" id="phase-research">
+                        <div class="phase-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Topic Research</h3>
+                        <div class="phase-status">Ready</div>
+                        <div class="phase-actions">
+                            <button class="mini-btn" onclick="runPhase('research')">Run</button>
+                            <button class="mini-btn" onclick="configurePhase('research')">Config</button>
+                        </div>
+                    </div>
+                    
+                    <div class="pipeline-arrow">→</div>
+                    
+                    <div class="pipeline-phase" id="phase-deep-research">
+                        <div class="phase-icon">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <h3>Deep Research</h3>
+                        <div class="phase-status">Ready</div>
+                        <div class="phase-actions">
+                            <button class="mini-btn" onclick="runPhase('deep-research')">Run</button>
+                            <button class="mini-btn" onclick="configurePhase('deep-research')">Config</button>
+                        </div>
+                    </div>
+                    
+                    <div class="pipeline-arrow">→</div>
+                    
+                    <div class="pipeline-phase" id="phase-content">
+                        <div class="phase-icon">
+                            <i class="fas fa-pen"></i>
+                        </div>
+                        <h3>Content Gen</h3>
+                        <div class="phase-status">Ready</div>
+                        <div class="phase-actions">
+                            <button class="mini-btn" onclick="runPhase('content')">Run</button>
+                            <button class="mini-btn" onclick="configurePhase('content')">Config</button>
+                        </div>
+                    </div>
+                    
+                    <div class="pipeline-arrow">→</div>
+                    
+                    <div class="pipeline-phase" id="phase-images">
+                        <div class="phase-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <h3>Images</h3>
+                        <div class="phase-status">Ready</div>
+                        <div class="phase-actions">
+                            <button class="mini-btn" onclick="runPhase('images')">Run</button>
+                            <button class="mini-btn" onclick="configurePhase('images')">Config</button>
+                        </div>
+                    </div>
+                    
+                    <div class="pipeline-arrow">→</div>
+                    
+                    <div class="pipeline-phase" id="phase-qa">
+                        <div class="phase-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>QA</h3>
+                        <div class="phase-status">Ready</div>
+                        <div class="phase-actions">
+                            <button class="mini-btn" onclick="runPhase('qa')">Run</button>
+                            <button class="mini-btn" onclick="configurePhase('qa')">Config</button>
+                        </div>
+                    </div>
+                    
+                    <div class="pipeline-arrow">→</div>
+                    
+                    <div class="pipeline-phase" id="phase-publish">
+                        <div class="phase-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <h3>Publish</h3>
+                        <div class="phase-status">Ready</div>
+                        <div class="phase-actions">
+                            <button class="mini-btn" onclick="runPhase('publish')">Run</button>
+                            <button class="mini-btn" onclick="configurePhase('publish')">Config</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="success-count">0</div>
+                            <div class="stat-label">Successful Runs</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-exclamation"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="failed-count">0</div>
+                            <div class="stat-label">Failed Runs</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon info">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="avg-time">0m</div>
+                            <div class="stat-label">Avg Runtime</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="api-cost">$0</div>
+                            <div class="stat-label">API Cost Today</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pipeline Tab -->
+            <div class="tab-content" id="pipeline-tab">
+                <h2 class="tab-title">Pipeline Management</h2>
+                
+                <div class="pipeline-controls">
+                    <div class="control-section">
+                        <h3>Execution Mode</h3>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="exec-mode" value="sequential" checked>
+                                <span>Sequential</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="exec-mode" value="parallel">
+                                <span>Parallel</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="exec-mode" value="manual">
+                                <span>Manual</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="control-section">
+                        <h3>Error Handling</h3>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="auto-retry" checked>
+                                <span>Auto-retry on failure</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="continue-on-error">
+                                <span>Continue on error</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="notify-on-error" checked>
+                                <span>Notify on error</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="control-section">
+                        <h3>Phase Control</h3>
+                        <div class="phase-toggles">
+                            <div class="phase-toggle">
+                                <span>Topic Research</span>
+                                <label class="toggle">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="phase-toggle">
+                                <span>Deep Research</span>
+                                <label class="toggle">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="phase-toggle">
+                                <span>Content Generation</span>
+                                <label class="toggle">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="phase-toggle">
+                                <span>Image Generation</span>
+                                <label class="toggle">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="phase-toggle">
+                                <span>Quality Assurance</span>
+                                <label class="toggle">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="phase-toggle">
+                                <span>Publishing</span>
+                                <label class="toggle">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Configuration Tab -->
+            <div class="tab-content" id="config-tab">
+                <h2 class="tab-title">Configuration</h2>
+                
+                <div class="config-grid">
+                    <!-- Topic Research Config -->
+                    <div class="config-card">
+                        <h3><i class="fas fa-search"></i> Topic Research</h3>
+                        <div class="config-form">
+                            <div class="form-group">
+                                <label>Sources</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" checked> Google Trends</label>
+                                    <label><input type="checkbox" checked> Reddit</label>
+                                    <label><input type="checkbox" checked> Hacker News</label>
+                                    <label><input type="checkbox"> Product Hunt</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Topic Count</label>
+                                <input type="number" value="10" min="1" max="50">
+                            </div>
+                            <div class="form-group">
+                                <label>Min Score Threshold</label>
+                                <input type="number" value="50" min="0" max="100">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Deep Research Config -->
+                    <div class="config-card">
+                        <h3><i class="fas fa-microscope"></i> Deep Research</h3>
+                        <div class="config-form">
+                            <div class="form-group">
+                                <label>Research Depth</label>
+                                <select>
+                                    <option>Basic (1-2 sources)</option>
+                                    <option selected>Standard (3-5 sources)</option>
+                                    <option>Deep (6-10 sources)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Citation Style</label>
+                                <select>
+                                    <option>Inline</option>
+                                    <option selected>Footnotes</option>
+                                    <option>Bibliography</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Include Statistics</label>
+                                <label class="toggle">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Generation Config -->
+                    <div class="config-card">
+                        <h3><i class="fas fa-pen"></i> Content Generation</h3>
+                        <div class="config-form">
+                            <div class="form-group">
+                                <label>AI Model</label>
+                                <select>
+                                    <option>GPT-3.5</option>
+                                    <option selected>GPT-4</option>
+                                    <option>Claude 3</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Chapter Count</label>
+                                <input type="number" value="8" min="3" max="20">
+                            </div>
+                            <div class="form-group">
+                                <label>Words per Chapter</label>
+                                <input type="number" value="2000" min="500" max="5000">
+                            </div>
+                            <div class="form-group">
+                                <label>Writing Style</label>
+                                <select>
+                                    <option>Professional</option>
+                                    <option selected>Conversational</option>
+                                    <option>Academic</option>
+                                    <option>Casual</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Image Generation Config -->
+                    <div class="config-card">
+                        <h3><i class="fas fa-image"></i> Image Generation</h3>
+                        <div class="config-form">
+                            <div class="form-group">
+                                <label>Cover Style</label>
+                                <select>
+                                    <option>Minimalist</option>
+                                    <option selected>Modern</option>
+                                    <option>Classic</option>
+                                    <option>Bold</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Color Scheme</label>
+                                <select>
+                                    <option>Auto-detect</option>
+                                    <option>Professional</option>
+                                    <option>Vibrant</option>
+                                    <option>Dark</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Generate Chapter Images</label>
+                                <label class="toggle">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- QA Config -->
+                    <div class="config-card">
+                        <h3><i class="fas fa-check-circle"></i> Quality Assurance</h3>
+                        <div class="config-form">
+                            <div class="form-group">
+                                <label>Lighthouse Score Threshold</label>
+                                <input type="number" value="90" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Grammar Check</label>
+                                <label class="toggle">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>Plagiarism Check</label>
+                                <label class="toggle">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Publishing Config -->
+                    <div class="config-card">
+                        <h3><i class="fas fa-upload"></i> Publishing</h3>
+                        <div class="config-form">
+                            <div class="form-group">
+                                <label>Platforms</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" checked> Gumroad</label>
+                                    <label><input type="checkbox"> Amazon KDP</label>
+                                    <label><input type="checkbox"> Apple Books</label>
+                                    <label><input type="checkbox"> Google Play</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Price Point ($)</label>
+                                <input type="number" value="47" min="0" max="999" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Auto-publish</label>
+                                <label class="toggle">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="config-actions">
+                    <button class="btn-primary" onclick="saveConfiguration()">
+                        <i class="fas fa-save"></i> Save Configuration
+                    </button>
+                    <button class="btn-secondary" onclick="exportConfiguration()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn-secondary" onclick="importConfiguration()">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Queue Tab -->
+            <div class="tab-content" id="queue-tab">
+                <h2 class="tab-title">Job Queue</h2>
+                
+                <div class="queue-controls">
+                    <button class="btn-primary" onclick="addToQueue()">
+                        <i class="fas fa-plus"></i> Add Job
+                    </button>
+                    <button class="btn-secondary" onclick="clearQueue()">
+                        <i class="fas fa-trash"></i> Clear Queue
+                    </button>
+                    <button class="btn-secondary" onclick="pauseQueue()">
+                        <i class="fas fa-pause"></i> Pause
+                    </button>
+                </div>
+                
+                <div class="queue-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Topic</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Started</th>
+                                <th>Duration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queue-tbody">
+                            <!-- Dynamic queue items -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Monitor Tab -->
+            <div class="tab-content" id="monitor-tab">
+                <h2 class="tab-title">Performance Monitor</h2>
+                
+                <div class="monitor-grid">
+                    <!-- API Usage -->
+                    <div class="monitor-card">
+                        <h3>API Usage</h3>
+                        <div class="usage-stats">
+                            <div class="usage-item">
+                                <span>OpenAI</span>
+                                <div class="usage-bar">
+                                    <div class="usage-fill" style="width: 45%"></div>
+                                </div>
+                                <span class="usage-text">450/1000 calls</span>
+                            </div>
+                            <div class="usage-item">
+                                <span>Perplexity</span>
+                                <div class="usage-bar">
+                                    <div class="usage-fill warning" style="width: 78%"></div>
+                                </div>
+                                <span class="usage-text">390/500 calls</span>
+                            </div>
+                            <div class="usage-item">
+                                <span>Ideogram</span>
+                                <div class="usage-bar">
+                                    <div class="usage-fill" style="width: 20%"></div>
+                                </div>
+                                <span class="usage-text">20/100 images</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cost Tracking -->
+                    <div class="monitor-card">
+                        <h3>Cost Tracking</h3>
+                        <div class="cost-breakdown">
+                            <div class="cost-item">
+                                <span>Today</span>
+                                <span class="cost-value">$12.45</span>
+                            </div>
+                            <div class="cost-item">
+                                <span>This Week</span>
+                                <span class="cost-value">$67.89</span>
+                            </div>
+                            <div class="cost-item">
+                                <span>This Month</span>
+                                <span class="cost-value">$234.56</span>
+                            </div>
+                            <div class="cost-item">
+                                <span>Projected Monthly</span>
+                                <span class="cost-value warning">$312.45</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Metrics -->
+                    <div class="monitor-card full-width">
+                        <h3>Pipeline Performance</h3>
+                        <canvas id="performance-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Logs Tab -->
+            <div class="tab-content" id="logs-tab">
+                <h2 class="tab-title">System Logs</h2>
+                
+                <div class="log-controls">
+                    <select id="log-level">
+                        <option value="all">All Levels</option>
+                        <option value="error">Errors Only</option>
+                        <option value="warning">Warnings & Errors</option>
+                        <option value="info">Info & Above</option>
+                    </select>
+                    <input type="text" id="log-search" placeholder="Search logs...">
+                    <button class="btn-secondary" onclick="clearLogs()">Clear</button>
+                    <button class="btn-secondary" onclick="exportLogs()">Export</button>
+                </div>
+                
+                <div class="log-viewer" id="log-viewer">
+                    <!-- Dynamic log entries -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modals -->
+    
+    <!-- Batch Mode Modal -->
+    <div class="modal" id="batch-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Batch Mode Configuration</h2>
+                <button class="modal-close" onclick="closeBatchModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Number of Ebooks</label>
+                    <input type="number" id="batch-count" value="5" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label>Parallel Processing</label>
+                    <input type="number" id="batch-parallel" value="2" min="1" max="5">
+                </div>
+                <div class="form-group">
+                    <label>Topic Selection</label>
+                    <select id="batch-topics">
+                        <option>Auto-select top topics</option>
+                        <option>Random from pool</option>
+                        <option>Manual selection</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Delay Between Jobs (seconds)</label>
+                    <input type="number" id="batch-delay" value="30" min="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="startBatch()">Start Batch</button>
+                <button class="btn-secondary" onclick="closeBatchModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Schedule Modal -->
+    <div class="modal" id="schedule-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule Pipeline Run</h2>
+                <button class="modal-close" onclick="closeScheduleModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Schedule Type</label>
+                    <select id="schedule-type" onchange="updateScheduleUI()">
+                        <option>One-time</option>
+                        <option>Daily</option>
+                        <option>Weekly</option>
+                        <option>Custom Cron</option>
+                    </select>
+                </div>
+                <div id="schedule-options">
+                    <!-- Dynamic schedule options -->
+                </div>
+                <div class="form-group">
+                    <label>Time Zone</label>
+                    <select id="schedule-timezone">
+                        <option>UTC</option>
+                        <option>America/New_York</option>
+                        <option>America/Los_Angeles</option>
+                        <option>Europe/London</option>
+                        <option>Asia/Tokyo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="saveSchedule()">Save Schedule</button>
+                <button class="btn-secondary" onclick="closeScheduleModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- API Settings Modal -->
+    <div class="modal" id="api-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>API Key Management</h2>
+                <button class="modal-close" onclick="closeAPIModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="api-key-form">
+                    <div class="form-group">
+                        <label>OpenAI API Key</label>
+                        <div class="key-input-group">
+                            <input type="password" id="openai-key" placeholder="sk-...">
+                            <button class="show-key" onclick="toggleKeyVisibility('openai-key')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Perplexity API Key</label>
+                        <div class="key-input-group">
+                            <input type="password" id="perplexity-key" placeholder="pplx-...">
+                            <button class="show-key" onclick="toggleKeyVisibility('perplexity-key')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ideogram API Key</label>
+                        <div class="key-input-group">
+                            <input type="password" id="ideogram-key" placeholder="ideo-...">
+                            <button class="show-key" onclick="toggleKeyVisibility('ideogram-key')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="api-test-results" id="api-test-results">
+                    <!-- Test results appear here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="testAPIKeys()">Test Keys</button>
+                <button class="btn-primary" onclick="saveAPIKeys()">Save Keys</button>
+                <button class="btn-secondary" onclick="closeAPIModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Job Details Modal -->
+    <div class="modal" id="job-modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2>Job Details</h2>
+                <button class="modal-close" onclick="closeJobModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="job-details">
+                    <!-- Dynamic job details -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="control.js"></script>
+    <script src="pipeline-manager.js"></script>
+    
+    <!-- Initialize -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize control panel
+            window.controlPanel = new ControlPanel();
+            window.pipelineManager = new PipelineManager();
+            
+            // Start monitoring
+            controlPanel.startMonitoring();
+        });
+    </script>
+</body>
+</html>

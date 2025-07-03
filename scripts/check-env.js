@@ -49,6 +49,21 @@ const CRITICAL_VARS = {
 
 const IMPORTANT_VARS = {
     // Important but not blocking - Features degraded without these
+    GITHUB_TOKEN: {
+        description: 'GitHub Personal Access Token for PR creation and repo management',
+        pattern: /^(ghp_|github_pat_)/,
+        example: 'ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        category: 'Version Control',
+        validator: async (token) => {
+            // Test token validity
+            const { exec } = require('child_process');
+            return new Promise((resolve) => {
+                exec(`curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${token}" https://api.github.com/user`, (err, stdout) => {
+                    resolve(stdout.trim() === '200');
+                });
+            });
+        }
+    },
     SENDGRID_API_KEY: {
         description: 'SendGrid API for email automation (future feature)',
         pattern: /^SG\./,
@@ -415,11 +430,28 @@ async function checkEnvironment() {
             console.log(`   Expected format: ${config.example}\n`);
             hasWarnings = true;
         } else {
-            console.log(`${colors.green}✅ ${varName}: OK${colors.reset}`);
-            const masked = value.length > 14 ? 
-                `${value.substring(0, 10)}...${value.substring(value.length - 4)}` : 
-                value.substring(0, 4) + '***';
-            console.log(`   ${masked}\n`);
+            // Special validation for GitHub token
+            if (varName === 'GITHUB_TOKEN' && config.validator) {
+                const isValid = await config.validator(value);
+                if (!isValid) {
+                    console.log(`${colors.red}❌ ${varName}: INVALID OR EXPIRED${colors.reset}`);
+                    console.log(`   Token exists but failed authentication test`);
+                    console.log(`   Run: ./scripts/github-auth-helper.sh fix\n`);
+                    hasErrors = true;
+                } else {
+                    console.log(`${colors.green}✅ ${varName}: OK (verified)${colors.reset}`);
+                    const masked = value.length > 14 ? 
+                        `${value.substring(0, 10)}...${value.substring(value.length - 4)}` : 
+                        value.substring(0, 4) + '***';
+                    console.log(`   ${masked}\n`);
+                }
+            } else {
+                console.log(`${colors.green}✅ ${varName}: OK${colors.reset}`);
+                const masked = value.length > 14 ? 
+                    `${value.substring(0, 10)}...${value.substring(value.length - 4)}` : 
+                    value.substring(0, 4) + '***';
+                console.log(`   ${masked}\n`);
+            }
         }
     }
     

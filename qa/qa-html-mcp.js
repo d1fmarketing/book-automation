@@ -3,6 +3,9 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs').promises;
 const path = require('path');
+const lighthouse = require('lighthouse');
+const { URL } = require('url');
+const chromeLauncher = require('chrome-launcher');
 
 // QA test configuration
 const QA_TESTS = {
@@ -208,9 +211,88 @@ async function runQATests(htmlPath) {
     
     // 5. Lighthouse Audit
     console.log('🏠 Running Lighthouse audit...');
+    let chrome;
     try {
-      // Run comprehensive accessibility and performance checks
-      const lighthouseMetrics = await page.evaluate(() => {
+      // Launch Chrome
+      chrome = await chromeLauncher.launch({chromeFlags: ['--headless']});
+      const options = {
+        logLevel: 'error',
+        output: 'json',
+        onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
+        port: chrome.port
+      };
+      
+      // Get the full URL for the HTML file
+      const fileUrl = `file://${path.resolve(htmlPath)}`;
+      
+      // Run Lighthouse
+      const runnerResult = await lighthouse(fileUrl, options);
+      
+      // Extract scores (0-100 scale)
+      const lighthouseMetrics = {
+        scores: {
+          performance: Math.round(runnerResult.lhr.categories.performance.score * 100),
+          accessibility: Math.round(runnerResult.lhr.categories.accessibility.score * 100),
+          bestPractices: Math.round(runnerResult.lhr.categories['best-practices'].score * 100),
+          seo: Math.round(runnerResult.lhr.categories.seo.score * 100)
+        },
+        audits: {}
+      };
+      
+      // Extract key audit details
+      const importantAudits = [
+        'first-contentful-paint',
+        'largest-contentful-paint',
+        'total-blocking-time',
+        'cumulative-layout-shift',
+        'color-contrast',
+        'image-alt',
+        'heading-order',
+        'meta-description',
+        'viewport',
+        'document-title'
+      ];
+      
+      importantAudits.forEach(auditName => {
+        const audit = runnerResult.lhr.audits[auditName];
+        if (audit) {
+          lighthouseMetrics.audits[auditName] = {
+            score: audit.score,
+            displayValue: audit.displayValue,
+            description: audit.description
+          };
+        }
+      });
+      
+      // Check if passes threshold (90+)
+      const avgScore = Object.values(lighthouseMetrics.scores).reduce((a, b) => a + b, 0) / 4;
+      const passed = lighthouseMetrics.scores.performance >= 90 && 
+                     lighthouseMetrics.scores.accessibility >= 90 &&
+                     lighthouseMetrics.scores.bestPractices >= 90 &&
+                     lighthouseMetrics.scores.seo >= 90;
+      
+      results.tests.push({
+        name: 'Lighthouse Audit',
+        passed: passed,
+        score: Math.round(avgScore),
+        details: lighthouseMetrics,
+        threshold: 90,
+        message: passed ? 'All Lighthouse scores meet 90+ threshold' : 'Some scores below 90 threshold'
+      });
+      
+      // Log scores for visibility
+      console.log(`   Performance: ${lighthouseMetrics.scores.performance}/100`);
+      console.log(`   Accessibility: ${lighthouseMetrics.scores.accessibility}/100`);
+      console.log(`   Best Practices: ${lighthouseMetrics.scores.bestPractices}/100`);
+      console.log(`   SEO: ${lighthouseMetrics.scores.seo}/100`);
+      console.log(`   Average: ${Math.round(avgScore)}/100`);
+      
+    } catch (error) {
+      console.log('⚠️  Lighthouse audit error:', error.message);
+      
+      // Fall back to simulated audit if Lighthouse fails
+      const simulatedMetrics = await page.evaluate(() => {
+        // ... (keep existing simulated audit code as fallback)
         const metrics = {
           accessibility: 100,
           performance: 100,
@@ -218,127 +300,39 @@ async function runQATests(htmlPath) {
           seo: 100
         };
         
-        // Accessibility checks
-        const accessibilityIssues = [];
+        // Basic checks as fallback
+        if (!document.querySelector('meta[name="description"]')) metrics.seo -= 10;
+        if (!document.title) metrics.seo -= 10;
+        if (!document.querySelector('meta[name="viewport"]')) metrics.seo -= 15;
+        if (!document.documentElement.lang) metrics.accessibility -= 10;
         
-        // Check for alt text on images
         const images = document.querySelectorAll('img');
         images.forEach(img => {
-          if (!img.alt) {
-            metrics.accessibility -= 5;
-            accessibilityIssues.push(`Missing alt text: ${img.src}`);
-          }
-        });
-        
-        // Check for proper heading hierarchy
-        const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-        let lastLevel = 0;
-        headings.forEach(h => {
-          const level = parseInt(h.tagName[1]);
-          if (level > lastLevel + 1) {
-            metrics.accessibility -= 5;
-            accessibilityIssues.push(`Heading hierarchy skip: h${lastLevel} to h${level}`);
-          }
-          lastLevel = level;
-        });
-        
-        // Check for ARIA labels on interactive elements
-        const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
-        interactiveElements.forEach(el => {
-          if (!el.textContent.trim() && !el.getAttribute('aria-label') && !el.getAttribute('title')) {
-            metrics.accessibility -= 2;
-            accessibilityIssues.push(`Missing label: ${el.tagName}`);
-          }
-        });
-        
-        // Check for language attribute
-        if (!document.documentElement.lang) {
-          metrics.accessibility -= 10;
-          accessibilityIssues.push('Missing lang attribute on html element');
-        }
-        
-        // Performance checks
-        const performanceIssues = [];
-        
-        // Check for large DOM size
-        const domSize = document.querySelectorAll('*').length;
-        if (domSize > 1500) {
-          metrics.performance -= 10;
-          performanceIssues.push(`Large DOM size: ${domSize} nodes`);
-        }
-        
-        // Check for inline styles
-        const elementsWithInlineStyles = document.querySelectorAll('[style]');
-        if (elementsWithInlineStyles.length > 50) {
-          metrics.performance -= 5;
-          performanceIssues.push(`Too many inline styles: ${elementsWithInlineStyles.length}`);
-        }
-        
-        // Best practices checks
-        const bestPracticeIssues = [];
-        
-        // Check for console errors
-        if (window.consoleErrors && window.consoleErrors.length > 0) {
-          metrics.bestPractices -= 10;
-          bestPracticeIssues.push('Console errors detected');
-        }
-        
-        // Check for HTTPS in links
-        const httpLinks = document.querySelectorAll('a[href^="http://"]');
-        if (httpLinks.length > 0) {
-          metrics.bestPractices -= 5;
-          bestPracticeIssues.push(`Non-HTTPS links: ${httpLinks.length}`);
-        }
-        
-        // SEO checks
-        const seoIssues = [];
-        
-        // Check for meta description
-        if (!document.querySelector('meta[name="description"]')) {
-          metrics.seo -= 10;
-          seoIssues.push('Missing meta description');
-        }
-        
-        // Check for title
-        if (!document.title || document.title.length < 10) {
-          metrics.seo -= 10;
-          seoIssues.push('Missing or too short title');
-        }
-        
-        // Check for viewport meta
-        if (!document.querySelector('meta[name="viewport"]')) {
-          metrics.seo -= 15;
-          seoIssues.push('Missing viewport meta tag');
-        }
-        
-        // Ensure scores don't go below 0
-        Object.keys(metrics).forEach(key => {
-          metrics[key] = Math.max(0, metrics[key]);
+          if (!img.alt) metrics.accessibility -= 5;
         });
         
         return {
           scores: metrics,
-          issues: {
-            accessibility: accessibilityIssues,
-            performance: performanceIssues,
-            bestPractices: bestPracticeIssues,
-            seo: seoIssues
-          }
+          fallback: true,
+          error: 'Using fallback metrics'
         };
       });
       
-      // Calculate average score
-      const avgScore = Object.values(lighthouseMetrics.scores).reduce((a, b) => a + b, 0) / 4;
-      const passed = lighthouseMetrics.scores.performance >= 90 && lighthouseMetrics.scores.accessibility >= 90;
-      
       results.tests.push({
-        name: 'Lighthouse Audit',
-        passed: passed,
-        score: Math.round(avgScore),
-        details: lighthouseMetrics
+        name: 'Lighthouse Audit (Fallback)',
+        passed: false,
+        score: Object.values(simulatedMetrics.scores).reduce((a, b) => a + b, 0) / 4,
+        details: simulatedMetrics,
+        error: error.message
       });
-      
-      // 6. Affiliate Link Compliance
+    } finally {
+      // Kill Chrome instance
+      if (chrome) {
+        await chrome.kill();
+      }
+    }
+    
+    // 6. Affiliate Link Compliance
       console.log('💰 Checking affiliate link compliance...');
       const affiliateCompliance = await page.evaluate(() => {
         const affiliateLinks = document.querySelectorAll('a[data-aff]');
@@ -383,7 +377,46 @@ async function runQATests(htmlPath) {
       });
       
     } catch (error) {
-      console.log('⚠️  Lighthouse audit error:', error.message);
+      console.log('⚠️  QA test error:', error.message);
+    }
+    
+    // 7. BrowserStack Testing (CI only)
+    if (process.env.CI && process.env.BROWSERSTACK_USERNAME && process.env.BROWSERSTACK_ACCESS_KEY) {
+      console.log('📱 Running BrowserStack cross-device tests...');
+      
+      try {
+        const BrowserStackQA = require('../agents/browserstack-qa');
+        const bsQA = new BrowserStackQA({
+          username: process.env.BROWSERSTACK_USERNAME,
+          accessKey: process.env.BROWSERSTACK_ACCESS_KEY
+        });
+        
+        // Test on key devices
+        const devices = [
+          { device: 'iPhone 14', os: 'iOS', os_version: '16' },
+          { device: 'Samsung Galaxy S23', os: 'Android', os_version: '13' }
+        ];
+        
+        const bsResults = await bsQA.testOnDevices(htmlPath, devices);
+        
+        results.tests.push({
+          name: 'BrowserStack Cross-Device',
+          passed: bsResults.passed,
+          details: {
+            devices: bsResults.devices,
+            screenshots: bsResults.screenshots
+          }
+        });
+        
+      } catch (error) {
+        console.log('⚠️  BrowserStack test skipped:', error.message);
+        results.tests.push({
+          name: 'BrowserStack Cross-Device',
+          passed: false,
+          error: 'BrowserStack not available in CI',
+          details: { error: error.message }
+        });
+      }
     }
     
     // Calculate totals
@@ -490,4 +523,53 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { runQATests, generateReport };
+// Get Lighthouse score for deployment decision
+async function getLighthouseScore(htmlPath) {
+  console.log('🚀 Running Lighthouse for deployment check...');
+  
+  let chrome;
+  try {
+    chrome = await chromeLauncher.launch({chromeFlags: ['--headless']});
+    const options = {
+      logLevel: 'error',
+      output: 'json',
+      onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
+      port: chrome.port
+    };
+    
+    const fileUrl = `file://${path.resolve(htmlPath)}`;
+    const runnerResult = await lighthouse(fileUrl, options);
+    
+    const scores = {
+      performance: Math.round(runnerResult.lhr.categories.performance.score * 100),
+      accessibility: Math.round(runnerResult.lhr.categories.accessibility.score * 100),
+      bestPractices: Math.round(runnerResult.lhr.categories['best-practices'].score * 100),
+      seo: Math.round(runnerResult.lhr.categories.seo.score * 100)
+    };
+    
+    const avgScore = Object.values(scores).reduce((a, b) => a + b, 0) / 4;
+    const allAbove90 = Object.values(scores).every(score => score >= 90);
+    
+    return {
+      scores,
+      average: Math.round(avgScore),
+      passesThreshold: allAbove90,
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('Lighthouse error:', error);
+    return {
+      scores: { performance: 0, accessibility: 0, bestPractices: 0, seo: 0 },
+      average: 0,
+      passesThreshold: false,
+      error: error.message
+    };
+  } finally {
+    if (chrome) {
+      await chrome.kill();
+    }
+  }
+}
+
+module.exports = { runQATests, generateReport, getLighthouseScore };

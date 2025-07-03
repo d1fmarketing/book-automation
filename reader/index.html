@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Machine Ebook Reader - Premium Reading Experience</title>
+    <meta name="description" content="Read your premium ebooks with advanced analytics, social features, and interactive elements">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Money Machine Ebook Reader">
+    <meta property="og:description" content="Premium ebook reading experience with AI assistance">
+    <meta property="og:type" content="website">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="book-title">Loading...</h1>
+        </div>
+        
+        <div class="nav-center">
+            <div class="progress-info">
+                <span class="reading-time">0 min read</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="reading-progress"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+        </div>
+        
+        <div class="nav-right">
+            <button class="nav-btn" onclick="toggleBookmark()" title="Bookmark">
+                <i class="far fa-bookmark"></i>
+            </button>
+            <button class="nav-btn" onclick="shareChapter()" title="Share">
+                <i class="fas fa-share-alt"></i>
+            </button>
+            <button class="nav-btn" onclick="toggleNightMode()" title="Night Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="nav-btn" onclick="showSettings()" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Main Container -->
+    <div class="reader-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Contents</h2>
+                <button class="close-sidebar" onclick="toggleSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Table of Contents -->
+            <div class="toc" id="table-of-contents">
+                <!-- Chapters will be loaded here -->
+            </div>
+            
+            <!-- Reading Stats -->
+            <div class="reading-stats">
+                <h3>Your Reading Stats</h3>
+                <div class="stat-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Total Time: <strong id="total-time">0h 0m</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Completed: <strong id="chapters-completed">0/0</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-fire"></i>
+                    <span>Streak: <strong id="reading-streak">0 days</strong></span>
+                </div>
+            </div>
+            
+            <!-- Bookmarks -->
+            <div class="bookmarks-section">
+                <h3>Bookmarks</h3>
+                <div class="bookmarks-list" id="bookmarks-list">
+                    <!-- Bookmarks will be loaded here -->
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- Content -->
+            <article class="ebook-content" id="ebook-content">
+                <!-- Ebook content will be loaded here -->
+            </article>
+            
+            <!-- Chapter Navigation -->
+            <div class="chapter-nav">
+                <button class="chapter-nav-btn prev" onclick="previousChapter()">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Previous Chapter</span>
+                </button>
+                <button class="chapter-nav-btn next" onclick="nextChapter()">
+                    <span>Next Chapter</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+            
+            <!-- Social Sharing Section -->
+            <div class="social-section">
+                <h3>Share This Chapter</h3>
+                <div class="social-buttons">
+                    <button class="social-btn twitter" onclick="shareOnTwitter()">
+                        <i class="fab fa-twitter"></i> Tweet
+                    </button>
+                    <button class="social-btn linkedin" onclick="shareOnLinkedIn()">
+                        <i class="fab fa-linkedin"></i> Share
+                    </button>
+                    <button class="social-btn facebook" onclick="shareOnFacebook()">
+                        <i class="fab fa-facebook"></i> Post
+                    </button>
+                    <button class="social-btn copy" onclick="copyLink()">
+                        <i class="fas fa-link"></i> Copy Link
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Reader Reviews -->
+            <div class="reviews-section">
+                <h3>Reader Reviews</h3>
+                <div class="review-stats">
+                    <div class="rating">
+                        <span class="stars">⭐⭐⭐⭐⭐</span>
+                        <span class="rating-value">4.8</span>
+                        <span class="review-count">(127 reviews)</span>
+                    </div>
+                    <button class="btn-primary" onclick="showReviewForm()">Write a Review</button>
+                </div>
+                <div class="reviews-list" id="reviews-list">
+                    <!-- Reviews will be loaded here -->
+                </div>
+            </div>
+        </main>
+        
+        <!-- Right Panel (Notes & Highlights) -->
+        <aside class="right-panel" id="right-panel">
+            <div class="panel-header">
+                <h3>Notes & Highlights</h3>
+                <button class="close-panel" onclick="toggleNotesPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Notes Section -->
+            <div class="notes-section">
+                <div class="add-note">
+                    <textarea id="note-input" placeholder="Add a note about this chapter..."></textarea>
+                    <button class="btn-primary" onclick="saveNote()">Save Note</button>
+                </div>
+                
+                <div class="notes-list" id="notes-list">
+                    <!-- Notes will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Highlights Section -->
+            <div class="highlights-section">
+                <h4>Your Highlights</h4>
+                <div class="highlights-list" id="highlights-list">
+                    <!-- Highlights will be loaded here -->
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Reading Settings</h2>
+                <button class="modal-close" onclick="closeSettings()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Font Size -->
+                <div class="setting-group">
+                    <label>Font Size</label>
+                    <div class="font-size-controls">
+                        <button onclick="decreaseFontSize()">A-</button>
+                        <span id="font-size-value">16px</span>
+                        <button onclick="increaseFontSize()">A+</button>
+                    </div>
+                </div>
+                
+                <!-- Line Height -->
+                <div class="setting-group">
+                    <label>Line Spacing</label>
+                    <input type="range" id="line-height" min="1.2" max="2" step="0.1" value="1.6">
+                </div>
+                
+                <!-- Font Family -->
+                <div class="setting-group">
+                    <label>Font</label>
+                    <select id="font-family">
+                        <option value="Merriweather">Merriweather (Serif)</option>
+                        <option value="Inter">Inter (Sans-serif)</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Arial">Arial</option>
+                    </select>
+                </div>
+                
+                <!-- Reading Width -->
+                <div class="setting-group">
+                    <label>Reading Width</label>
+                    <select id="reading-width">
+                        <option value="narrow">Narrow</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="wide">Wide</option>
+                    </select>
+                </div>
+                
+                <!-- Analytics -->
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="analytics-enabled" checked>
+                        Track reading analytics
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Share Modal -->
+    <div class="modal" id="share-modal">
+        <div class="modal-content compact">
+            <div class="modal-header">
+                <h2>Share This Chapter</h2>
+                <button class="modal-close" onclick="closeShareModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="share-preview" id="share-preview">
+                    <!-- Selected text preview -->
+                </div>
+                
+                <div class="share-options">
+                    <button class="share-option" onclick="shareSelection('twitter')">
+                        <i class="fab fa-twitter"></i>
+                        <span>Twitter</span>
+                    </button>
+                    <button class="share-option" onclick="shareSelection('linkedin')">
+                        <i class="fab fa-linkedin"></i>
+                        <span>LinkedIn</span>
+                    </button>
+                    <button class="share-option" onclick="shareSelection('facebook')">
+                        <i class="fab fa-facebook"></i>
+                        <span>Facebook</span>
+                    </button>
+                    <button class="share-option" onclick="copySelection()">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Review Modal -->
+    <div class="modal" id="review-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Write a Review</h2>
+                <button class="modal-close" onclick="closeReviewModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="rating-input">
+                    <span>Your Rating:</span>
+                    <div class="star-rating">
+                        <i class="far fa-star" data-rating="1"></i>
+                        <i class="far fa-star" data-rating="2"></i>
+                        <i class="far fa-star" data-rating="3"></i>
+                        <i class="far fa-star" data-rating="4"></i>
+                        <i class="far fa-star" data-rating="5"></i>
+                    </div>
+                </div>
+                
+                <div class="review-form">
+                    <input type="text" id="review-name" placeholder="Your Name">
+                    <textarea id="review-text" placeholder="Share your thoughts about this ebook..."></textarea>
+                    <button class="btn-primary" onclick="submitReview()">Submit Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Completion Certificate Modal -->
+    <div class="modal" id="certificate-modal">
+        <div class="modal-content certificate">
+            <div class="certificate-content">
+                <h1>Certificate of Completion</h1>
+                <p>This certifies that</p>
+                <h2 id="certificate-name">Reader Name</h2>
+                <p>has successfully completed</p>
+                <h3 id="certificate-book">Book Title</h3>
+                <p class="certificate-date">Date: <span id="certificate-date"></span></p>
+                <div class="certificate-seal">🏆</div>
+            </div>
+            <div class="certificate-actions">
+                <button class="btn-primary" onclick="downloadCertificate()">Download Certificate</button>
+                <button class="btn-secondary" onclick="closeCertificate()">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="analytics.js"></script>
+    <script src="social.js"></script>
+    <script src="reader.js"></script>
+    
+    <!-- Initialize Reader -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get ebook ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const ebookId = urlParams.get('id') || 'default';
+            
+            // Initialize the reader
+            initializeReader(ebookId);
+        });
+    </script>
+</body>
+</html>

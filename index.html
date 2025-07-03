@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Money Machine - AI-Powered Ebook Automation Suite</title>
+    <meta name="description" content="Professional ebook automation platform with AI-powered content generation, sales analytics, and publishing tools">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Money Machine">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --background: #0a0a0a;
+            --surface: #111111;
+            --surface-light: #1a1a1a;
+            --border: #333333;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0a0a0a 100%);
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a3a3a3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .tagline {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+        
+        /* App Grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .app-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .app-card:hover::before {
+            transform: translateX(0);
+        }
+        
+        .app-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .app-card:nth-child(1) .app-icon { color: #3b82f6; }
+        .app-card:nth-child(2) .app-icon { color: #8b5cf6; }
+        .app-card:nth-child(3) .app-icon { color: #10b981; }
+        .app-card:nth-child(4) .app-icon { color: #f59e0b; }
+        .app-card:nth-child(5) .app-icon { color: #ef4444; }
+        
+        .app-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--surface-light);
+            border-color: var(--primary);
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature {
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .feature h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: 4rem;
+        }
+        
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
+            }
+            
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+            </div>
+            
+            <h1>Money Machine</h1>
+            <p class="tagline">AI-Powered Ebook Automation Suite</p>
+            
+            <div class="app-grid">
+                <a href="/dashboard" class="app-card">
+                    <i class="fas fa-tachometer-alt app-icon"></i>
+                    <h2 class="app-title">Dashboard</h2>
+                    <p class="app-description">Real-time monitoring of your ebook pipeline with live metrics and status updates</p>
+                </a>
+                
+                <a href="/reader" class="app-card">
+                    <i class="fas fa-book-reader app-icon"></i>
+                    <h2 class="app-title">Ebook Reader</h2>
+                    <p class="app-description">Beautiful reading experience with annotations, bookmarks, and social features</p>
+                </a>
+                
+                <a href="/analytics" class="app-card">
+                    <i class="fas fa-chart-line app-icon"></i>
+                    <h2 class="app-title">Analytics</h2>
+                    <p class="app-description">Track sales, revenue, and conversion metrics across all platforms</p>
+                </a>
+                
+                <a href="/control-panel" class="app-card">
+                    <i class="fas fa-cogs app-icon"></i>
+                    <h2 class="app-title">Control Panel</h2>
+                    <p class="app-description">Advanced pipeline management with phase control and job scheduling</p>
+                </a>
+                
+                <a href="/template-builder" class="app-card">
+                    <i class="fas fa-palette app-icon"></i>
+                    <h2 class="app-title">Template Builder</h2>
+                    <p class="app-description">Visual drag-and-drop designer for creating custom ebook templates</p>
+                </a>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" id="start-pipeline">
+                    <i class="fas fa-play"></i>
+                    <span>Start Pipeline</span>
+                </button>
+                <a href="https://github.com/yourusername/money-machine" class="btn btn-secondary" target="_blank">
+                    <i class="fab fa-github"></i>
+                    <span>View on GitHub</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="features">
+        <h2>Powerful Features</h2>
+        <div class="feature-list">
+            <div class="feature">
+                <i class="fas fa-brain feature-icon"></i>
+                <h3>AI Content Generation</h3>
+                <p>Generate high-quality ebook content using GPT-4 and Claude</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-search feature-icon"></i>
+                <h3>Topic Research</h3>
+                <p>Find trending topics with Perplexity AI integration</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-image feature-icon"></i>
+                <h3>Cover Generation</h3>
+                <p>Create stunning covers with Ideogram AI</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-check-circle feature-icon"></i>
+                <h3>Quality Assurance</h3>
+                <p>Automated QA with visual verification</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-upload feature-icon"></i>
+                <h3>Multi-Platform Publishing</h3>
+                <p>Publish to Gumroad, KDP, Apple Books, and more</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-mobile-alt feature-icon"></i>
+                <h3>Mobile Optimized</h3>
+                <p>Full PWA support with offline capabilities</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p class="footer-text">© 2025 Money Machine. Built with AI and automation.</p>
+    </footer>
+    
+    <!-- PWA Registration -->
+    <script src="/pwa-register.js"></script>
+    
+    <script>
+        // Start pipeline button
+        document.getElementById('start-pipeline').addEventListener('click', async () => {
+            const button = event.target.closest('button');
+            const originalContent = button.innerHTML;
+            
+            button.innerHTML = '<div class="loading"></div> Starting...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/api/pipeline/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: 'full' })
+                });
+                
+                if (response.ok) {
+                    window.location.href = '/dashboard';
+                } else {
+                    throw new Error('Failed to start pipeline');
+                }
+            } catch (error) {
+                alert('Please start the control panel server first');
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            }
+        });
+        
+        // Add smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+        
+        // Animate cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.app-card, .feature').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

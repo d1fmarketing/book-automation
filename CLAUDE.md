@@ -253,12 +253,100 @@ Contains book metadata and build settings:
 3. **Word count not updating**: Check Python installation
 4. **Git hooks not running**: Run `npx husky install`
 5. **Images too large**: Use `npm run optimize:images`
+6. **GitHub auth fails**: See GitHub Authentication section below
 
 ### Debug Mode
 
 ```bash
 DEBUG=1 npm run build:pdf    # Saves debug HTML
 ```
+
+## 🔐 GitHub Authentication
+
+### Overview
+
+This project uses GitHub Personal Access Tokens (PAT) for creating PRs, managing releases, and CI/CD operations. We have multiple fallback mechanisms to ensure GitHub auth always works.
+
+### Quick Fix
+
+If you encounter GitHub authentication errors:
+
+```bash
+# Automatic fix - tries to recover token from multiple sources
+./scripts/github-auth-helper.sh fix
+
+# Or use the Node.js version
+node scripts/auto-github-auth.js
+```
+
+### Token Storage Locations
+
+The system checks for GitHub tokens in this order:
+
+1. **Environment Variable**: `GITHUB_TOKEN`
+2. **Local File**: `.env.local` (git-ignored)
+3. **API Vault**: Central secure storage at `~/.api-vault/`
+4. **GitHub CLI**: `gh auth token`
+
+### Manual Setup
+
+If automatic recovery fails:
+
+```bash
+# Interactive setup
+./scripts/github-auth-helper.sh setup
+
+# This will:
+# 1. Test existing tokens
+# 2. Prompt for new token if needed
+# 3. Save to all locations
+# 4. Configure gh CLI
+```
+
+### Creating a New Token
+
+1. Go to https://github.com/settings/tokens
+2. Click "Generate new token (classic)"
+3. Select scopes:
+   - `repo` (full control of private repositories)
+   - `workflow` (update GitHub Actions)
+4. Copy the token (starts with `ghp_` or `github_pat_`)
+5. Run setup: `./scripts/github-auth-helper.sh setup`
+
+### Integration with Scripts
+
+All scripts that need GitHub access automatically call the auth recovery:
+
+```javascript
+// In any Node.js script
+const { ensureGitHubAuth } = require('./scripts/auto-github-auth');
+
+// This will automatically find or prompt for token
+await ensureGitHubAuth();
+```
+
+### Troubleshooting Auth Issues
+
+1. **"Bad credentials" error**:
+   ```bash
+   ./scripts/github-auth-helper.sh test  # Check current status
+   ./scripts/github-auth-helper.sh fix   # Auto-fix
+   ```
+
+2. **Token expired**:
+   - Create new token at GitHub
+   - Run: `./scripts/github-auth-helper.sh setup`
+
+3. **Multiple tokens conflict**:
+   - Clear environment: `unset GITHUB_TOKEN`
+   - Run setup to sync all locations
+
+### Best Practices
+
+1. **Never commit tokens** - Use `.env.local` (git-ignored)
+2. **Use API Vault** - Central secure storage
+3. **Test regularly** - Run `npm run check:env`
+4. **Token rotation** - Update tokens every 90 days
 
 ## 🔗 External Resources
 

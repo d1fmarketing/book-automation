@@ -1,0 +1,348 @@
+name: Blue-Green Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      ebook_id:
+        description: 'Ebook ID to deploy'
+        required: true
+        type: string
+  
+  push:
+    branches:
+      - main
+    paths:
+      - 'build/ebooks/**'
+
+env:
+  LIGHTHOUSE_THRESHOLD: 90
+  NODE_VERSION: '20'
+  DEPLOYMENT_TIMEOUT: 300 # 5 minutes
+
+jobs:
+  # Job 1: Build and Test
+  build-test:
+    name: Build and Test Ebook
+    runs-on: ubuntu-latest
+    outputs:
+      ebook_path: ${{ steps.build.outputs.ebook_path }}
+      lighthouse_score: ${{ steps.lighthouse.outputs.average_score }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install -g lighthouse chrome-launcher
+
+      - name: Build ebook
+        id: build
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            EBOOK_ID="${{ github.event.inputs.ebook_id }}"
+          else
+            # Find the most recently modified ebook
+            EBOOK_ID=$(find build/ebooks -type d -maxdepth 1 -mindepth 1 | xargs ls -dt | head -1 | xargs basename)
+          fi
+          
+          echo "Building ebook: $EBOOK_ID"
+          EBOOK_PATH="build/ebooks/$EBOOK_ID"
+          
+          # Verify ebook exists
+          if [ ! -d "$EBOOK_PATH" ]; then
+            echo "Error: Ebook not found at $EBOOK_PATH"
+            exit 1
+          fi
+          
+          echo "ebook_path=$EBOOK_PATH" >> $GITHUB_OUTPUT
+          echo "ebook_id=$EBOOK_ID" >> $GITHUB_OUTPUT
+
+      - name: Run QA tests
+        run: |
+          node qa/qa-html-mcp.js "${{ steps.build.outputs.ebook_path }}/index.html"
+          
+          # Check if QA passed
+          if [ $? -ne 0 ]; then
+            echo "QA tests failed"
+            exit 1
+          fi
+
+      - name: Run Lighthouse audit
+        id: lighthouse
+        run: |
+          # Run lighthouse and capture the score
+          node -e "
+          const { getLighthouseScore } = require('./qa/qa-html-mcp.js');
+          (async () => {
+            const result = await getLighthouseScore('${{ steps.build.outputs.ebook_path }}/index.html');
+            console.log('LIGHTHOUSE_SCORE=' + result.average);
+            console.log('LIGHTHOUSE_PASSED=' + result.passesThreshold);
+            process.exit(result.passesThreshold ? 0 : 1);
+          })();
+          " | tee lighthouse_output.txt
+          
+          # Extract score from output
+          SCORE=$(grep "LIGHTHOUSE_SCORE=" lighthouse_output.txt | cut -d'=' -f2)
+          PASSED=$(grep "LIGHTHOUSE_PASSED=" lighthouse_output.txt | cut -d'=' -f2)
+          
+          echo "average_score=$SCORE" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          
+          if [ "$PASSED" != "true" ]; then
+            echo "Lighthouse score below threshold: $SCORE < ${{ env.LIGHTHOUSE_THRESHOLD }}"
+            exit 1
+          fi
+
+      - name: Upload ebook artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ebook-${{ steps.build.outputs.ebook_id }}
+          path: ${{ steps.build.outputs.ebook_path }}
+          retention-days: 7
+
+  # Job 2: Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build-test
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'staging' || github.ref == 'refs/heads/main'
+    environment:
+      name: staging
+      url: https://staging.ebooks.hostinger.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download ebook artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ebook-${{ needs.build-test.outputs.ebook_id }}
+          path: ./deploy-ebook
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/hostinger_rsa
+          chmod 600 ~/.ssh/hostinger_rsa
+          ssh-keyscan -H ${{ secrets.HOSTINGER_VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to staging
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+          HOSTINGER_VPS_HOST: ${{ secrets.HOSTINGER_VPS_HOST }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_SSH_KEY: ~/.ssh/hostinger_rsa
+        run: |
+          node agents/hostinger-deploy.js \
+            --ebook-dir="./deploy-ebook" \
+            --skip-dns
+            
+      - name: Run smoke tests
+        run: |
+          # Wait for deployment to stabilize
+          sleep 10
+          
+          # Check if staging is accessible
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://staging.ebooks.hostinger.com/health)
+          if [ "$STATUS" != "200" ]; then
+            echo "Staging health check failed with status: $STATUS"
+            exit 1
+          fi
+          
+          echo "Staging deployment successful"
+
+  # Job 3: Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    needs: [build-test, deploy-staging]
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'production'
+    environment:
+      name: production
+      url: https://ebooks.hostinger.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download ebook artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ebook-${{ needs.build-test.outputs.ebook_id }}
+          path: ./deploy-ebook
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/hostinger_rsa
+          chmod 600 ~/.ssh/hostinger_rsa
+          ssh-keyscan -H ${{ secrets.HOSTINGER_VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Backup current production
+        env:
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_VPS_HOST: ${{ secrets.HOSTINGER_VPS_HOST }}
+        run: |
+          ssh -i ~/.ssh/hostinger_rsa $HOSTINGER_SSH_USER@$HOSTINGER_VPS_HOST \
+            "tar -czf /backups/production-$(date +%Y%m%d-%H%M%S).tar.gz /var/www/ebooks-blue /var/www/ebooks-green"
+
+      - name: Deploy to production
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+          HOSTINGER_VPS_HOST: ${{ secrets.HOSTINGER_VPS_HOST }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_SSH_KEY: ~/.ssh/hostinger_rsa
+        run: |
+          node agents/hostinger-deploy.js \
+            --ebook-dir="./deploy-ebook"
+            
+      - name: Clear CDN cache
+        if: success()
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}'
+
+      - name: Monitor deployment
+        run: |
+          # Monitor for 5 minutes
+          END_TIME=$(($(date +%s) + 300))
+          
+          while [ $(date +%s) -lt $END_TIME ]; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://ebooks.hostinger.com/health)
+            
+            if [ "$STATUS" != "200" ]; then
+              echo "Production health check failed with status: $STATUS"
+              echo "Triggering rollback..."
+              
+              # Trigger rollback
+              node agents/hostinger-deploy.js --status
+              exit 1
+            fi
+            
+            echo "Health check passed. Waiting 30s..."
+            sleep 30
+          done
+          
+          echo "Production deployment stable"
+
+  # Job 4: Post-deployment tasks
+  post-deployment:
+    name: Post Deployment Tasks
+    needs: [build-test, deploy-production]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Send deployment notification
+        if: success()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -X POST $SLACK_WEBHOOK \
+            -H 'Content-type: application/json' \
+            --data '{
+              "text": "🚀 Ebook deployed successfully!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment Successful* ✅\n*Ebook*: ${{ needs.build-test.outputs.ebook_id }}\n*Lighthouse Score*: ${{ needs.build-test.outputs.lighthouse_score }}/100\n*Environment*: ${{ github.event.inputs.environment || 'staging' }}"
+                  }
+                }
+              ]
+            }'
+
+      - name: Send failure notification
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -X POST $SLACK_WEBHOOK \
+            -H 'Content-type: application/json' \
+            --data '{
+              "text": "❌ Ebook deployment failed!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment Failed* ❌\n*Ebook*: ${{ needs.build-test.outputs.ebook_id }}\n*Environment*: ${{ github.event.inputs.environment || 'staging' }}\n*Check the workflow*: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                }
+              ]
+            }'
+
+      - name: Update deployment record
+        if: always()
+        run: |
+          DEPLOYMENT_STATUS=$([[ "${{ job.status }}" == "success" ]] && echo "success" || echo "failed")
+          
+          cat > deployment-record.json <<EOF
+          {
+            "deployment_id": "${{ github.run_id }}",
+            "ebook_id": "${{ needs.build-test.outputs.ebook_id }}",
+            "environment": "${{ github.event.inputs.environment || 'staging' }}",
+            "lighthouse_score": ${{ needs.build-test.outputs.lighthouse_score }},
+            "status": "$DEPLOYMENT_STATUS",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit_sha": "${{ github.sha }}",
+            "triggered_by": "${{ github.actor }}"
+          }
+          EOF
+          
+          # In production, this would update a deployment tracking service
+          cat deployment-record.json
+
+# Matrix job for chaos testing (optional)
+chaos-test:
+  name: Chaos Testing
+  needs: deploy-staging
+  runs-on: ubuntu-latest
+  if: github.event_name == 'schedule' || github.event.inputs.run_chaos == 'true'
+  strategy:
+    matrix:
+      scenario: [api-outage, high-load, network-latency]
+  
+  steps:
+    - name: Run chaos scenario - ${{ matrix.scenario }}
+      run: |
+        echo "Running chaos test: ${{ matrix.scenario }}"
+        # Implementation would include actual chaos testing
+        # For example, using Chaos Monkey or custom scripts

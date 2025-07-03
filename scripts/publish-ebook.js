@@ -42,12 +42,12 @@ async function publishToAmazonKDP(ebookData) {
 
 // Publicar no Gumroad
 async function publishToGumroad(ebookData) {
-  console.log('🛒 Publicando no Gumroad...');
+  console.log('🛒 Publishing to Gumroad...');
   
   const GUMROAD_ACCESS_TOKEN = process.env.GUMROAD_ACCESS_TOKEN;
   
   if (!GUMROAD_ACCESS_TOKEN) {
-    console.log('   ⚠️  GUMROAD_ACCESS_TOKEN não encontrado');
+    console.log('   ⚠️  GUMROAD_ACCESS_TOKEN not found');
     return {
       platform: 'Gumroad',
       status: 'skipped',
@@ -55,29 +55,47 @@ async function publishToGumroad(ebookData) {
     };
   }
   
-  // TODO: Implementar API real do Gumroad
-  // Documentação: https://gumroad.com/api
-  
-  const productData = {
-    name: ebookData.metadata.title,
-    price: ebookData.price * 100, // Centavos
-    description: ebookData.metadata.description,
-    tags: ebookData.topic.keywords,
-    file_url: ebookData.pdfPath
-  };
-  
-  console.log('   📦 Produto configurado');
-  console.log(`   💵 Preço: $${ebookData.price}`);
-  
-  // Simular criação
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  return {
-    platform: 'Gumroad',
-    status: 'published',
-    productId: `gum_${Date.now()}`,
-    url: `https://gumroad.com/l/${ebookData.metadata.title.toLowerCase().replace(/\s+/g, '-')}`
-  };
+  try {
+    // Use the real GumroadUpload agent
+    const GumroadUpload = require('../agents/gumroad-upload');
+    const uploader = new GumroadUpload({
+      autoPublish: true,
+      affiliatePercent: 30
+    });
+    
+    // Upload the ebook
+    const result = await uploader.uploadEbook(ebookData.pdfPath, {
+      title: ebookData.metadata.title,
+      price: ebookData.price,
+      niche: ebookData.topic.niche,
+      metadata: ebookData.metadata
+    });
+    
+    if (result.success) {
+      console.log(`   ✅ Published successfully`);
+      console.log(`   🛒 Product URL: ${result.urls.product}`);
+      console.log(`   💰 Affiliate URL: ${result.urls.affiliate}`);
+      
+      return {
+        platform: 'Gumroad',
+        status: 'published',
+        productId: result.productId,
+        url: result.urls.product,
+        affiliateUrl: result.urls.affiliate,
+        price: result.price
+      };
+    } else {
+      throw new Error(result.error);
+    }
+    
+  } catch (error) {
+    console.error('   ❌ Gumroad publishing failed:', error.message);
+    return {
+      platform: 'Gumroad',
+      status: 'failed',
+      error: error.message
+    };
+  }
 }
 
 // Publicar no site próprio
