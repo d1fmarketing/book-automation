@@ -10,7 +10,18 @@ rebuild:
 
 .PHONY: clean
 clean:
-	rm -rf build/
+	@echo "🧹 Running safe cleanup..."
+	@./scripts/clean-build.sh -y
+
+.PHONY: clean-dry
+clean-dry:
+	@echo "🔍 Dry run - showing what would be deleted..."
+	@./scripts/clean-build.sh -d
+
+.PHONY: clean-interactive
+clean-interactive:
+	@echo "🧹 Interactive cleanup..."
+	@./scripts/clean-build.sh
 
 # Atalho direto
 .PHONY: pdf
