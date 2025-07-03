@@ -6,6 +6,16 @@ module.exports = {
     description: 'Full book with cover, table of contents, and professional layout',
     
     buildHTML: async function({ metadata, chapters, coverBase64, verbose }) {
+        const fs = require('fs-extra');
+        const path = require('path');
+        const bookDir = path.join(__dirname, '..', '..', 'pipeline-book');
+        const coverPath = path.join(bookDir, 'assets', 'images', 'cover.png');
+        let finalCoverBase64 = '';
+        if (await fs.pathExists(coverPath)) {
+            const coverBuffer = await fs.readFile(coverPath);
+            finalCoverBase64 = `data:image/png;base64,${coverBuffer.toString('base64')}`;
+        }
+        
         // Replace AI-IMAGE placeholders with actual images
         for (const chapter of chapters) {
             chapter.html = chapter.html.replace(/!\[([^\]]*)\]\(AI-IMAGE:([^)]+)\)/g, (match, alt, prompt) => {
@@ -75,6 +85,7 @@ module.exports = {
         }
         
         @page :first {
+            margin: 0;
             @bottom-center {
                 content: '';
             }
@@ -103,7 +114,7 @@ module.exports = {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: -0.75in;
+            margin: 0;
             overflow: hidden;
         }
         
@@ -282,7 +293,7 @@ module.exports = {
     </style>
 </head>
 <body>
-    ${coverBase64 ? `<div class="cover-page"><img src="${coverBase64}" alt="Capa do livro"></div>` : ''}
+    ${finalCoverBase64 ? `<div class="cover-page"><img src="${finalCoverBase64}" alt="Capa do livro"></div>` : ''}
     
     <div class="title-page">
         <h1>${metadata.title}</h1>
@@ -307,16 +318,17 @@ module.exports = {
     
     getPDFOptions: function() {
         return {
-            format: 'Letter',
+            width: '6in',
+            height: '9in',
             printBackground: true,
-            preferCSSPageSize: true,
             displayHeaderFooter: false,
             margin: {
                 top: '0',
                 right: '0',
                 bottom: '0',
                 left: '0'
-            }
+            },
+            preferCSSPageSize: true
         };
     }
 };

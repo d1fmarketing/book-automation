@@ -1,0 +1,8 @@
+{
+  "name": "@modelcontextprotocol/server-filesystem",
+  "version": "latest",
+  "mcp": {
+    "server": true,
+    "installed": "2025-07-02T16:11:35Z"
+  }
+}

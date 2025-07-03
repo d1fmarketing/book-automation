@@ -74,12 +74,30 @@ async function loadPreset(presetName) {
 }
 
 // Utility functions
+let bookDir;
+
+async function findBookDir() {
+    if (bookDir) return bookDir;
+    const { findUp } = await import('find-up');
+    const pipelineBookPath = await findUp('pipeline-book', { type: 'directory' });
+    if (!pipelineBookPath) {
+        throw new Error('Could not find the "pipeline-book" directory.');
+    }
+    bookDir = pipelineBookPath;
+    return bookDir;
+}
+
 async function loadMetadata() {
-    return yaml.load(await fs.readFile('metadata.yaml', 'utf8'));
+    const dir = await findBookDir();
+    const metadataPath = path.join(dir, 'metadata.yaml');
+    return yaml.load(await fs.readFile(metadataPath, 'utf8'));
 }
 
 async function loadCoverImage() {
-    const coverPath = path.join(process.cwd(), 'assets/images/cover.jpg');
+    const dir = await findBookDir();
+    console.log('bookDir:', dir);
+    const coverPath = path.join(dir, 'assets/images/cover.png');
+    console.log('coverPath:', coverPath);
     
     if (await fs.pathExists(coverPath)) {
         const coverBuffer = await fs.readFile(coverPath);
@@ -99,8 +117,9 @@ async function loadCoverImage() {
 }
 
 async function loadChapters() {
-    const chaptersDir = path.join(process.cwd(), 'chapters');
-    const chapterFiles = await glob('chapters/chapter-*.md');
+    const dir = await findBookDir();
+    const chaptersDir = path.join(dir, 'chapters');
+    const chapterFiles = await glob(path.join(chaptersDir, 'chapter-*.md'));
     
     const chapters = [];
     
@@ -182,6 +201,10 @@ async function generatePDF() {
             coverBase64,
             verbose
         });
+
+        if (!htmlContent.includes('data:image/png;base64')) {
+            throw new Error('Cover image not inlined!');
+        }
         
         // Save debug HTML if requested
         if (process.env.DEBUG === '1') {
@@ -203,13 +226,10 @@ async function generatePDF() {
         
         // Get PDF options from preset
         const pdfOptions = presetConfig.getPDFOptions ? presetConfig.getPDFOptions() : {
-            path: finalOutput,
             format: 'Letter',
             printBackground: true,
             preferCSSPageSize: true
         };
-        
-        // Ensure output path is set
         pdfOptions.path = finalOutput;
         
         // Generate PDF

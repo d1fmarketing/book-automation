@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const path = require('path');
 
 async function findImagePages() {
-    const pdfPath = path.join(__dirname, '../THE-CLAUDE-ELITE-PIPELINE-FINAL-PERFECT.pdf');
+    const pdfPath = path.join(__dirname, '../build/dist/premium-mcp-ebook.pdf');
     
     // Load the PDF
     const pdfBytes = await fs.readFile(pdfPath);

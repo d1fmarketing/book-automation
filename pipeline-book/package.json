@@ -10,8 +10,12 @@
     "pipeline:kdp": "node run-complete-pipeline.js kdp",
     "generate:pdf": "node scripts/generation/generate-pdf-final.js",
     "build:premium": "node scripts/generation/generate-premium-pdf.js",
+    "pipeline:premium": "./scripts/pipeline-premium.sh",
     "qa:check": "node scripts/quality/pdf-qa-loop-real.js",
     "qa:verify": "./scripts/quality/verify-and-fix-loop.sh",
+    "qa:perfect": "node scripts/qa/automated-pdf-fixer.js",
+    "pdf:perfect": "node scripts/generation/generate-final-perfect-pdf.js",
+    "qa:visual": "node scripts/qa/full-visual-verification.js",
     "clean": "rm -rf build/dist/*.pdf build/temp/*",
     "test": "npm run pipeline:local"
   },
@@ -26,10 +30,14 @@
   "license": "MIT",
   "dependencies": {
     "marked": "^4.3.0",
+    "pdf-lib": "^1.17.1",
     "prismjs": "^1.30.0",
     "ws": "^8.18.3"
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "canvas": "^3.1.2"
   }
 }

@@ -76,19 +76,31 @@ class PremiumPDFGenerator {
         console.log('\n🖼️  Loading images...');
         const imagesDir = path.join(this.projectRoot, 'assets/images');
         
-        // Load cover
-        const coverPath = path.join(imagesDir, 'cover.png');
-        if (await fs.pathExists(coverPath)) {
-            const buffer = await fs.readFile(coverPath);
+        // Try to load premium SVG cover first, then fall back to PNG
+        const coverSvgPath = path.join(imagesDir, 'cover-premium.svg');
+        const coverPngPath = path.join(imagesDir, 'cover.png');
+        
+        if (await fs.pathExists(coverSvgPath)) {
+            const svgContent = await fs.readFile(coverSvgPath, 'utf8');
+            this.images.cover = `data:image/svg+xml;base64,${Buffer.from(svgContent).toString('base64')}`;
+            console.log(`  ✓ Premium SVG cover loaded`);
+        } else if (await fs.pathExists(coverPngPath)) {
+            const buffer = await fs.readFile(coverPngPath);
             this.images.cover = `data:image/png;base64,${buffer.toString('base64')}`;
             console.log(`  ✓ Cover loaded (${(buffer.length / 1024).toFixed(0)} KB)`);
         }
 
-        // Load chapter images
+        // Load chapter images - try premium SVG first, then other formats
         for (let i = 1; i <= 5; i++) {
-            const imagePath = path.join(imagesDir, `chapter-0${i}-architecture-horizontal.png`);
-            if (await fs.pathExists(imagePath)) {
-                const buffer = await fs.readFile(imagePath);
+            const svgPath = path.join(imagesDir, `chapter-0${i}-premium.svg`);
+            const pngPath = path.join(imagesDir, `chapter-0${i}-architecture-horizontal.png`);
+            
+            if (await fs.pathExists(svgPath)) {
+                const svgContent = await fs.readFile(svgPath, 'utf8');
+                this.images[`chapter${i}`] = `data:image/svg+xml;base64,${Buffer.from(svgContent).toString('base64')}`;
+                console.log(`  ✓ Chapter ${i} premium SVG loaded`);
+            } else if (await fs.pathExists(pngPath)) {
+                const buffer = await fs.readFile(pngPath);
                 this.images[`chapter${i}`] = `data:image/png;base64,${buffer.toString('base64')}`;
                 console.log(`  ✓ Chapter ${i} image loaded (${(buffer.length / 1024).toFixed(0)} KB)`);
             }
@@ -161,8 +173,52 @@ class PremiumPDFGenerator {
         // First, process callout boxes
         let processed = processMarkdownWithCallouts(markdown);
         
-        // Then convert remaining markdown to HTML
-        processed = marked.parse(processed);
+        // Configure marked with custom renderer for images
+        const renderer = new marked.Renderer();
+        
+        // Override image rendering to embed SVGs as base64
+        renderer.image = (href, title, text) => {
+            // Handle relative paths
+            if (href.startsWith('../assets/') || href.startsWith('assets/')) {
+                const imagePath = path.join(this.projectRoot, href.replace('../', ''));
+                
+                try {
+                    if (fs.existsSync(imagePath) && imagePath.endsWith('.svg')) {
+                        // Read SVG content with proper UTF-8 encoding
+                        let svgContent = fs.readFileSync(imagePath, 'utf8');
+                        
+                        // Fix XML entities - replace unescaped & with &amp;
+                        // But preserve already escaped entities like &lt; &gt; &amp; etc.
+                        svgContent = svgContent.replace(/&(?!(?:amp|lt|gt|quot|apos);)/g, '&amp;');
+                        
+                        // Make IDs unique to avoid conflicts when multiple SVGs are embedded
+                        const uniqueSuffix = '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        svgContent = svgContent.replace(/id="([^"]*)"/g, `id="$1${uniqueSuffix}"`);
+                        svgContent = svgContent.replace(/url\(#([^)]*)\)/g, `url(#$1${uniqueSuffix})`);
+                        
+                        // For SVGs with emojis or special characters, use URL encoding
+                        // This is more reliable than base64 for complex UTF-8 content
+                        const encodedSvg = encodeURIComponent(svgContent)
+                            .replace(/'/g, '%27')
+                            .replace(/"/g, '%22');
+                        
+                        const dataUri = `data:image/svg+xml;charset=utf-8,${encodedSvg}`;
+                        
+                        console.log(`✅ Embedded SVG: ${path.basename(imagePath)} (${svgContent.length} chars)`);
+                        
+                        return `<img src="${dataUri}" alt="${text}" class="content-image">`;
+                    }
+                } catch (error) {
+                    console.warn(`⚠️  Failed to embed image: ${href}`, error.message);
+                }
+            }
+            
+            // Fallback to default behavior
+            return `<img src="${href}" alt="${text}" class="content-image">`;
+        };
+        
+        // Then convert remaining markdown to HTML with custom renderer
+        processed = marked.parse(processed, { renderer });
         
         return processed;
     }
