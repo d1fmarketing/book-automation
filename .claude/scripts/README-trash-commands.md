@@ -7,6 +7,7 @@ The SafeTrash system now includes enhanced commands for searching, restoring, an
 ## New Commands
 
 ### 1. **Find/Search Items**
+
 Search for files in trash by name:
 
 ```bash
@@ -19,6 +20,7 @@ node .claude/scripts/safe-trash.js find "test"
 ```
 
 Output shows:
+
 - Full trash path
 - Original location
 - Deletion date/time
@@ -26,6 +28,7 @@ Output shows:
 - File size
 
 ### 2. **Get Item Information**
+
 Get detailed information about a specific trash item:
 
 ```bash
@@ -37,12 +40,14 @@ node .claude/scripts/safe-trash.js info "2025/07/01/documents/test.txt"
 ```
 
 Shows:
+
 - File type and size
 - Creation and modification dates
 - Complete metadata
 - Original path and deletion details
 
 ### 3. **Smart Restore**
+
 Restore files with intelligent path matching:
 
 ```bash
@@ -59,12 +64,14 @@ node .claude/scripts/safe-trash.js restore trash/2025/07/01/documents/file.txt
 ```
 
 Features:
+
 - Searches by filename if not a full path
 - Shows error if multiple matches found
 - Restores to original location by default
 - Allows custom restore location
 
 ### 4. **Enhanced Clean**
+
 Clean old items with more control:
 
 ```bash
@@ -102,6 +109,7 @@ trash-stats                  # Show statistics
 ## Trash Organization
 
 Files are organized by:
+
 ```
 trash/
 ├── 2025/
@@ -119,6 +127,7 @@ trash/
 ## Best Practices
 
 1. **Regular Cleanup**
+
    ```bash
    # Check what would be cleaned
    node .claude/scripts/safe-trash.js clean --dry-run
@@ -128,6 +137,7 @@ trash/
    ```
 
 2. **Search Before Delete**
+
    ```bash
    # Check if file exists in trash before permanently deleting
    node .claude/scripts/safe-trash.js find "important-file"
@@ -135,11 +145,13 @@ trash/
 
 3. **Use Metadata**
    Always provide a reason when deleting:
+
    ```bash
    node .claude/scripts/safe-trash.js trash file.txt "Replaced with updated version"
    ```
 
 4. **Monitor Trash Size**
+
    ```bash
    node .claude/scripts/safe-trash.js stats
    ```
@@ -155,16 +167,19 @@ The trash system integrates with the pipeline checkpoints:
 ## Troubleshooting
 
 ### "No items found" when searching
+
 - Check if searching in the right date folder
 - Try partial filename matches
 - Use `list` command to see all items
 
 ### Restore fails
+
 - Check if target location already exists
 - Ensure you have write permissions
 - Verify the trash item still exists
 
 ### Large trash size
+
 - Run cleanup more frequently
 - Reduce retention days
 - Consider excluding large files from trash

@@ -6,12 +6,14 @@
 ## 🎨 Writing Style
 
 ### Voice & Tone
+
 - **Overall Tone**: [Serious/Light/Humorous/Dark]
 - **Narrative Voice**: [Formal/Conversational/Literary]
 - **POV**: [First Person/Third Person Limited/Omniscient]
 - **Tense**: [Past/Present]
 
 ### Prose Preferences
+
 - **Sentence Length**: Vary between short and medium. Long sentences sparingly.
 - **Paragraph Length**: 3-5 sentences average, single sentence for emphasis
 - **Description Style**: [Minimalist/Rich/Balanced]
@@ -20,6 +22,7 @@
 ## 📏 Structural Rules
 
 ### Chapter Structure
+
 - **Opening**: Hook within first 3 sentences
 - **Length**: 2000-3000 words target
 - **Scenes per Chapter**: 2-4
@@ -27,6 +30,7 @@
 - **Scene Breaks**: Use `* * *` centered
 
 ### Pacing Guidelines
+
 - **Action Scenes**: Short sentences, quick pace
 - **Emotional Scenes**: Longer sentences, introspective
 - **Dialogue Scenes**: Natural rhythm, realistic interruptions
@@ -35,9 +39,10 @@
 ## ✍️ Language Preferences
 
 ### Word Choice
+
 - **Preferred**: Simple, clear, evocative
 - **Avoid**: Purple prose, excessive adverbs
-- **Forbidden Words**: 
+- **Forbidden Words**:
   - "very" (use stronger adjectives)
   - "really" (usually unnecessary)
   - "just" (often filler)
@@ -45,6 +50,7 @@
   - "somehow" (be specific)
 
 ### Dialogue Rules
+
 - **Tags**: Prefer "said" 80% of the time
 - **Action Beats**: Use instead of tags when possible
 - **Dialect**: Suggest through word choice, not phonetic spelling
@@ -53,6 +59,7 @@
 ## 🚫 What to Avoid
 
 ### Clichés to Skip
+
 - Character waking up to start chapter
 - Looking in mirror to describe appearance
 - "Little did they know..."
@@ -60,6 +67,7 @@
 - Dreams as plot devices (unless integral)
 
 ### Writing Habits to Avoid
+
 - Head hopping (switching POV mid-scene)
 - Info dumping
 - "As you know, Bob..." dialogue
@@ -69,6 +77,7 @@
 ## ✅ What to Emphasize
 
 ### Always Include
+
 - **Sensory Details**: At least 3 senses per scene
 - **Character Reactions**: Physical and emotional
 - **Setting Anchors**: Remind reader of location
@@ -76,6 +85,7 @@
 - **Character Voice**: Distinct speech patterns
 
 ### Techniques to Use
+
 - **Show Don't Tell**: 80/20 rule
 - **Subtext**: Characters don't always say what they mean
 - **White Space**: Use for pacing and emphasis
@@ -85,11 +95,13 @@
 ## 🎭 Character Guidelines
 
 ### Dialogue Differentiation
+
 - **Protagonist**: [Speech pattern notes]
 - **Character 2**: [Speech pattern notes]
 - **Character 3**: [Speech pattern notes]
 
 ### Character Descriptions
+
 - **First Introduction**: Full description
 - **Subsequent**: One memorable detail
 - **Through Action**: Preferred method
@@ -98,12 +110,14 @@
 ## 🔧 Technical Standards
 
 ### Grammar & Punctuation
+
 - **Oxford Comma**: [Yes/No]
 - **Dialogue Punctuation**: US/UK standard
 - **Em Dashes**: For interruptions—like this
 - **Ellipses**: For trailing off...
 
 ### Formatting
+
 - **Emphasis**: *Italics* not CAPS
 - **Foreign Words**: *Italics* on first use
 - **Thoughts**: [Italics/No special formatting]
@@ -112,6 +126,7 @@
 ## 📚 Genre-Specific Rules
 
 ### [Your Genre] Conventions
+
 - **Expected Elements**: [List genre expectations]
 - **Subvert**: [Which conventions to twist]
 - **Reader Expectations**: [What must be delivered]
@@ -119,6 +134,7 @@
 ## 🎯 Book-Specific Guidelines
 
 ### Unique Elements
+
 - **Special Terminology**: How to introduce/use
 - **World Rules**: Consistency requirements
 - **Magic/Tech**: How to describe
@@ -127,6 +143,7 @@
 ## 💭 Philosophy
 
 ### Core Writing Beliefs
+
 - Every word should earn its place
 - Conflict drives story
 - Character drives plot, not vice versa
@@ -136,6 +153,7 @@
 ## 📋 Checklist Before Writing
 
 Before each chapter:
+
 - [ ] Review CONTEXT.md
 - [ ] Check story-bible.yaml
 - [ ] Review these rules
@@ -145,6 +163,7 @@ Before each chapter:
 ## 🔄 Revision Notes
 
 ### Common Issues to Check
+
 - Overuse of character names in dialogue
 - Repetitive sentence structures
 - Unclear antecedents (he/she/it)

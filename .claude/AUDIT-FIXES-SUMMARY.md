@@ -7,16 +7,19 @@ This document summarizes all the fixes and enhancements implemented based on the
 ## Completed Tasks
 
 ### 1. ✅ Fixed total_time initialization in pipeline-state-manager.js
+
 - **Issue**: TypeError when accessing undefined metrics.total_time
 - **Fix**: Added proper initialization of metrics object in loadOrCreateState()
 - **Files**: `.claude/scripts/pipeline-state-manager.js`
 
 ### 2. ✅ Implemented concurrency lock for state file access
+
 - **Issue**: Potential race conditions with concurrent state modifications
 - **Fix**: Created FileLock class with PID-based locking and stale lock detection
 - **Files**: `.claude/scripts/file-lock.js`, integrated into pipeline-state-manager.js
 
 ### 3. ✅ Added WebSocket authentication to MCP monitor
+
 - **Issue**: Pipeline events exposed without authentication
 - **Fix**: Implemented token-based auth with rate limiting
 - **Features**:
@@ -27,6 +30,7 @@ This document summarizes all the fixes and enhancements implemented based on the
 - **Files**: `.claude/scripts/mcp-pipeline-monitor.js`
 
 ### 4. ✅ Created workflow rules validation script
+
 - **Issue**: Missing validation scripts referenced in workflow-rules.yaml
 - **Fix**: Created comprehensive validation system
 - **Scripts**:
@@ -40,6 +44,7 @@ This document summarizes all the fixes and enhancements implemented based on the
   - Integration with pipeline-state-manager
 
 ### 5. ✅ Enhanced rollback to include logs and trash
+
 - **Issue**: Checkpoints only included state, not logs or deleted files
 - **Fix**: Comprehensive checkpoint system with selective restore
 - **Features**:
@@ -51,6 +56,7 @@ This document summarizes all the fixes and enhancements implemented based on the
   - Smart pruning (keeps phase completions)
 
 ### 6. ✅ Added trash restore helper commands
+
 - **Issue**: Difficult to find and restore specific deleted files
 - **Fix**: Enhanced trash commands with search and restore
 - **Commands**:
@@ -61,6 +67,7 @@ This document summarizes all the fixes and enhancements implemented based on the
 - **Files**: `.claude/scripts/safe-trash.js`
 
 ### 7. ✅ Verified all package dependencies
+
 - **Issue**: Ensure all required packages are declared
 - **Fix**: Created dependency verification script
 - **Features**:
@@ -74,6 +81,7 @@ This document summarizes all the fixes and enhancements implemented based on the
 ## Additional Improvements
 
 ### Documentation
+
 - Created comprehensive READMEs for each major component:
   - `README-websocket-auth.md` - WebSocket authentication guide
   - `README-enhanced-checkpoints.md` - Checkpoint system documentation
@@ -81,6 +89,7 @@ This document summarizes all the fixes and enhancements implemented based on the
   - `AUDIT-FIXES-SUMMARY.md` - This summary
 
 ### Testing
+
 - Created test scripts for each component:
   - `test-ws-auth.js` - WebSocket authentication tests
   - `test-monitor-auth.sh` - Monitor authentication test suite
@@ -89,6 +98,7 @@ This document summarizes all the fixes and enhancements implemented based on the
   - `test-workflow-validation.sh` - Validation system tests
 
 ### NPM Scripts
+
 - Added `claude:verify-deps` for dependency checking
 - Added `verify` combining tests and dependency verification
 
@@ -136,6 +146,7 @@ This document summarizes all the fixes and enhancements implemented based on the
 ## Usage Examples
 
 ### Create and Restore Checkpoint
+
 ```bash
 # Create checkpoint before risky operation
 node .claude/scripts/pipeline-state-manager.js checkpoint "before-update"
@@ -148,6 +159,7 @@ node .claude/scripts/pipeline-state-manager.js restore <checkpoint-id> --dry-run
 ```
 
 ### Find and Restore Deleted Files
+
 ```bash
 # Search for deleted file
 node .claude/scripts/safe-trash.js find "chapter-05"
@@ -157,6 +169,7 @@ node .claude/scripts/safe-trash.js restore chapter-05.md chapters/
 ```
 
 ### Validate Before Running Phase
+
 ```bash
 # Check if phase can run
 node .claude/scripts/pipeline-state-manager.js validate writer
@@ -168,12 +181,14 @@ node .claude/scripts/pipeline-state-manager.js start writer
 ## Monitoring and Maintenance
 
 ### Regular Tasks
+
 1. **Checkpoint Cleanup**: `node .claude/scripts/pipeline-state-manager.js checkpoint-cleanup`
 2. **Trash Cleanup**: `node .claude/scripts/safe-trash.js clean --days=7`
 3. **Dependency Check**: `npm run claude:verify-deps`
 4. **Status Monitoring**: Open `.claude/status.md` or use MCP dashboard
 
 ### Best Practices
+
 1. Label important checkpoints for easy identification
 2. Use dry-run mode before destructive operations
 3. Provide reasons when moving files to trash

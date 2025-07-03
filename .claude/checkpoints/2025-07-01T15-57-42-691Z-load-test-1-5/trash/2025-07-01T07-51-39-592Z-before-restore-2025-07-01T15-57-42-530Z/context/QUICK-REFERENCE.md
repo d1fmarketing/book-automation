@@ -13,6 +13,7 @@
 ## Common Scenarios
 
 ### 📝 Starting a New Chapter
+
 ```bash
 make session-start
 # Read context/CONTEXT.md
@@ -21,18 +22,21 @@ make session-start
 ```
 
 ### 🔍 Checking a Fact
+
 ```bash
 make find QUERY="blue dress"
 # Returns all mentions with chapter/line numbers
 ```
 
 ### 👤 Character Consistency
+
 ```bash
 make track-character NAME="Alice"
 # Shows full character journey
 ```
 
 ### ✅ Before Committing
+
 ```bash
 make session-end
 # This runs ALL checks and updates context
@@ -43,28 +47,34 @@ git commit -m "feat: complete chapter X"
 ## ⚠️ Troubleshooting
 
 ### "Context not updated" error
+
 → Run `make session-end` before committing
 
 ### "Continuity errors found"
+
 → Check `context/continuity-report.json` for details
 → Fix issues and run `make session-end` again
 
 ### "Character not found"
+
 → Add character to `context/story-bible.yaml` first
 
 ### Python script errors
+
 → Ensure virtual environment is activated
 → Run `pip install -r requirements.txt`
 
 ## 📋 Pre-flight Checklist
 
 Before writing:
+
 - [ ] `make session-start` executed
 - [ ] `context/CONTEXT.md` reviewed
 - [ ] `context/story-bible.yaml` checked for character details
 - [ ] `context/WRITING-RULES.md` fresh in mind
 
 After writing:
+
 - [ ] `make check-continuity` shows no errors
 - [ ] `make session-end` completed successfully
 - [ ] Context files are staged for commit

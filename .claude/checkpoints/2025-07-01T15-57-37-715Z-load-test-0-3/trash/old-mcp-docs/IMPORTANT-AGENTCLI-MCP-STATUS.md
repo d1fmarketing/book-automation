@@ -3,6 +3,7 @@
 ## Current Situation
 
 After extensive testing across multiple package managers:
+
 - ❌ `agentcli` - NOT available on npm, pipx, or Homebrew
 - ❌ `mcp` (Model Context Protocol) - NOT available on npm, pipx, or Homebrew
 
@@ -17,16 +18,21 @@ These tools appear to be **conceptual/theoretical** components referenced in the
 ## Options for Moving Forward
 
 ### Option 1: Use Existing Tools
+
 Replace the conceptual tools with real alternatives:
+
 - Instead of `agentcli` → Use OpenAI/Anthropic Python SDKs directly
 - Instead of `mcp` → Use Puppeteer/Playwright for browser automation
 
 ### Option 2: Build the Tools
+
 Create the actual CLI tools as described:
+
 - `agentcli` - A CLI wrapper around AI APIs
 - `mcp` - A browser automation protocol implementation
 
 ### Option 3: Continue with Mocks
+
 The mock implementation in `scripts/mock/` demonstrates the full flow and can be enhanced to simulate more realistic outputs.
 
 ## The Mock Pipeline Still Works

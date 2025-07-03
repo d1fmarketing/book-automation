@@ -10,25 +10,36 @@ class RedisTopicBuffer {
 
   async connect() {
     if (!this.client) {
-      this.client = Redis.createClient({
-        url: process.env.REDIS_URL || 'redis://localhost:6379',
-        socket: {
-          reconnectStrategy: (retries) => Math.min(retries * 50, 1000)
-        }
-      });
+      try {
+        this.client = Redis.createClient({
+          url: process.env.REDIS_URL || 'redis://localhost:6379',
+          socket: {
+            reconnectStrategy: (retries) => Math.min(retries * 50, 1000),
+            connectTimeout: 5000 // 5 second timeout
+          }
+        });
 
-      this.client.on('error', (err) => {
-        console.error('Redis Client Error:', err);
-      });
+        this.client.on('error', (err) => {
+          console.error('Redis Client Error:', err);
+        });
 
-      await this.client.connect();
+        await this.client.connect();
+        console.log('✅ Connected to Redis');
+      } catch (error) {
+        console.log('⚠️  Redis not available - topic buffer disabled');
+        this.client = null;
+        return null;
+      }
     }
     return this.client;
   }
 
   async addTopic(topic) {
     try {
-      await this.connect();
+      const client = await this.connect();
+      if (!client) {
+        return false; // Redis not available
+      }
       
       // Add topic with timestamp
       const topicWithTime = JSON.stringify({
@@ -61,7 +72,10 @@ class RedisTopicBuffer {
 
   async isTopicInBuffer(topic) {
     try {
-      await this.connect();
+      const client = await this.connect();
+      if (!client) {
+        return false; // Redis not available, allow all topics
+      }
       
       // Get all topics from buffer
       const topics = await this.client.zRange(this.BUFFER_KEY, 0, -1);
@@ -87,7 +101,10 @@ class RedisTopicBuffer {
 
   async getRecentTopics() {
     try {
-      await this.connect();
+      const client = await this.connect();
+      if (!client) {
+        return []; // Redis not available
+      }
       
       const topics = await this.client.zRange(this.BUFFER_KEY, 0, -1, { REV: true });
       return topics.map(t => {
@@ -105,7 +122,10 @@ class RedisTopicBuffer {
 
   async clearBuffer() {
     try {
-      await this.connect();
+      const client = await this.connect();
+      if (!client) {
+        return false; // Redis not available
+      }
       await this.client.del(this.BUFFER_KEY);
       console.log('✅ Topic buffer cleared');
       return true;
@@ -117,7 +137,11 @@ class RedisTopicBuffer {
 
   async disconnect() {
     if (this.client) {
-      await this.client.disconnect();
+      try {
+        await this.client.disconnect();
+      } catch (error) {
+        // Ignore disconnect errors
+      }
       this.client = null;
     }
   }

@@ -7,6 +7,7 @@ After extensive testing across all major package managers, here's the reality:
 ### Installation Attempts and Results
 
 #### NPM (Node Package Manager)
+
 ```bash
 $ npm i -g @agentcli/agentcli @mcp/cli
 
@@ -16,6 +17,7 @@ npm ERR! 404 '@agentcli/agentcli@*' is not in this registry.
 ```
 
 #### PyPI (via pipx)
+
 ```bash
 $ pipx install agentcli
 
@@ -25,6 +27,7 @@ ERROR: No matching distribution found for agentcli
 ```
 
 #### Homebrew
+
 ```bash
 $ brew install agentcli mcp-tool
 
@@ -41,6 +44,7 @@ Warning: No available formula with the name "mcp-tool".
 ## Why This Confusion?
 
 The project documentation describes an idealized architecture using:
+
 - **agentcli** - A hypothetical unified CLI for AI services
 - **mcp** - A hypothetical Model Context Protocol for browser automation
 
@@ -49,6 +53,7 @@ This is common in system design where the architecture is defined before impleme
 ## What Actually Works
 
 ### The Mock Pipeline
+
 ```bash
 # The mock scripts in scripts/mock/ demonstrate the workflow
 export PATH="/Users/d1f/Desktop/Ebooks/book-automation/scripts/mock:$PATH"
@@ -82,6 +87,7 @@ Instead of waiting for agentcli/mcp, you can use:
 ## The Bottom Line
 
 The script you were given assumes tools that **don't exist**. To actually generate your ebook, you need to either:
+
 1. Use the mock implementation (already created)
 2. Build the tools yourself
 3. Use existing alternatives

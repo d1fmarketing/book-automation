@@ -74,6 +74,7 @@ Run the authentication test suite:
 ```
 
 This will:
+
 1. Start the monitor with authentication enabled
 2. Test various authentication scenarios
 3. Verify security controls are working
@@ -87,6 +88,7 @@ The web dashboard automatically prompts for the token if required. The token is 
 ### Connection Rejected
 
 If you see "Unauthorized" errors:
+
 - Verify the token is correct
 - Check the MCP_MONITOR_TOKEN environment variable
 - Ensure the token doesn't contain special characters that need URL encoding
@@ -94,6 +96,7 @@ If you see "Unauthorized" errors:
 ### Rate Limiting
 
 If connections are rejected due to rate limiting:
+
 - Wait 1 minute for the rate limit to reset
 - Check for connection loops in your client code
 - Consider increasing the rate limit in the monitor code

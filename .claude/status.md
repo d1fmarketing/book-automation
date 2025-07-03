@@ -33,14 +33,17 @@
 ## 📊 Metrics
 
 ### Performance
+
 - Total Time: 0ms
 - Active Phase Time: N/A
 
 ### Log Statistics
+
 - Total Logs: 3
 - Log Size: 0.01 MB
 
 **By Level:**
+
 - ℹ️ info: 3
 
 ## ⚠️ Issues & Warnings

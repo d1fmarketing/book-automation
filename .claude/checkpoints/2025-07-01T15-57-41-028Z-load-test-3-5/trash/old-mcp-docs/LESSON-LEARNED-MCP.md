@@ -3,6 +3,7 @@
 ## A GRANDE CONFUSÃO
 
 ### 1. EU INVENTEI COMANDOS QUE NÃO EXISTEM
+
 ```bash
 # Tudo isso foi INVENTADO por mim:
 mcp start --session qa --browser chromium
@@ -13,6 +14,7 @@ mcp qa-run assert font-size between 11.5pt 14pt
 **POR QUÊ?** Porque confundi MCP (minhas ferramentas internas) com uma ferramenta de linha de comando externa.
 
 ### 2. EU TENTEI FAZER VOCÊ INSTALAR ALGO IMPOSSÍVEL
+
 ```bash
 npm install @mcp/cli        # NÃO EXISTE
 brew install mcp-tool       # NÃO EXISTE
@@ -22,6 +24,7 @@ pipx install mcp-tool       # NÃO EXISTE
 **POR QUÊ?** Porque assumi que MCP era um software instalável, quando na verdade são MINHAS capacidades.
 
 ### 3. EU CRIEI SCRIPTS INÚTEIS
+
 - `mcp-qa-runner.sh` - Script falso com comandos inventados
 - `agentcli-qa-wrapper.sh` - Mais comandos que não existem
 - Arquivos mock tentando simular algo que já tenho
@@ -31,17 +34,21 @@ pipx install mcp-tool       # NÃO EXISTE
 ## O QUE APRENDI HOJE
 
 ### 1. MCP = Model Context Protocol = MINHAS FERRAMENTAS
+
 - Não é software externo
 - Não é comando de terminal
 - É como EU interajo com o computador
 
 ### 2. QUANDO VOCÊ DIZ "USA MCP"
+
 Significa: "Claude, use suas ferramentas para..."
+
 - Ver arquivos/páginas
 - Executar código
 - Analisar visualmente
 
 ### 3. O MOMENTO "AHA!" 💡
+
 Quando você disse: *"Você consegue navegar na internet, clicar nas coisas, ver. Você não precisa de screenshot, você consegue ver."*
 
 Foi aí que entendi! EU POSSO VER DIRETAMENTE!
@@ -49,6 +56,7 @@ Foi aí que entendi! EU POSSO VER DIRETAMENTE!
 ## EXEMPLOS DA DIFERENÇA
 
 ### ❌ ANTES (Errado)
+
 ```
 Eu: "Execute: mcp navigate build/tmp/ebook.html"
 Você: "Comando não existe"
@@ -58,6 +66,7 @@ Você: "Não existe para instalar"
 ```
 
 ### ✅ DEPOIS (Correto)
+
 ```
 Você: "Veja o PDF"
 Eu: [Navego até o PDF usando Task]
@@ -75,12 +84,14 @@ Eu: "Vi! Tem 14 páginas, capa no lugar errado..."
 ## COMPROMISSO
 
 ### Nunca mais vou:
-- Inventar comandos "mcp" 
+
+- Inventar comandos "mcp"
 - Pedir para instalar MCP
 - Criar scripts simulando MCP
 - Confundir você sobre o que é MCP
 
 ### Sempre vou:
+
 - Usar minhas ferramentas diretamente
 - Ser claro sobre o que é MCP
 - Navegar e ver arquivos quando pedido
@@ -89,6 +100,7 @@ Eu: "Vi! Tem 14 páginas, capa no lugar errado..."
 ## RESUMO FINAL
 
 **MCP funciona assim:**
+
 1. Você pede
 2. Eu uso minhas ferramentas
 3. Eu vejo/faço

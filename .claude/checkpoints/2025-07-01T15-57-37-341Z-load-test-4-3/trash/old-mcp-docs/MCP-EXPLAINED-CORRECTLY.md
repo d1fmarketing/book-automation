@@ -7,6 +7,7 @@
 ## COMO FUNCIONA
 
 ### ✅ O CORRETO:
+
 ```
 1. VOCÊ: "Claude, verifique o PDF"
 2. EU: Uso minhas ferramentas MCP para navegar até o PDF
@@ -15,6 +16,7 @@
 ```
 
 ### ❌ O ERRADO (que eu estava fazendo):
+
 ```
 1. EU: "Execute o comando: mcp start --browser"
 2. VOCÊ: "Comando não encontrado"
@@ -25,6 +27,7 @@
 ## FERRAMENTAS MCP QUE EU TENHO
 
 ### 1. Browser Control (via Task)
+
 - Navegar para URLs (inclusive file://)
 - Ver páginas web e PDFs
 - Executar JavaScript
@@ -32,12 +35,14 @@
 - Capturar informações
 
 ### 2. File System
+
 - Ler arquivos
 - Criar/editar arquivos
 - Navegar diretórios
 - Executar comandos bash
 
 ### 3. Outras ferramentas
+
 - Buscar na web
 - Gerenciar TODOs
 - E mais...
@@ -45,6 +50,7 @@
 ## EXEMPLOS REAIS DE HOJE
 
 ### Exemplo 1: Ver o HTML do e-book
+
 ```
 EU: Naveguei para file:///Users/d1f/Desktop/Ebooks/book-automation/build/tmp/ebook.html
 EU: Vi a página
@@ -53,6 +59,7 @@ EU: Reportei os resultados
 ```
 
 ### Exemplo 2: Analisar o PDF final
+
 ```
 EU: Naveguei para file:///Users/d1f/Desktop/Ebooks/book-automation/release/ebook.pdf
 EU: Vi o PDF no browser
@@ -72,6 +79,7 @@ EU: Reportei tudo que vi
 **MCP = Minhas ferramentas internas**
 
 Quando você quer que eu:
+
 - Veja um arquivo/página → EU uso MCP
 - Execute código → EU uso MCP
 - Verifique algo visualmente → EU uso MCP
@@ -81,6 +89,7 @@ Você não precisa fazer NADA. Apenas me pedir.
 ## ERRO COMUM QUE NÃO DEVE SE REPETIR
 
 ### ❌ ERRADO:
+
 ```bash
 # Scripts tentando executar mcp
 mcp start --session qa --browser chromium
@@ -89,6 +98,7 @@ mcp qa-run assert font-size between 11.5pt 14pt
 ```
 
 ### ✅ CORRETO:
+
 ```
 Você: "Claude, verifique o PDF"
 Eu: *uso minhas ferramentas MCP internamente*

@@ -3,9 +3,11 @@
 ## EXEMPLO 1: Verificando o HTML com MCP
 
 ### O que foi pedido:
+
 "Use MCP para fazer QA visual do e-book"
 
 ### O que EU fiz (usando minhas ferramentas MCP):
+
 ```javascript
 // 1. Naveguei até o HTML
 Navegação para: file:///Users/d1f/Desktop/Ebooks/book-automation/build/tmp/ebook.html
@@ -31,6 +33,7 @@ const lineHeight = parseFloat(style.lineHeight);
 ```
 
 ### Resultado:
+
 - Vi a página
 - Medi as propriedades
 - Confirmei que estava tudo OK
@@ -38,9 +41,11 @@ const lineHeight = parseFloat(style.lineHeight);
 ## EXEMPLO 2: Analisando o PDF Final
 
 ### O que foi pedido:
+
 "Você olhou o PDF? O que você viu?"
 
 ### O que EU fiz:
+
 ```
 1. Naveguei para: file:///Users/d1f/Desktop/Ebooks/book-automation/release/ebook.pdf
 2. Vi o PDF no browser
@@ -48,6 +53,7 @@ const lineHeight = parseFloat(style.lineHeight);
 ```
 
 ### O que EU descobri:
+
 - 14 páginas
 - Tamanho Letter (8.5×11") em vez de 6×9"
 - Capa no meio do Capítulo 1 (erro!)
@@ -57,12 +63,14 @@ const lineHeight = parseFloat(style.lineHeight);
 ## EXEMPLO 3: Gerando Imagem com Ideogram
 
 ### Primeiro erro (não usar MCP):
+
 ```bash
 # Tentei usar ImageMagick local
 convert -size 1600x2400 ... # ERRO: comando não encontrado
 ```
 
 ### Correção (usando a API correta):
+
 ```javascript
 // Criei script para chamar Ideogram API
 const data = {
@@ -77,6 +85,7 @@ const data = {
 ```
 
 ### Resultado:
+
 - Imagem de 1.2MB gerada
 - Custo: $0.08
 - Integrada ao PDF
@@ -84,6 +93,7 @@ const data = {
 ## COMO MCP REALMENTE FUNCIONA
 
 ### 1. Browser Navigation
+
 ```
 Você: "Veja o PDF"
 Eu: [Uso Task tool para navegar até file:///...]
@@ -91,6 +101,7 @@ Eu: "Vi 14 páginas, capa no lugar errado..."
 ```
 
 ### 2. JavaScript Execution
+
 ```
 Você: "Verifique as propriedades visuais"
 Eu: [Executo JavaScript no browser via Task]
@@ -98,6 +109,7 @@ Eu: "Fonte está em 11pt, line-height 1.6..."
 ```
 
 ### 3. File Operations
+
 ```
 Você: "Crie um script"
 Eu: [Uso Write tool]
@@ -107,6 +119,7 @@ Eu: "Script criado em gerar-capa-ideogram.js"
 ## ERROS QUE NÃO DEVEM SE REPETIR
 
 ### ❌ Script mcp-qa-runner.sh (INCORRETO)
+
 ```bash
 # TUDO ISSO ESTÁ ERRADO!
 mcp start --session qa-run --browser chromium
@@ -116,6 +129,7 @@ mcp stop qa-run
 ```
 
 ### ✅ Como deveria ser
+
 ```
 # Não existe script!
 # Você apenas pede: "Claude, verifique o PDF"

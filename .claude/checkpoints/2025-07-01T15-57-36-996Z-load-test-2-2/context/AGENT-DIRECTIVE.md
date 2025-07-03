@@ -34,12 +34,15 @@ NO local LLM installs, NO OpenAI text endpoints. Ideogram rules image generation
 ### 📜 PIPELINE FLOW (step-by-step)
 
 1. **Plan (optional)**  
+
    ```bash
    agentcli call planner --outline-from existing_outline.yaml
    ```
+
    Creates/updates outline.yaml and pushes summary to context/CONTEXT.md.
 
 2. **Write Chapters**
+
    ```bash
    agentcli call writer \
      --model $AGENT_CLI_TEXT_MODEL \
@@ -47,21 +50,25 @@ NO local LLM installs, NO OpenAI text endpoints. Ideogram rules image generation
      --context context/CONTEXT.md \
      --output-dir chapters/
    ```
+
    • Writer must reload context/CONTEXT.md before each chapter to guarantee continuity.
    • Output markdown with front-matter: title, chapter, words.
 
 3. **Generate Images**
+
    ```bash
    agentcli call ideogram \
      --input-markdown chapters/ \
      --emotion-palette-engine on \
      --output-dir assets/images/
    ```
+
    • One request per `![AI-IMAGE: …]` placeholder.
    • Parallelise up to Ideogram's rate limit.
    • Cache on SHA-256(prompt+style) so identical prompts never regenerate.
 
 4. **Build PDF & EPUB**
+
    ```bash
    agentcli call builder \
      --markdown-dir chapters/ \
@@ -69,10 +76,12 @@ NO local LLM installs, NO OpenAI text endpoints. Ideogram rules image generation
      --css templates/pdf-standard.css \
      --out build/dist/
    ```
+
    • Builder compresses images (≤1600 px) and embeds subset fonts.
    • Emits ebook.pdf + ebook.epub.
 
 5. **QA + Retry Loop**
+
    ```bash
    while true; do
        agentcli call qa --pdf build/dist/ebook.pdf --epub build/dist/ebook.epub
@@ -80,6 +89,7 @@ NO local LLM installs, NO OpenAI text endpoints. Ideogram rules image generation
        agentcli call builder --tweak next    # font/margin/line-height preset cycling
    done
    ```
+
    • QA checks: font size 11.5-14 pt, line-height 1.3-1.6, contrast ≥4.5:1, no widows/orphans, no blank pages >50%.
    • On each fail, builder --tweak next applies the next layout preset and re-renders.
 
@@ -99,6 +109,7 @@ NO local LLM installs, NO OpenAI text endpoints. Ideogram rules image generation
 ### 📂 CONFIG FILES
 
 • **pipeline-config.yaml**
+
 ```yaml
 text_model: ${AGENT_CLI_TEXT_MODEL}
 image_provider: ideogram
@@ -136,6 +147,7 @@ Execute. No whining, no shortcuts. Let's ship flawless books. 📚🚀
 ## 🟥 FINAL CHECKLIST — "AGENT CLI ONLY" FLOW
 
 1. **Writer**
+
    ```bash
    agentcli call writer \
      --model $AGENT_CLI_TEXT_MODEL \
@@ -143,18 +155,22 @@ Execute. No whining, no shortcuts. Let's ship flawless books. 📚🚀
      --context context/CONTEXT.md \
      --out chapters/
    ```
+
    No local LLM, no Python SDKs. Agent CLI hits the remote model, period.
 
 2. **Image**
+
    ```bash
    agentcli call ideogram \
      --md chapters/ \
      --palette emotion \
      --out assets/images/
    ```
+
    Provider stays Ideogram v3. End of story.
 
 3. **Build**
+
    ```bash
    agentcli call builder \
      --md chapters/ \
@@ -164,6 +180,7 @@ Execute. No whining, no shortcuts. Let's ship flawless books. 📚🚀
    ```
 
 4. **Infinite QA Loop**
+
    ```bash
    while true; do
        agentcli call qa \

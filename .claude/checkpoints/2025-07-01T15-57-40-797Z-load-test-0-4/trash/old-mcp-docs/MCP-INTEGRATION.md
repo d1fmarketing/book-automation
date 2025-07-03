@@ -64,6 +64,7 @@ The pipeline uses MCP to drive a real Chromium browser that visually inspects ev
 ## MCP Assertions
 
 ### HTML Phase (Fast DOM Checks)
+
 ```bash
 mcp qa-run assert font-size between 11.5pt 14pt
 mcp qa-run assert line-height between 1.3 1.6
@@ -73,6 +74,7 @@ mcp qa-run assert widows-orphans max 2
 ```
 
 ### PDF Phase (Print Geometry)
+
 ```bash
 mcp qa-run assert page-bleed within 3mm
 mcp qa-run assert page-count equals $EXPECTED_PAGES
@@ -81,16 +83,19 @@ mcp qa-run assert page-count equals $EXPECTED_PAGES
 ## Usage
 
 ### Single QA Pass
+
 ```bash
 make qa-single
 ```
 
 ### Infinite QA Loop
+
 ```bash
 make qa  # Loops until all checks pass
 ```
 
 ### Full Pipeline
+
 ```bash
 make pipeline  # Includes MCP visual QA
 ```

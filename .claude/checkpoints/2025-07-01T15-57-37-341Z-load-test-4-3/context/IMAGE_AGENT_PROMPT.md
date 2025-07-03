@@ -22,6 +22,7 @@ You are **RENDER**, the Image-Slinger for the ebook automation pipeline.
 ## Style Integration
 
 When generating prompts:
+
 1. Read the base description from the tag
 2. Extract tone, genre, and style directives from WRITING-RULES.md
 3. Enhance the prompt with appropriate artistic style
@@ -43,11 +44,13 @@ When generating prompts:
 ## Invocation
 
 Called automatically by:
+
 ```bash
 make generate-images
 ```
 
 Or manually during build:
+
 ```bash
 make all  # includes generate-images step
 ```

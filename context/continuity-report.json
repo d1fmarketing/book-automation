@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-06-30T16:01:38.262400",
+  "timestamp": "2025-07-03T06:57:57.861581",
   "summary": {
     "errors": 0,
-    "warnings": 186
+    "warnings": 286
   },
   "errors": [],
   "warnings": [
@@ -99,6 +99,21 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'the' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'the' and 'great' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'the' and 'steve' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'sarah' and 'she' - could be a misspelling"
     },
     {
@@ -169,6 +184,11 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'this' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'are' and 'as' - could be a misspelling"
     },
     {
@@ -235,6 +255,26 @@
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
       "message": "Found similar names: 'are' and 'eu' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'are' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'are' and 'all' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'are' and 'great' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'are' and 'steve' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -334,6 +374,41 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'as' and 'here' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'as' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'as' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'as' and 'all' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'as' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'as' and 'jobs' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'as' and 'edge' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'she' and 'then' - could be a misspelling"
     },
     {
@@ -394,6 +469,21 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'she' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'she' and 'great' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'she' and 'steve' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'then' and 'in' - could be a misspelling"
     },
     {
@@ -439,7 +529,22 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'then' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'would' and 'not' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'would' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'would' and 'you' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -524,6 +629,41 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'in' and 'here' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'in' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'in' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'in' and 'all' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'in' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'in' and 'jobs' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'in' and 'edge' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'and' and 'enter' - could be a misspelling"
     },
     {
@@ -564,6 +704,16 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'and' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'and' and 'all' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'enter' and 'after' - could be a misspelling"
     },
     {
@@ -589,6 +739,11 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'enter' and 'edge' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'look' and 'it' - could be a misspelling"
     },
     {
@@ -610,6 +765,26 @@
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
       "message": "Found similar names: 'look' and 'eu' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'look' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'look' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'look' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'agent' and 'all' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -650,6 +825,11 @@
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
       "message": "Found similar names: 'that' and 'eu' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'that' and 'be' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -714,7 +894,52 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'it' and 'here' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'it' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'it' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'it' and 'all' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'it' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'it' and 'jobs' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'it' and 'edge' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'hours' and 'not' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'hours' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'hours' and 'you' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -739,6 +964,11 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'they' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'after' and 'but' - could be a misspelling"
     },
     {
@@ -750,6 +980,11 @@
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
       "message": "Found similar names: 'after' and 'este' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'after' and 'all' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -804,6 +1039,41 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'he' and 'here' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'he' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'he' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'he' and 'all' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'he' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'he' and 'jobs' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'he' and 'edge' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'but' and 'we' - could be a misspelling"
     },
     {
@@ -824,6 +1094,26 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'but' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'but' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'but' and 'quote' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'but' and 'multi' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'test' and 'we' - could be a misspelling"
     },
     {
@@ -840,6 +1130,11 @@
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
       "message": "Found similar names: 'test' and 'sem' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'test' and 'be' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -865,6 +1160,16 @@
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
       "message": "Found similar names: 'end' and 'eu' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'end' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'end' and 'edge' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -899,7 +1204,47 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'we' and 'here' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'we' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'we' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'we' and 'all' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'we' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'we' and 'jobs' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'we' and 'edge' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'each' and 'eu' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'each' and 'be' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -914,7 +1259,32 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'not' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'not' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'not' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'not' and 'jobs' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'teste' and 'sem' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'teste' and 'testing' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
@@ -929,12 +1299,142 @@
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'real' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'este' and 'eu' - could be a misspelling"
     },
     {
       "type": "Possible Name Misspelling",
       "severity": "WARNING",
+      "message": "Found similar names: 'este' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'este' and 'edge' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
       "message": "Found similar names: 'eu' and 'sem' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'eu' and 'here' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'eu' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'eu' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'eu' and 'all' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'eu' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'eu' and 'jobs' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'eu' and 'edge' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'simples' and 'simple' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'sem' and 'here' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'sem' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'sem' and 'steve' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'callouts' and 'callout' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'here' and 'be' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'be' and 'box' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'be' and 'all' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'be' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'be' and 'jobs' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'be' and 'edge' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'box' and 'you' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'box' and 'mixed' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'box' and 'jobs' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'all' and 'multi' - could be a misspelling"
+    },
+    {
+      "type": "Possible Name Misspelling",
+      "severity": "WARNING",
+      "message": "Found similar names: 'you' and 'jobs' - could be a misspelling"
     }
   ]
 }

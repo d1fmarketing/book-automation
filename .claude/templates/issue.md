@@ -16,9 +16,10 @@ assignees: ''
 <!-- What should the result look like? -->
 
 ## Acceptance Criteria
-- [ ] 
-- [ ] 
-- [ ] 
+
+- [ ]
+- [ ]
+- [ ]
 
 ## Technical Details
 <!-- Any specific technical requirements or constraints -->
