@@ -1,0 +1,66 @@
+{
+  "lastUpdated": "2025-07-03T01:59:00Z",
+  "files": [
+    {
+      "path": "scripts/pdf-presets/digital.js",
+      "created": "2025-07-02T20:55:00Z",
+      "lastModified": "2025-07-02T20:55:00Z",
+      "changes": [
+        "Initial creation - responsive digital ebook preset"
+      ],
+      "status": "overflow-fixed",
+      "overflowsFixed": {
+        "before": 13,
+        "after": 1,
+        "remainingIssue": "HTML element boundary (false positive)"
+      }
+    },
+    {
+      "path": "scripts/generate-html-only.js", 
+      "created": "2025-07-02T20:54:00Z",
+      "lastModified": "2025-07-02T20:54:00Z",
+      "changes": [
+        "Initial creation - HTML-only generation for QA"
+      ],
+      "status": "completed"
+    },
+    {
+      "path": "scripts/test-digital-dom.js",
+      "created": "2025-07-02T20:54:00Z",
+      "lastModified": "2025-07-02T20:54:00Z",
+      "changes": [
+        "Initial creation - DOM overflow detection"
+      ],
+      "status": "completed"
+    },
+    {
+      "path": "package.json",
+      "created": "original",
+      "lastModified": "2025-07-02T20:53:00Z",
+      "changes": [
+        "Added build:pdf:digital script"
+      ],
+      "status": "completed"
+    },
+    {
+      "path": "scripts/generate-pdf-unified.js",
+      "created": "original",
+      "lastModified": "2025-07-03T01:58:00Z",
+      "changes": [
+        "Added 'digital' to available presets list",
+        "Skip cover check for digital preset"
+      ],
+      "status": "completed"
+    },
+    {
+      "path": "gerar-capa-ideogram.js",
+      "created": "original",
+      "lastModified": "2025-07-03T01:57:00Z",
+      "changes": [
+        "Updated prompt for Claude Elite Pipeline cover",
+        "Changed output path to pipeline-book directory"
+      ],
+      "status": "pending-api-key"
+    }
+  ]
+}

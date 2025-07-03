@@ -1,0 +1,52 @@
+name: Create Issue on Error
+on:
+  workflow_run:
+    workflows: ["Daily Ebook Generation"]
+    types:
+      - completed
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    
+    steps:
+      - name: Create Issue for Failed Build
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const date = new Date().toISOString().split('T')[0];
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.payload.workflow_run.id}`;
+            
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Daily Ebook Generation Failed - ${date}`,
+              body: `## Build Failure Report
+              
+              The daily ebook generation pipeline failed.
+              
+              **Date**: ${date}
+              **Workflow Run**: [View logs](${runUrl})
+              **Status**: ${context.payload.workflow_run.conclusion}
+              
+              ### Common Issues to Check:
+              
+              - [ ] API rate limits exceeded (Perplexity, Ideogram)
+              - [ ] Invalid API keys in secrets
+              - [ ] Network connectivity issues
+              - [ ] Compliance violations detected
+              - [ ] Out of disk space
+              
+              ### Action Required:
+              
+              1. Check the workflow logs
+              2. Verify API keys are valid
+              3. Check rate limit status
+              4. Manually run pipeline if needed
+              
+              cc: @${context.repo.owner}`,
+              labels: ['bug', 'automation', 'urgent']
+            });
+            
+            console.log(`Created issue #${issue.data.number}`);

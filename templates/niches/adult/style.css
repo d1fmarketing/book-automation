@@ -1,0 +1,115 @@
+/* Adult Content Theme - Dark elegant aesthetic */
+
+:root {
+    --primary-color: #dc2626;
+    --secondary-color: #991b1b;
+    --accent-color: #be123c;
+    --text-color: #f9fafb;
+    --bg-color: #111827;
+    --sidebar-bg: #1f2937;
+    --warning-bg: #991b1b;
+}
+
+/* Dark theme base */
+body {
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Age verification modal */
+.age-gate {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.age-gate-content {
+    background: #1f2937;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 500px;
+    border: 2px solid var(--primary-color);
+}
+
+.age-gate h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.age-gate-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.age-gate-button {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.age-gate-button.confirm {
+    background: var(--primary-color);
+    color: white;
+}
+
+.age-gate-button.deny {
+    background: #374151;
+    color: white;
+}
+
+/* Content warnings */
+.content-warning {
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.content-warning::before {
+    content: "⚠️";
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+/* Elegant dark styling */
+.hero-section {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.chapter-header {
+    background: linear-gradient(to right, rgba(220, 38, 38, 0.1), transparent);
+    border-left: 4px solid var(--primary-color);
+    padding: 20px;
+    margin: 30px 0;
+}
+
+/* Disclaimer styles */
+.disclaimer {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.disclaimer h4 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}

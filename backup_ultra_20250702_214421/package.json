@@ -58,25 +58,7 @@
     "grammar:check:chapters": "node scripts/grammar/check-grammar.js 'chapters/*.md'",
     "grammar:report": "node scripts/grammar/check-grammar.js --report",
     "grammar:fix": "node scripts/grammar/check-grammar.js --fix",
-    "grammar": "npm run grammar:server:start && npm run grammar:check:chapters",
-    "money:research": "node scripts/research-topics.js",
-    "money:generate": "node scripts/automation-pipeline.js",
-    "money:batch": "node scripts/automation-pipeline.js 5",
-    "money:content": "node scripts/generate-content.js",
-    "money:cover": "node scripts/create-cover.js",
-    "money:publish": "node scripts/publish-ebook.js",
-    "money:pipeline": "npm run money:research && npm run money:generate",
-    "check-env": "node scripts/check-env.js",
-    "money:start": "npm run check-env && node scripts/automation-pipeline.js",
-    "money:scan": "node scanners/trending-money-scanner.js",
-    "money:test-research": "node -e \"require('./agents/deep-research')({topic:'AI business'}).then(console.log).catch(console.error)\"",
-    "money:test": "npm run check-env && npm run money:scan && npm run money:test-research",
-    "money:dry-run": "npm run check-env && node scripts/automation-pipeline.js --dry-run",
-    "build:premium-ebook": "node scripts/build-premium-ebook-complete.js",
-    "chat:server": "node scripts/chat-websocket-server.js",
-    "chat:server:pm2": "pm2 start scripts/chat-websocket-server.js --name ebook-chat",
-    "qa:html": "node qa/qa-html-mcp.js",
-    "qa:html:report": "node qa/qa-html-mcp.js build/html-ebook/index.html"
+    "grammar": "npm run grammar:server:start && npm run grammar:check:chapters"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.6.0",
@@ -96,7 +78,6 @@
     "ws": "^8.18.3"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.20.0",
     "archiver": "^6.0.1",
     "axios": "^1.6.2",
     "chalk": "^5.3.0",
@@ -112,7 +93,6 @@
     "marked": "^15.0.12",
     "ora": "^8.0.1",
     "pdf-parse": "^1.1.1",
-    "redis": "^5.5.6",
     "sharp": "^0.33.5",
     "sharp-cli": "^4.2.0",
     "xml2js": "^0.6.2",

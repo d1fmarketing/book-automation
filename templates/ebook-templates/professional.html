@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}} - {{AUTHOR}}</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --text-color: #333333;
+            --bg-color: #ffffff;
+            --light-gray: #f8f9fa;
+            --border-color: #e9ecef;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+        }
+        
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Container */
+        .ebook-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Cover Page */
+        .cover-page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+            page-break-after: always;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cover-page::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.03) 10px,
+                rgba(255,255,255,0.03) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+        
+        @keyframes slide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .cover-content {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+        }
+        
+        .book-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: -1px;
+        }
+        
+        .book-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+        
+        .author-name {
+            font-size: 1.25rem;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+        
+        .edition-badge {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.875rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Table of Contents */
+        .toc-page {
+            padding: 4rem 3rem;
+            page-break-after: always;
+            min-height: 100vh;
+        }
+        
+        .toc-title {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .toc-title::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--accent-color);
+        }
+        
+        .toc-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .toc-item {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: baseline;
+            position: relative;
+        }
+        
+        .toc-item::before {
+            content: '';
+            position: absolute;
+            bottom: 0.5rem;
+            left: 0;
+            right: 0;
+            border-bottom: 1px dotted var(--border-color);
+            z-index: -1;
+        }
+        
+        .toc-chapter {
+            background: white;
+            padding-right: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+        
+        .toc-page-num {
+            background: white;
+            padding-left: 0.5rem;
+            margin-left: auto;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        
+        /* Chapters */
+        .chapter {
+            padding: 3rem;
+            page-break-after: always;
+            min-height: 100vh;
+        }
+        
+        .chapter-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .chapter-number {
+            font-size: 1rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        
+        .chapter-title {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .chapter-subtitle {
+            font-size: 1.25rem;
+            color: #666;
+            font-style: italic;
+            font-weight: normal;
+        }
+        
+        /* Content Styles */
+        h1 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin: 2rem 0 1rem;
+            line-height: 1.3;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin: 1.25rem 0 0.75rem;
+        }
+        
+        p {
+            margin-bottom: 1.25rem;
+            text-align: justify;
+            hyphens: auto;
+        }
+        
+        /* Lead Paragraph */
+        .lead {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: #555;
+            font-style: italic;
+            margin-bottom: 2rem;
+            padding-left: 2rem;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0 1.5rem 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Blockquotes */
+        blockquote {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--light-gray);
+            border-left: 5px solid var(--accent-color);
+            font-style: italic;
+            position: relative;
+        }
+        
+        blockquote::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            font-size: 4rem;
+            color: var(--accent-color);
+            opacity: 0.3;
+        }
+        
+        blockquote cite {
+            display: block;
+            text-align: right;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: normal;
+        }
+        
+        /* Callout Boxes */
+        .callout {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .callout::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+        }
+        
+        .callout-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        .callout-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .callout-tip {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .callout-tip::before {
+            background: #2196f3;
+        }
+        
+        .callout-warning {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .callout-warning::before {
+            background: #ff9800;
+        }
+        
+        .callout-info {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+        
+        .callout-info::before {
+            background: #9c27b0;
+        }
+        
+        .callout-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .callout-success::before {
+            background: #4caf50;
+        }
+        
+        .callout-key {
+            background: #fff8e1;
+            color: #f57c00;
+        }
+        
+        .callout-key::before {
+            background: #ffc107;
+        }
+        
+        /* Code Blocks */
+        pre {
+            background: #f5f5f5;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        code {
+            background: #f5f5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            margin: 2rem 0;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background: var(--light-gray);
+            font-weight: bold;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        tr:hover {
+            background: #fafafa;
+        }
+        
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 2rem auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .figure {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .figure-caption {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+        
+        /* About Author Page */
+        .about-author {
+            padding: 4rem 3rem;
+            text-align: center;
+            background: var(--light-gray);
+        }
+        
+        .author-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            border: 5px solid white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .author-bio {
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        /* Footer */
+        .ebook-footer {
+            padding: 3rem;
+            text-align: center;
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .footer-links {
+            margin-bottom: 2rem;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-links a:hover {
+            opacity: 1;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        /* Print Styles */
+        @media print {
+            .ebook-container {
+                box-shadow: none;
+            }
+            
+            .chapter, .toc-page, .cover-page {
+                page-break-after: always;
+            }
+            
+            h1, h2, h3 {
+                page-break-after: avoid;
+            }
+            
+            p {
+                orphans: 3;
+                widows: 3;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .book-title {
+                font-size: 2.5rem;
+            }
+            
+            .chapter {
+                padding: 2rem 1.5rem;
+            }
+            
+            .toc-page {
+                padding: 3rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ebook-container">
+        <!-- Cover Page -->
+        <div class="cover-page">
+            <div class="edition-badge">{{EDITION}}</div>
+            <div class="cover-content">
+                <h1 class="book-title">{{TITLE}}</h1>
+                <p class="book-subtitle">{{SUBTITLE}}</p>
+                <p class="author-name">{{AUTHOR}}</p>
+            </div>
+        </div>
+        
+        <!-- Table of Contents -->
+        <div class="toc-page">
+            <h2 class="toc-title">Table of Contents</h2>
+            <ul class="toc-list">
+                {{TABLE_OF_CONTENTS}}
+            </ul>
+        </div>
+        
+        <!-- Chapters -->
+        {{CHAPTERS}}
+        
+        <!-- About Author -->
+        <div class="about-author">
+            <h2>About the Author</h2>
+            {{AUTHOR_BIO}}
+        </div>
+        
+        <!-- Footer -->
+        <footer class="ebook-footer">
+            <div class="footer-links">
+                <a href="{{WEBSITE_URL}}">Website</a>
+                <a href="{{CONTACT_URL}}">Contact</a>
+                <a href="{{MORE_BOOKS_URL}}">More Books</a>
+            </div>
+            <p class="copyright">
+                &copy; {{YEAR}} {{AUTHOR}}. All rights reserved.<br>
+                {{ISBN}}
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

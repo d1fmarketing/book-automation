@@ -1,0 +1,101 @@
+name: Daily Ebook Generation
+on:
+  schedule:
+    - cron: "15 2 * * *"  # Every day at 02:15 UTC
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  generate-ebook:
+    runs-on: ubuntu-latest
+    
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      IDEOGRAM_API_KEY: ${{ secrets.IDEOGRAM_API_KEY }}
+      PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check research context exists
+        run: |
+          if [ ! -d "context" ]; then
+            mkdir -p context
+          fi
+      
+      - name: Run automation pipeline with safety nets
+        run: |
+          # Run with retry logic
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if node scripts/automation-pipeline.js; then
+              echo "✅ Pipeline succeeded"
+              break
+            else
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              echo "⚠️  Attempt $RETRY_COUNT failed"
+              
+              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "⏳ Waiting 60 seconds before retry..."
+                sleep 60
+              else
+                echo "❌ All retries exhausted"
+                exit 1
+              fi
+            fi
+          done
+      
+      - name: Verify research was generated
+        run: |
+          if [ ! -f "context/research.yaml" ]; then
+            echo "ERROR: context/research.yaml not found!"
+            exit 1
+          fi
+          echo "✅ Research file found"
+          cat context/research.yaml
+      
+      - name: Build HTML ebook
+        run: |
+          npm run build:premium-ebook || true
+      
+      - name: Run compliance check
+        run: |
+          # Detect niche from topic
+          TOPIC=$(cat build/research/trending-topics.json | jq -r '.recommendation.niche' | tr '[:upper:]' '[:lower:]' | cut -d'/' -f1)
+          NICHE=${TOPIC:-general}
+          
+          echo "🔍 Running compliance check for niche: $NICHE"
+          node scripts/compliance-checker.js "build/ebooks" "$NICHE"
+      
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ebook-${{ github.run_number }}
+          path: |
+            build/ebooks/*/
+            build/html-ebook/
+            context/research.yaml
+      
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add build/reports/
+          git add context/research.yaml
+          git commit -m "🤖 Daily ebook generation report" || echo "No changes to commit"
+      
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}

@@ -1,0 +1,12 @@
+title: "The Claude Elite Pipeline"
+subtitle: "Mastering Automated Ebook Creation"
+author: "Enrique Oliveira"
+language: "en"
+isbn: "978-0-0000000-0-0"
+publisher: "Elite Publishing"
+year: 2025
+
+# PDF Configuration
+pdf:
+  preset: ultra-clean
+  output: "build/dist/ebook.pdf"

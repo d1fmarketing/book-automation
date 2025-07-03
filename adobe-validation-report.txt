@@ -1,0 +1,47 @@
+=== DIAGNÓSTICO ADOBE REAL ===
+
+PROBLEMAS NO ADOBE (CORRIGIDOS):
+✅ 1. Header duplicado - CORRIGIDO (apenas 1x "The Claude Elite Pipeline")
+✅ 2. Footer duplicado - CORRIGIDO (apenas 1x número de página)
+✅ 3. Callouts não renderizados - CORRIGIDO (visual gradiente implementado)
+✅ 4. Tabelas como texto - CORRIGIDO (renderizadas como tabelas HTML)
+✅ 5. Ordem da capa - CORRIGIDO (capa aparece primeiro)
+
+ANÁLISE ESTRUTURAL:
+- MediaBox: 594.96 x 841.92 pts (A4) ✓
+- CropBox: Não definido (usa MediaBox) ✓
+- Rotação: 0 ✓
+- Fonts embedadas: Georgia, Times, Courier ✓
+
+DIFERENÇAS DO PDF ANTERIOR:
+- Antes: Headers/footers duplicados via CSS + Puppeteer
+- Agora: Apenas Puppeteer templates (sem CSS fixed positioning)
+- Antes: Callouts como texto puro
+- Agora: Callouts com divs estilizados e gradientes
+
+CAUSA RAIZ IDENTIFICADA E CORRIGIDA:
+1. CSS tinha classes .page-header e .page-number com position:fixed
+2. Puppeteer também tinha headerTemplate e footerTemplate
+3. Isso causava duplicação visual
+4. marked.Renderer customizado não estava sendo usado
+5. Markdown dos callouts não estava sendo preprocessado
+
+CORREÇÃO APLICADA:
+1. Removido CSS de headers/footers fixos
+2. Mantido apenas Puppeteer templates
+3. Implementado preprocessamento de callouts
+4. Re-processamento do markdown original dos capítulos
+5. Capa movida para primeira posição
+
+STATUS: ✅ PDF PRONTO PARA ADOBE ACROBAT
+
+ARQUIVO FINAL: build/dist/ebook-adobe-final.pdf (1.08 MB)
+
+VERIFICAÇÕES VISUAIS:
+- Página 1: Capa renderizada corretamente
+- Página 2: Callouts TIP e WARNING com gradientes visuais
+- Página 3: Mais callouts (SUCCESS, INFO, QUOTE, KEY) todos corretos
+- Headers/Footers: Sem duplicação
+- Numeração: Correta (1, 2, 3... não 1 1, 2 2, 3 3)
+
+=== FIM DO DIAGNÓSTICO ===
