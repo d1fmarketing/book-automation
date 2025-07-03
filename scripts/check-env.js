@@ -93,11 +93,12 @@ const OPTIONAL_VARS = {
         category: 'AI Services',
         note: '⚠️ Claude Code CLI already includes Claude access'
     },
-    OPENAI_API_KEY: {
-        description: 'OpenAI API for fact checking (optional - falls back to Claude)',
-        pattern: /^sk-/,
-        example: 'sk-xxxxxxxxxxxxxxxxxxxxxxxx',
-        category: 'AI Services'
+    GEMINI_API_KEY: {
+        description: 'Google Gemini Flash 2.5 for fact checking (ultra fast model)',
+        pattern: /^AIzaSy/,
+        example: 'AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        category: 'AI Services',
+        model: 'gemini-2.5-flash'
     },
     // Social Media APIs for future marketing features
     TWITTER_API_KEY: {
@@ -125,16 +126,16 @@ const OPTIONAL_VARS = {
         category: 'Social Media'
     },
     // Testing & Infrastructure
-    BROWSERSTACK_USERNAME: {
-        description: 'BrowserStack for cross-browser testing',
+    LT_USERNAME: {
+        description: 'LambdaTest username for cross-browser testing',
         pattern: /^[a-zA-Z0-9_-]+$/,
         example: 'your_username',
         category: 'Testing'
     },
-    BROWSERSTACK_ACCESS_KEY: {
-        description: 'BrowserStack access key',
-        pattern: /^[a-zA-Z0-9]+$/,
-        example: 'your_access_key',
+    LT_ACCESS_KEY: {
+        description: 'LambdaTest access key',
+        pattern: /^LT_/,
+        example: 'LT_xxxxxxxxxxxxxxxxxxxxxxxx',
         category: 'Testing'
     },
     CLOUDFLARE_API_TOKEN: {
@@ -148,6 +149,18 @@ const OPTIONAL_VARS = {
         description: 'Product Hunt API for trending topics',
         pattern: /^[a-zA-Z0-9_-]+$/,
         example: 'your_producthunt_token',
+        category: 'Discovery'
+    },
+    PRODUCTHUNT_API_KEY: {
+        description: 'Product Hunt API Key',
+        pattern: /^[a-zA-Z0-9_-]+$/,
+        example: 'your_producthunt_key',
+        category: 'Discovery'
+    },
+    PRODUCTHUNT_API_SECRET: {
+        description: 'Product Hunt API Secret',
+        pattern: /^[a-zA-Z0-9_-]+$/,
+        example: 'your_producthunt_secret',
         category: 'Discovery'
     },
     // Payment Processing
