@@ -3,724 +3,468 @@
 /**
  * Illustrator Agent
  * 
- * Generates professional images for ebook chapters using Ideogram AI.
- * Creates contextually relevant visuals that enhance the reading experience.
- * 
- * Usage:
- *   agentcli call illustrator.generate --book-dir="build/my-ebook" --style="professional"
- *   node agents/illustrator.js --chapter="path/to/chapter.md" --output="path/to/image.png"
+ * Generates images for ebooks using Ideogram API
+ * Includes 429 retry handling and response caching
  */
 
 const fs = require('fs').promises;
 const path = require('path');
-const https = require('https');
+const axios = require('axios');
 const crypto = require('crypto');
-const { pipeline } = require('stream/promises');
-
-// Image generation configuration
-const IMAGE_CONFIG = {
-    api: {
-        hostname: 'api.ideogram.ai',
-        endpoint: '/generate',
-        models: {
-            latest: 'V_2',
-            fast: 'V_1',
-            creative: 'V_2_TURBO'
-        }
-    },
-    dimensions: {
-        cover: { width: 1600, height: 2400, aspect: 'ASPECT_10_16' },
-        chapterHeader: { width: 1920, height: 1080, aspect: 'ASPECT_16_9' },
-        inline: { width: 800, height: 600, aspect: 'ASPECT_4_3' },
-        social: { width: 1200, height: 630, aspect: 'ASPECT_16_9' },
-        square: { width: 1024, height: 1024, aspect: 'ASPECT_1_1' }
-    },
-    styles: {
-        professional: {
-            basePrompt: 'professional business illustration, clean modern design',
-            colors: 'corporate blue and gray palette, subtle gradients',
-            elements: 'minimalist geometric shapes, professional icons'
-        },
-        technical: {
-            basePrompt: 'technical diagram illustration, futuristic tech design',
-            colors: 'cyan and purple gradients, neon accents',
-            elements: 'circuit patterns, data flows, holographic effects'
-        },
-        creative: {
-            basePrompt: 'creative artistic illustration, vibrant and engaging',
-            colors: 'bright colorful palette, dynamic gradients',
-            elements: 'abstract shapes, flowing patterns, artistic elements'
-        },
-        educational: {
-            basePrompt: 'educational infographic style, clear and informative',
-            colors: 'friendly blues and greens, high contrast',
-            elements: 'icons, charts, learning symbols, clean typography'
-        }
-    },
-    rateLimits: {
-        requestsPerMinute: 10,
-        delayBetweenRequests: 6000, // 6 seconds
-        maxRetries: 3
-    }
-};
-
-// Niche-specific visual themes
-const NICHE_THEMES = {
-    'AI/Technology': {
-        keywords: ['neural networks', 'artificial intelligence', 'algorithms', 'data streams'],
-        colors: 'blue purple cyan gradients, tech noir aesthetic',
-        style: 'futuristic, high-tech, digital transformation'
-    },
-    'Business/Money': {
-        keywords: ['growth charts', 'success metrics', 'profit graphs', 'business strategy'],
-        colors: 'gold navy blue, premium professional',
-        style: 'corporate, upscale, trustworthy'
-    },
-    'Health/Fitness': {
-        keywords: ['wellness', 'vitality', 'healthy lifestyle', 'energy'],
-        colors: 'green orange, fresh vibrant',
-        style: 'energetic, positive, life-affirming'
-    },
-    'Self-Help': {
-        keywords: ['personal growth', 'transformation', 'success journey', 'empowerment'],
-        colors: 'warm sunset gradients, inspiring tones',
-        style: 'motivational, uplifting, aspirational'
-    },
-    'E-commerce': {
-        keywords: ['online shopping', 'digital marketplace', 'conversion', 'sales funnel'],
-        colors: 'purple teal, modern e-commerce',
-        style: 'digital-first, conversion-focused, modern retail'
-    }
-};
+const { getRateLimiter } = require('../src/middleware/RateLimiter');
 
 class Illustrator {
     constructor(options = {}) {
-        this.apiKey = options.apiKey || process.env.IDEOGRAM_API_KEY;
+        this.apiKey = process.env.IDEOGRAM_API_KEY || process.env.IDEO_API_KEY;
         this.style = options.style || 'professional';
-        this.model = options.model || IMAGE_CONFIG.api.models.latest;
-        this.cacheDir = options.cacheDir || 'build/image-cache';
-        this.generatePlaceholders = options.placeholders !== false;
+        this.baseUrl = 'https://api.ideogram.ai/v1';
         
-        if (!this.apiKey) {
-            console.warn('⚠️  IDEOGRAM_API_KEY not found. Will generate placeholders.');
+        // Retry configuration
+        this.retryConfig = {
+            maxRetries: options.maxRetries || 5,
+            initialDelay: options.initialDelay || 1000,
+            maxDelay: options.maxDelay || 60000,
+            backoffMultiplier: options.backoffMultiplier || 2
+        };
+        
+        // Cache configuration
+        this.cacheConfig = {
+            enabled: options.cacheEnabled !== false,
+            ttl: options.cacheTTL || 24 * 60 * 60 * 1000, // 24 hours
+            dir: options.cacheDir || path.join(__dirname, '../.cache/ideogram')
+        };
+        
+        // Rate limiter
+        this.rateLimiter = null;
+        
+        // Initialize cache directory
+        this.initCache();
+    }
+    
+    async initCache() {
+        if (this.cacheConfig.enabled) {
+            await fs.mkdir(this.cacheConfig.dir, { recursive: true });
         }
-        
-        this.requestCount = 0;
-        this.lastRequestTime = 0;
+    }
+    
+    async initialize() {
+        if (!this.rateLimiter) {
+            this.rateLimiter = getRateLimiter();
+        }
     }
 
-    async generateBookImages(bookDir, options = {}) {
-        console.log('🎨 Starting Illustrator Agent');
-        console.log(`📚 Processing book: ${bookDir}`);
-        console.log(`🎯 Style: ${this.style}`);
-        console.log('');
+    async generateBookImages(bookDir) {
+        console.log(`🎨 Generating images for book in: ${bookDir}`);
         
         try {
-            // Load book metadata
+            await this.initialize();
+            
+            // Create assets directory
+            const assetsDir = path.join(bookDir, 'assets', 'images');
+            await fs.mkdir(assetsDir, { recursive: true });
+            
+            // Load book metadata for context
             const metadata = await this.loadBookMetadata(bookDir);
-            const niche = options.niche || metadata.niche || 'Business/Money';
-            
-            // Create image directories
-            const imageDir = path.join(bookDir, 'assets', 'images');
-            await fs.mkdir(imageDir, { recursive: true });
-            await fs.mkdir(this.cacheDir, { recursive: true });
-            
-            const results = {
-                cover: null,
-                chapters: {},
-                stats: {
-                    total: 0,
-                    generated: 0,
-                    cached: 0,
-                    placeholders: 0,
-                    failed: 0
-                }
-            };
             
             // Generate cover image
-            console.log('📖 Generating cover image...');
-            results.cover = await this.generateCoverImage(metadata, imageDir, niche);
-            results.stats.total++;
-            if (results.cover.generated) results.stats.generated++;
-            if (results.cover.cached) results.stats.cached++;
-            if (results.cover.placeholder) results.stats.placeholders++;
+            const coverPath = path.join(assetsDir, 'cover.png');
+            const coverPrompt = this.createCoverPrompt(metadata);
+            const coverImage = await this.generateImage(coverPrompt, {
+                aspect_ratio: '2:3', // Book cover ratio
+                style_type: 'photographic'
+            });
             
-            // Generate chapter images
-            const chaptersDir = path.join(bookDir, 'chapters');
-            const chapterFiles = await this.getChapterFiles(chaptersDir);
-            
-            console.log(`\n📑 Generating images for ${chapterFiles.length} chapters...`);
-            
-            for (const [index, chapterFile] of chapterFiles.entries()) {
-                console.log(`\n📸 Chapter ${index + 1}/${chapterFiles.length}: ${chapterFile}`);
-                
-                const chapterPath = path.join(chaptersDir, chapterFile);
-                const chapterContent = await fs.readFile(chapterPath, 'utf8');
-                const chapterData = this.parseChapter(chapterContent);
-                
-                const chapterImages = await this.generateChapterImages(
-                    chapterData,
-                    imageDir,
-                    niche,
-                    index + 1
-                );
-                
-                results.chapters[chapterFile] = chapterImages;
-                results.stats.total += chapterImages.images.length;
-                
-                chapterImages.images.forEach(img => {
-                    if (img.generated) results.stats.generated++;
-                    if (img.cached) results.stats.cached++;
-                    if (img.placeholder) results.stats.placeholders++;
-                    if (img.error) results.stats.failed++;
-                });
-                
-                // Update chapter with image references
-                await this.updateChapterWithImages(chapterPath, chapterImages);
+            if (coverImage) {
+                await fs.writeFile(coverPath, coverImage);
+                console.log(`   ✅ Cover image created: ${coverPath}`);
+            } else {
+                // Fallback to placeholder
+                await this.createPlaceholderCover(coverPath, metadata);
             }
             
-            // Generate report
-            await this.generateReport(bookDir, results);
+            // Generate chapter images if needed
+            const chapters = await this.getChapterList(bookDir);
+            const generatedImages = [];
             
-            console.log('\n✅ Illustrator Agent Complete!');
-            console.log('📊 Summary:');
-            console.log(`   Total images: ${results.stats.total}`);
-            console.log(`   Generated: ${results.stats.generated}`);
-            console.log(`   From cache: ${results.stats.cached}`);
-            console.log(`   Placeholders: ${results.stats.placeholders}`);
-            console.log(`   Failed: ${results.stats.failed}`);
+            for (let i = 0; i < Math.min(chapters.length, 3); i++) {
+                const chapterData = await this.loadChapter(bookDir, chapters[i]);
+                const chapterPrompt = this.createChapterPrompt(chapterData, i + 1);
+                
+                const chapterImagePath = path.join(assetsDir, `chapter-${i + 1}.png`);
+                const chapterImage = await this.generateImage(chapterPrompt, {
+                    aspect_ratio: '16:9',
+                    style_type: this.style
+                });
+                
+                if (chapterImage) {
+                    await fs.writeFile(chapterImagePath, chapterImage);
+                    console.log(`   ✅ Chapter ${i + 1} image created`);
+                    generatedImages.push(chapterImagePath);
+                }
+            }
             
             return {
                 success: true,
-                results,
-                imageDir
+                images: {
+                    cover: coverPath,
+                    chapters: generatedImages.length,
+                    generated: generatedImages
+                }
             };
             
         } catch (error) {
-            console.error('❌ Illustrator failed:', error.message);
+            console.error('❌ Error generating images:', error.message);
             return {
                 success: false,
                 error: error.message
             };
         }
     }
-
+    
+    async generateImage(prompt, options = {}) {
+        // Check cache first
+        const cacheKey = this.getCacheKey(prompt, options);
+        const cachedImage = await this.getFromCache(cacheKey);
+        
+        if (cachedImage) {
+            console.log('   📦 Using cached image');
+            return cachedImage;
+        }
+        
+        // Check rate limits
+        if (this.rateLimiter) {
+            const canProceed = await this.rateLimiter.checkLimit('ideogram', 'request');
+            if (!canProceed.allowed) {
+                console.warn(`   ⚠️  Rate limit reached: ${canProceed.reason}`);
+                return null;
+            }
+        }
+        
+        // API implementation with retry logic
+        if (!this.apiKey) {
+            console.warn('   ⚠️  No Ideogram API key - using placeholder');
+            return null;
+        }
+        
+        const requestData = {
+            prompt,
+            aspect_ratio: options.aspect_ratio || '1:1',
+            model: 'V_2',
+            magic_prompt_option: 'AUTO',
+            style_type: options.style_type || this.style,
+            ...options
+        };
+        
+        try {
+            const response = await this.makeRequestWithRetry('/generate', requestData);
+            
+            if (response && response.data && response.data.length > 0) {
+                const imageUrl = response.data[0].url;
+                const imageBuffer = await this.downloadImage(imageUrl);
+                
+                // Cache the result
+                await this.saveToCache(cacheKey, imageBuffer);
+                
+                // Track usage
+                if (this.rateLimiter) {
+                    await this.rateLimiter.recordUsage('ideogram', {
+                        requests: 1
+                    });
+                }
+                
+                return imageBuffer;
+            }
+            
+            return null;
+            
+        } catch (error) {
+            console.error(`   ❌ Failed to generate image: ${error.message}`);
+            return null;
+        }
+    }
+    
+    async makeRequestWithRetry(endpoint, data, retryCount = 0) {
+        try {
+            const response = await axios.post(
+                `${this.baseUrl}${endpoint}`,
+                data,
+                {
+                    headers: {
+                        'Api-Key': this.apiKey,
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 30000
+                }
+            );
+            
+            return response.data;
+            
+        } catch (error) {
+            // Handle 429 rate limit errors
+            if (error.response && error.response.status === 429) {
+                if (retryCount < this.retryConfig.maxRetries) {
+                    const delay = this.calculateBackoff(retryCount);
+                    console.log(`   ⏳ Rate limited - waiting ${delay}ms before retry ${retryCount + 1}`);
+                    
+                    await this.sleep(delay);
+                    return this.makeRequestWithRetry(endpoint, data, retryCount + 1);
+                } else {
+                    throw new Error('Max retries exceeded for rate limit');
+                }
+            }
+            
+            // Handle other retryable errors
+            if (this.isRetryableError(error) && retryCount < this.retryConfig.maxRetries) {
+                const delay = this.calculateBackoff(retryCount);
+                console.log(`   🔄 Retrying after ${delay}ms (attempt ${retryCount + 1})`);
+                
+                await this.sleep(delay);
+                return this.makeRequestWithRetry(endpoint, data, retryCount + 1);
+            }
+            
+            throw error;
+        }
+    }
+    
+    calculateBackoff(retryCount) {
+        const delay = Math.min(
+            this.retryConfig.initialDelay * Math.pow(this.retryConfig.backoffMultiplier, retryCount),
+            this.retryConfig.maxDelay
+        );
+        
+        // Add jitter to prevent thundering herd
+        const jitter = Math.random() * 0.3 * delay;
+        return Math.floor(delay + jitter);
+    }
+    
+    isRetryableError(error) {
+        if (!error.response) {
+            // Network errors are retryable
+            return true;
+        }
+        
+        const status = error.response.status;
+        // Retry on 5xx errors and specific 4xx errors
+        return status >= 500 || status === 429 || status === 408;
+    }
+    
+    async downloadImage(url) {
+        const response = await axios.get(url, {
+            responseType: 'arraybuffer',
+            timeout: 30000
+        });
+        
+        return Buffer.from(response.data);
+    }
+    
+    getCacheKey(prompt, options) {
+        const data = JSON.stringify({ prompt, options });
+        return crypto.createHash('md5').update(data).digest('hex');
+    }
+    
+    async getFromCache(key) {
+        if (!this.cacheConfig.enabled) return null;
+        
+        try {
+            const cachePath = path.join(this.cacheConfig.dir, `${key}.png`);
+            const stats = await fs.stat(cachePath);
+            
+            // Check if cache is still valid
+            const age = Date.now() - stats.mtime.getTime();
+            if (age > this.cacheConfig.ttl) {
+                await fs.unlink(cachePath);
+                return null;
+            }
+            
+            return await fs.readFile(cachePath);
+        } catch {
+            return null;
+        }
+    }
+    
+    async saveToCache(key, buffer) {
+        if (!this.cacheConfig.enabled) return;
+        
+        try {
+            const cachePath = path.join(this.cacheConfig.dir, `${key}.png`);
+            await fs.writeFile(cachePath, buffer);
+        } catch (error) {
+            console.warn(`Failed to cache image: ${error.message}`);
+        }
+    }
+    
+    createCoverPrompt(metadata) {
+        const title = metadata.title || 'Untitled Book';
+        const genre = metadata.genre || 'business';
+        const style = metadata.coverStyle || this.style;
+        
+        return `Professional book cover for "${title}". ${genre} genre. ${style} style. High quality, eye-catching design suitable for ebook marketplaces. No text or typography.`;
+    }
+    
+    createChapterPrompt(chapterData, chapterNumber) {
+        const theme = this.extractChapterTheme(chapterData);
+        return `Illustration for book chapter ${chapterNumber}: ${theme}. ${this.style} style. Professional quality, relevant to content.`;
+    }
+    
+    extractChapterTheme(chapterData) {
+        // Extract theme from chapter title or first paragraph
+        const lines = chapterData.split('\n');
+        const titleLine = lines.find(line => line.startsWith('#'));
+        
+        if (titleLine) {
+            return titleLine.replace(/^#+\s*/, '').trim();
+        }
+        
+        return 'Business concept illustration';
+    }
+    
     async loadBookMetadata(bookDir) {
         try {
             const metadataPath = path.join(bookDir, 'metadata.json');
             const content = await fs.readFile(metadataPath, 'utf8');
             return JSON.parse(content);
         } catch {
-            // Fallback metadata
             return {
                 title: 'Untitled Book',
-                author: 'Unknown Author',
-                subtitle: '',
-                description: ''
+                genre: 'business',
+                style: 'professional'
             };
         }
     }
-
-    async getChapterFiles(chaptersDir) {
+    
+    async loadChapter(bookDir, chapterFile) {
         try {
-            const files = await fs.readdir(chaptersDir);
-            return files
-                .filter(f => f.endsWith('.md'))
-                .sort((a, b) => {
-                    const numA = parseInt(a.match(/\d+/) || '0');
-                    const numB = parseInt(b.match(/\d+/) || '0');
-                    return numA - numB;
-                });
+            const chapterPath = path.join(bookDir, chapterFile);
+            return await fs.readFile(chapterPath, 'utf8');
+        } catch {
+            return '';
+        }
+    }
+    
+    async createPlaceholderCover(coverPath, metadata) {
+        // Create a simple placeholder with base64 - same as before
+        const coverPngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAGQAAACWCAYAAAAouC1GAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKpSURBVHic7d1BbhNBFATQmggJCYkFB+AAnIAbcAJuwAE4ABskFkhIiPzZzKJr3FXO+/tJafend6uqp2fGSZZlWZZlWZZlWZZlWZZlWZZlWZZlWf8lnZ2dnfd9f5EkSU7VkiQH/d3PfX+Zf3K0v5Z+7uu+78+ur6+/T51xpL8YJcnt1PWO9fcdx+dfkjSO47skL5OcT112Sr3fMcfPJUnTNE2SfE3yepIhR6r9jjl+Hvo8z/M8J3mT5N0kQ45U+x1z/Dz4JxiGYWia5kOSj5MMqar9jjl+Vn2SdV3XJPmU5PMkQ6pqv2OOn1XTXLPdbleSL0nuHnyU+6n9jjl+Vh0L27btVKdvU+13zPGz+mJhHMepKEr7HXP8PHxZfA+13zHHT2EMRRhDKMIYQhHGEIowhvh3bvPKe5J3q/2OOX4Koyp513qt0u+Y42fVLKvVS8Wu0vJuNVlt+R0//Hbfd7Xfd7Xr55+zrNplu3+zLMvLHN5yWZP8mKQNUe33qvZzGo3K6/QF6M2+789PTk6+NU2TPGJByVn4T7Y7Ozs77/v+QXenV/4Sdnp6+nNZlsdJ3iZ5keRpkiePOON/cJvDf8H5M8mPJF+SvH+0K3fO+ItQhDGEIowhFGEMoQhjCEUYQyjCGEIRxhCKMIZQhDGEIowhFGEMoQhjCEUYQyjCGEIRxhCKMIZQhDGEIowhFGEMoQhjCEUYQyjCGEIRxhCKMIZQhDGEIowhFGEMoQhjCEUYQyjCGEIRxhCKMIZQhDGEIowhFGEMoQhjCEUYQyjCGEIRxhCKMIZQhDGEIowhFGEMoQhjCEUYQyjCGEIRxhCKMIZQhDGEIowhFGEMoQhjCEUYQyjCGEIRxhCKMIZQhDGEIowhFGEMoQhjCEUYQyjiN+inxNLcRBYbAAAAAElFTkSuQmCC';
+        
+        await fs.writeFile(coverPath, Buffer.from(coverPngBase64, 'base64'));
+        console.log(`   📋 Placeholder cover created: ${coverPath}`);
+    }
+    
+    async getChapterList(bookDir) {
+        try {
+            const files = await fs.readdir(bookDir);
+            return files.filter(f => f.match(/^chapter-\d+\.md$/)).sort();
         } catch {
             return [];
         }
     }
-
-    parseChapter(content) {
-        const lines = content.split('\n');
-        const titleMatch = content.match(/^#\s+(.+)$/m);
-        const title = titleMatch ? titleMatch[1] : 'Chapter';
-        
-        // Extract key concepts from chapter
-        const concepts = [];
-        const headers = content.match(/^#{2,3}\s+(.+)$/gm) || [];
-        headers.forEach(h => {
-            const cleaned = h.replace(/^#+\s+/, '');
-            concepts.push(cleaned);
-        });
-        
-        // Extract first paragraph as context
-        const paragraphs = content.match(/^[^#\n].+$/gm) || [];
-        const firstParagraph = paragraphs[0] || '';
-        
-        return {
-            title,
-            concepts: concepts.slice(0, 5), // Top 5 concepts
-            context: firstParagraph.slice(0, 200),
-            wordCount: content.split(/\s+/).length
-        };
+    
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
-
-    async generateCoverImage(metadata, imageDir, niche) {
-        const cacheKey = this.getCacheKey('cover', metadata.title);
-        const cachedPath = path.join(this.cacheDir, `${cacheKey}.png`);
-        const outputPath = path.join(imageDir, 'cover.png');
+    
+    async cleanCache() {
+        if (!this.cacheConfig.enabled) return;
         
-        // Check cache first
-        if (await this.fileExists(cachedPath)) {
-            console.log('   📦 Using cached cover image');
-            await fs.copyFile(cachedPath, outputPath);
-            return { path: outputPath, cached: true };
-        }
-        
-        // Generate prompt
-        const theme = NICHE_THEMES[niche] || NICHE_THEMES['Business/Money'];
-        const styleConfig = IMAGE_CONFIG.styles[this.style];
-        
-        const prompt = this.buildCoverPrompt(metadata, theme, styleConfig);
-        
-        // Generate image
-        const result = await this.generateImage(
-            prompt,
-            IMAGE_CONFIG.dimensions.cover,
-            outputPath
-        );
-        
-        // Cache if successful
-        if (result.generated && !result.placeholder) {
-            await fs.copyFile(outputPath, cachedPath);
-        }
-        
-        return result;
-    }
-
-    buildCoverPrompt(metadata, theme, styleConfig) {
-        const elements = [
-            'professional ebook cover design',
-            styleConfig.basePrompt,
-            theme.style,
-            `title "${metadata.title}" prominently displayed`,
-            metadata.subtitle ? `subtitle "${metadata.subtitle}"` : '',
-            'author name at bottom',
-            theme.colors,
-            styleConfig.colors,
-            'high quality, bestseller aesthetic',
-            'no mockup, flat design',
-            ...theme.keywords.slice(0, 2).map(k => `subtle ${k} imagery`)
-        ].filter(Boolean);
-        
-        return elements.join(', ');
-    }
-
-    async generateChapterImages(chapterData, imageDir, niche, chapterNum) {
-        const results = {
-            header: null,
-            images: []
-        };
-        
-        // Generate chapter header image
-        const headerPath = path.join(imageDir, `chapter-${String(chapterNum).padStart(2, '0')}-header.png`);
-        const headerPrompt = this.buildChapterHeaderPrompt(chapterData, niche);
-        
-        const headerResult = await this.generateImage(
-            headerPrompt,
-            IMAGE_CONFIG.dimensions.chapterHeader,
-            headerPath
-        );
-        
-        results.header = headerResult;
-        results.images.push(headerResult);
-        
-        // Generate concept illustrations if chapter is long enough
-        if (chapterData.wordCount > 1000 && chapterData.concepts.length > 2) {
-            const conceptImage = await this.generateConceptImage(
-                chapterData.concepts[0],
-                imageDir,
-                chapterNum,
-                niche
-            );
-            results.images.push(conceptImage);
-        }
-        
-        return results;
-    }
-
-    buildChapterHeaderPrompt(chapterData, niche) {
-        const theme = NICHE_THEMES[niche] || NICHE_THEMES['Business/Money'];
-        const styleConfig = IMAGE_CONFIG.styles[this.style];
-        
-        const elements = [
-            'chapter header illustration',
-            styleConfig.basePrompt,
-            `representing "${chapterData.title}"`,
-            theme.style,
-            'banner format, wide aspect ratio',
-            styleConfig.colors,
-            theme.colors,
-            'clean minimal design with space for text overlay',
-            chapterData.concepts[0] ? `featuring ${chapterData.concepts[0]} concept` : ''
-        ].filter(Boolean);
-        
-        return elements.join(', ');
-    }
-
-    async generateConceptImage(concept, imageDir, chapterNum, niche) {
-        const theme = NICHE_THEMES[niche] || NICHE_THEMES['Business/Money'];
-        const styleConfig = IMAGE_CONFIG.styles[this.style];
-        
-        const prompt = [
-            'conceptual illustration',
-            styleConfig.basePrompt,
-            `visualizing "${concept}"`,
-            theme.style,
-            'clear and informative',
-            styleConfig.elements,
-            'suitable for inline placement in text'
-        ].join(', ');
-        
-        const outputPath = path.join(
-            imageDir,
-            `chapter-${String(chapterNum).padStart(2, '0')}-concept.png`
-        );
-        
-        return await this.generateImage(
-            prompt,
-            IMAGE_CONFIG.dimensions.inline,
-            outputPath
-        );
-    }
-
-    async generateImage(prompt, dimensions, outputPath) {
-        // Rate limiting
-        await this.enforceRateLimit();
-        
-        if (!this.apiKey) {
-            return await this.generatePlaceholderImage(prompt, dimensions, outputPath);
-        }
+        console.log('🧹 Cleaning image cache...');
         
         try {
-            console.log(`   🎨 Generating: ${prompt.slice(0, 80)}...`);
+            const files = await fs.readdir(this.cacheConfig.dir);
+            let cleaned = 0;
             
-            const requestBody = {
-                image_request: {
-                    prompt,
-                    aspect_ratio: dimensions.aspect,
-                    model: this.model,
-                    magic_prompt_option: 'AUTO',
-                    style_type: 'DESIGN'
+            for (const file of files) {
+                const filePath = path.join(this.cacheConfig.dir, file);
+                const stats = await fs.stat(filePath);
+                const age = Date.now() - stats.mtime.getTime();
+                
+                if (age > this.cacheConfig.ttl) {
+                    await fs.unlink(filePath);
+                    cleaned++;
                 }
-            };
+            }
             
-            const imageUrl = await this.callIdeogramAPI(requestBody);
-            await this.downloadImage(imageUrl, outputPath);
-            
-            console.log(`   ✅ Generated: ${path.basename(outputPath)}`);
-            
-            return {
-                path: outputPath,
-                generated: true,
-                placeholder: false,
-                prompt: prompt.slice(0, 100) + '...'
-            };
-            
+            console.log(`   ✅ Cleaned ${cleaned} expired cache entries`);
         } catch (error) {
-            console.error(`   ❌ Generation failed: ${error.message}`);
-            
-            // Fallback to placeholder
-            if (this.generatePlaceholders) {
-                return await this.generatePlaceholderImage(prompt, dimensions, outputPath);
-            }
-            
-            return {
-                path: outputPath,
-                error: error.message,
-                generated: false
-            };
+            console.error(`   ❌ Cache cleanup failed: ${error.message}`);
         }
-    }
-
-    async callIdeogramAPI(requestBody) {
-        return new Promise((resolve, reject) => {
-            const options = {
-                hostname: IMAGE_CONFIG.api.hostname,
-                path: IMAGE_CONFIG.api.endpoint,
-                method: 'POST',
-                headers: {
-                    'Api-Key': this.apiKey,
-                    'Content-Type': 'application/json'
-                }
-            };
-            
-            const req = https.request(options, (res) => {
-                let data = '';
-                
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => {
-                    try {
-                        const response = JSON.parse(data);
-                        
-                        if (res.statusCode !== 200) {
-                            throw new Error(`API Error: ${response.error || data}`);
-                        }
-                        
-                        if (response.data && response.data[0] && response.data[0].url) {
-                            resolve(response.data[0].url);
-                        } else {
-                            throw new Error('No image URL in response');
-                        }
-                    } catch (error) {
-                        reject(error);
-                    }
-                });
-            });
-            
-            req.on('error', reject);
-            req.write(JSON.stringify(requestBody));
-            req.end();
-        });
-    }
-
-    async downloadImage(url, filepath) {
-        return new Promise((resolve, reject) => {
-            https.get(url, async (response) => {
-                if (response.statusCode !== 200) {
-                    reject(new Error(`Download failed: ${response.statusCode}`));
-                    return;
-                }
-                
-                const writeStream = require('fs').createWriteStream(filepath);
-                
-                try {
-                    await pipeline(response, writeStream);
-                    resolve();
-                } catch (error) {
-                    reject(error);
-                }
-            }).on('error', reject);
-        });
-    }
-
-    async generatePlaceholderImage(prompt, dimensions, outputPath) {
-        console.log('   🔧 Generating placeholder image');
-        
-        // Extract key concept from prompt
-        const conceptMatch = prompt.match(/representing "([^"]+)"/);
-        const concept = conceptMatch ? conceptMatch[1] : 'Placeholder';
-        
-        // SVG placeholder
-        const svg = `
-<svg width="${dimensions.width}" height="${dimensions.height}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <rect width="100%" height="100%" fill="url(#bg)"/>
-  <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial, sans-serif">
-    ${concept}
-  </text>
-  <text x="50%" y="60%" text-anchor="middle" fill="white" font-size="24" font-family="Arial, sans-serif" opacity="0.8">
-    ${dimensions.width} × ${dimensions.height}
-  </text>
-</svg>`;
-        
-        const svgPath = outputPath.replace('.png', '.svg');
-        await fs.writeFile(svgPath, svg);
-        
-        // In production, convert SVG to PNG using sharp or similar
-        // For now, we'll use the SVG directly
-        await fs.copyFile(svgPath, outputPath);
-        
-        return {
-            path: outputPath,
-            generated: true,
-            placeholder: true,
-            prompt: concept
-        };
-    }
-
-    async updateChapterWithImages(chapterPath, images) {
-        if (!images.header || images.images.length === 0) return;
-        
-        let content = await fs.readFile(chapterPath, 'utf8');
-        
-        // Add header image after title
-        if (images.header && images.header.path) {
-            const imageName = path.basename(images.header.path);
-            const imageMarkdown = `\n![Chapter Header](../assets/images/${imageName})\n`;
-            
-            // Insert after first heading
-            content = content.replace(/^(#\s+.+)$/m, `$1${imageMarkdown}`);
-        }
-        
-        // Add concept images if available
-        if (images.images.length > 1) {
-            const conceptImage = images.images[1];
-            if (conceptImage && conceptImage.path) {
-                const imageName = path.basename(conceptImage.path);
-                const imageMarkdown = `\n![Concept Illustration](../assets/images/${imageName})\n`;
-                
-                // Insert after first section
-                const firstSection = content.match(/^##\s+.+$/m);
-                if (firstSection) {
-                    const insertIndex = content.indexOf(firstSection[0]) + firstSection[0].length;
-                    content = content.slice(0, insertIndex) + imageMarkdown + content.slice(insertIndex);
-                }
-            }
-        }
-        
-        await fs.writeFile(chapterPath, content);
-    }
-
-    async generateReport(bookDir, results) {
-        const report = {
-            timestamp: new Date().toISOString(),
-            stats: results.stats,
-            cover: results.cover,
-            chapters: Object.entries(results.chapters).map(([file, data]) => ({
-                file,
-                images: data.images.length,
-                generated: data.images.filter(i => i.generated && !i.placeholder).length,
-                placeholders: data.images.filter(i => i.placeholder).length
-            })),
-            configuration: {
-                style: this.style,
-                model: this.model,
-                apiKeyPresent: !!this.apiKey
-            }
-        };
-        
-        const reportPath = path.join(bookDir, 'assets', 'images', 'generation-report.json');
-        await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
-        
-        console.log(`\n📄 Report saved to: ${reportPath}`);
-    }
-
-    getCacheKey(...parts) {
-        const combined = parts.join('-');
-        return crypto.createHash('md5').update(combined).digest('hex');
-    }
-
-    async fileExists(filepath) {
-        try {
-            await fs.access(filepath);
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
-    async enforceRateLimit() {
-        const now = Date.now();
-        const timeSinceLastRequest = now - this.lastRequestTime;
-        
-        if (timeSinceLastRequest < IMAGE_CONFIG.rateLimits.delayBetweenRequests) {
-            const delay = IMAGE_CONFIG.rateLimits.delayBetweenRequests - timeSinceLastRequest;
-            console.log(`   ⏳ Rate limiting: waiting ${(delay / 1000).toFixed(1)}s...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-        }
-        
-        this.lastRequestTime = Date.now();
-        this.requestCount++;
-    }
-
-    async generateSocialImages(bookDir, platforms = ['twitter', 'facebook', 'instagram']) {
-        console.log('\n📱 Generating social media images...');
-        
-        const metadata = await this.loadBookMetadata(bookDir);
-        const imageDir = path.join(bookDir, 'assets', 'images', 'social');
-        await fs.mkdir(imageDir, { recursive: true });
-        
-        const results = [];
-        
-        for (const platform of platforms) {
-            const dimensions = platform === 'instagram' ? 
-                IMAGE_CONFIG.dimensions.square : 
-                IMAGE_CONFIG.dimensions.social;
-            
-            const outputPath = path.join(imageDir, `${platform}-share.png`);
-            const prompt = this.buildSocialPrompt(metadata, platform);
-            
-            const result = await this.generateImage(prompt, dimensions, outputPath);
-            results.push({ platform, ...result });
-        }
-        
-        return results;
-    }
-
-    buildSocialPrompt(metadata, platform) {
-        const platformStyles = {
-            twitter: 'clean minimal design for Twitter/X sharing',
-            facebook: 'engaging design for Facebook sharing',
-            instagram: 'square format eye-catching design for Instagram'
-        };
-        
-        return [
-            'social media promotional image',
-            platformStyles[platform],
-            `for ebook "${metadata.title}"`,
-            'compelling call to action',
-            'professional quality',
-            'optimized for social sharing'
-        ].join(', ');
     }
 }
+
+// Export for use in pipeline
+module.exports = Illustrator;
 
 // CLI interface
 if (require.main === module) {
     const args = process.argv.slice(2);
-    const options = {};
     
-    args.forEach(arg => {
-        if (arg.startsWith('--')) {
-            const [key, value] = arg.slice(2).split('=');
-            options[key] = value || true;
-        }
-    });
-    
-    if (!options['book-dir'] && !options.chapter) {
-        console.error('Usage: illustrator.js --book-dir="path/to/book"');
-        console.error('   or: illustrator.js --chapter="path/to/chapter.md" --output="image.png"');
-        console.error('\nOptions:');
-        console.error('  --style      Visual style (professional, technical, creative, educational)');
-        console.error('  --niche      Book niche for themed images');
-        console.error('  --social     Generate social media images');
-        console.error('  --no-cache   Skip image cache');
-        process.exit(1);
+    if (args.length === 0 || args.includes('--help')) {
+        console.log(`
+Illustrator Agent - Ideogram Image Generator
+
+Usage:
+  illustrator.js <book-dir> [options]
+  illustrator.js --clean-cache
+
+Options:
+  --style <type>      Image style (professional, artistic, photographic)
+  --cache-ttl <ms>    Cache TTL in milliseconds
+  --no-cache          Disable caching
+  --api-key <key>     Ideogram API key (or set IDEOGRAM_API_KEY)
+
+Examples:
+  illustrator.js build/books/my-book
+  illustrator.js build/books/my-book --style artistic
+  illustrator.js --clean-cache
+        `);
+        process.exit(0);
     }
     
-    const illustrator = new Illustrator({
-        style: options.style,
-        cacheDir: options['no-cache'] ? null : undefined
-    });
+    // Parse options
+    const options = {};
+    let bookDir = null;
+    let cleanCache = false;
+    
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        
+        if (arg === '--clean-cache') {
+            cleanCache = true;
+        } else if (arg.startsWith('--')) {
+            const key = arg.slice(2);
+            const value = args[++i];
+            
+            switch (key) {
+                case 'style':
+                    options.style = value;
+                    break;
+                case 'cache-ttl':
+                    options.cacheTTL = parseInt(value);
+                    break;
+                case 'no-cache':
+                    options.cacheEnabled = false;
+                    i--; // No value for this flag
+                    break;
+                case 'api-key':
+                    process.env.IDEOGRAM_API_KEY = value;
+                    break;
+            }
+        } else {
+            bookDir = arg;
+        }
+    }
+    
+    const illustrator = new Illustrator(options);
     
     (async () => {
         try {
-            if (options['book-dir']) {
-                const result = await illustrator.generateBookImages(options['book-dir'], {
-                    niche: options.niche
-                });
-                
-                if (options.social) {
-                    await illustrator.generateSocialImages(options['book-dir']);
-                }
-                
+            if (cleanCache) {
+                await illustrator.cleanCache();
+            } else if (bookDir) {
+                const result = await illustrator.generateBookImages(bookDir);
+                console.log('\nResult:', JSON.stringify(result, null, 2));
                 process.exit(result.success ? 0 : 1);
-            } else if (options.chapter && options.output) {
-                // Single image generation
-                const content = await fs.readFile(options.chapter, 'utf8');
-                const chapterData = illustrator.parseChapter(content);
-                const prompt = illustrator.buildChapterHeaderPrompt(chapterData, options.niche || 'Business/Money');
-                
-                const result = await illustrator.generateImage(
-                    prompt,
-                    IMAGE_CONFIG.dimensions.chapterHeader,
-                    options.output
-                );
-                
-                console.log(result.generated ? '✅ Image generated' : '❌ Generation failed');
-                process.exit(result.generated ? 0 : 1);
+            } else {
+                console.error('No book directory specified');
+                process.exit(1);
             }
         } catch (error) {
             console.error('Fatal error:', error);
@@ -728,5 +472,3 @@ if (require.main === module) {
         }
     })();
 }
-
-module.exports = Illustrator;
