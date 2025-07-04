@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="5" failures="0" errors="0" time="0.405">
+  <testsuite name="QueueManager" errors="0" failures="0" skipped="0" timestamp="2025-07-04T15:31:12" time="0.383" tests="5">
+    <testcase classname="QueueManager" name="exports getQueueManager function" time="0">
+    </testcase>
+    <testcase classname="QueueManager" name="exports QueueManager class" time="0">
+    </testcase>
+    <testcase classname="QueueManager" name="getQueueManager returns instance with startPipeline method" time="0">
+    </testcase>
+    <testcase classname="QueueManager" name="QueueManager instance has all required methods" time="0">
+    </testcase>
+    <testcase classname="QueueManager" name="startPipeline returns a pipeline ID" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>

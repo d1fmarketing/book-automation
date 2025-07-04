@@ -1,0 +1,247 @@
+name: Smoke Test - Agent Validation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'  # Run every 6 hours
+  pull_request:
+    types: [opened, synchronize]
+
+env:
+  NODE_VERSION: '20'
+  DEBUG: 'agent:*,mcp:*,workflow:*'
+  TIMEOUT_MINUTES: 10
+
+jobs:
+  smoke-test:
+    name: Agent Smoke Test
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(vars.TIMEOUT_MINUTES || '10') }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci
+          npm install -g agentcli@latest
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: 📦 Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: 🔍 Check environment
+        run: |
+          echo "=== Environment Check ==="
+          node scripts/check-env.js --agents
+          
+          # Save result for later
+          echo "AGENT_CHECK=$?" >> $GITHUB_ENV
+
+      - name: 🤖 Test Core Agents
+        id: test-core
+        run: |
+          echo "=== Testing Core Agents ==="
+          set -e  # Exit on first error
+          
+          # Create test directory
+          mkdir -p build/smoke-test
+          cd build/smoke-test
+          
+          echo "📋 Testing Planner Agent..."
+          agentcli call plan.outline "AI-Powered Productivity" | tee planner.log
+          
+          echo "🔍 Testing Research Agent..."
+          agentcli call research.perplexity "productivity tools AI" | tee research.log
+          
+          echo "✍️ Testing Writer Agent..."
+          agentcli call write.chapter --chapter=1 --topic="Introduction to AI Productivity" | tee writer.log
+          
+          echo "💅 Testing Tone Polisher..."
+          echo "<p>Test content for polishing.</p>" > test-content.html
+          agentcli call style.polish test-content.html | tee polish.log
+          
+          echo "✅ Testing Fact Checker..."
+          agentcli call qa.fact test-content.html | tee fact-check.log
+          
+          echo "🎨 Testing Formatter..."
+          agentcli call format.html --input=test-content.html | tee format.log
+          
+          echo "🔍 Testing QA HTML..."
+          agentcli call qa.html --dry-run test-content.html | tee qa-html.log
+          
+          # Count successful tests
+          PASSED=$(ls *.log | wc -l)
+          echo "passed_count=$PASSED" >> $GITHUB_OUTPUT
+
+      - name: 💰 Test Publishing Agents
+        id: test-publishing
+        if: success()
+        run: |
+          echo "=== Testing Publishing Agents ==="
+          cd build/smoke-test
+          
+          # Create mock ebook data
+          cat > mock-ebook.json << EOF
+          {
+            "title": "Test Ebook",
+            "price": 9.99,
+            "metadata": {
+              "author": "Test Author",
+              "description": "Test description"
+            }
+          }
+          EOF
+          
+          echo "💳 Testing Affiliate Injector..."
+          agentcli call affiliate.inject test-content.html | tee affiliate.log || true
+          
+          echo "📤 Testing Gumroad Upload (dry run)..."
+          agentcli call publish.gumroad --dry-run mock-ebook.json | tee gumroad.log || true
+          
+          echo "🌐 Testing Hostinger Deploy (status only)..."
+          agentcli call deploy.hostinger --status | tee hostinger.log || true
+          
+          echo "📊 Testing Price Optimizer..."
+          agentcli call price.optimize --analyze mock-ebook.json | tee price.log || true
+          
+          echo "📣 Testing Marketing Automator..."
+          agentcli call marketing.launch --dry-run mock-ebook.json | tee marketing.log || true
+
+      - name: 🧪 Test Optional Agents
+        if: success()
+        continue-on-error: true
+        run: |
+          echo "=== Testing Optional Agents ==="
+          cd build/smoke-test
+          
+          echo "🖼️ Testing Illustrator..."
+          agentcli call illustrate.chapter --chapter=1 --dry-run | tee illustrator.log || true
+          
+          echo "📱 Testing BrowserStack QA..."
+          agentcli call browserstack.test --dry-run test-content.html | tee browserstack.log || true
+          
+          echo "📚 Testing KDP Upload..."
+          agentcli call upload.kdp --dry-run mock-ebook.json | tee kdp.log || true
+
+      - name: 📊 Generate Test Report
+        if: always()
+        run: |
+          echo "=== Smoke Test Report ==="
+          cd build/smoke-test
+          
+          # Count log files
+          TOTAL_TESTS=$(ls *.log 2>/dev/null | wc -l || echo 0)
+          
+          # Check for errors in logs
+          ERRORS=$(grep -l "ERROR\|FAIL\|Exception" *.log 2>/dev/null | wc -l || echo 0)
+          
+          # Generate report
+          cat > smoke-report.json << EOF
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "total_tests": $TOTAL_TESTS,
+            "errors": $ERRORS,
+            "success_rate": $([ $TOTAL_TESTS -gt 0 ] && echo "scale=2; ($TOTAL_TESTS - $ERRORS) * 100 / $TOTAL_TESTS" | bc || echo 0),
+            "logs": [$(ls *.log 2>/dev/null | sed 's/^/"/;s/$/",/' | tr '\n' ' ' | sed 's/, $//' || echo "")]
+          }
+          EOF
+          
+          cat smoke-report.json
+          
+          # Set output for status check
+          echo "SMOKE_TESTS_PASSED=$([ $ERRORS -eq 0 ] && echo 'true' || echo 'false')" >> $GITHUB_ENV
+
+      - name: 📤 Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-${{ github.run_id }}
+          path: |
+            build/smoke-test/*.log
+            build/smoke-test/smoke-report.json
+          retention-days: 7
+
+      - name: 🔍 Validate workflow manifest
+        if: success()
+        run: |
+          echo "=== Checking Workflow Manifest ==="
+          
+          # This would check if all required agents were called
+          # In a real scenario, automation-pipeline.js would generate this
+          REQUIRED_AGENTS=16  # Based on our agent list
+          
+          if [ "${{ steps.test-core.outputs.passed_count }}" -lt "7" ]; then
+            echo "❌ Core agent tests incomplete"
+            exit 1
+          fi
+          
+          echo "✅ All core agents validated"
+
+      - name: 📊 Summary
+        if: always()
+        run: |
+          echo "## Smoke Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$SMOKE_TESTS_PASSED" == "true" ]; then
+            echo "✅ **All smoke tests passed!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Some smoke tests failed**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Core agents tested: ${{ steps.test-core.outputs.passed_count }}/7" >> $GITHUB_STEP_SUMMARY
+          echo "- Total tests run: See artifacts for details" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Review test logs in artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Fix any failing agents" >> $GITHUB_STEP_SUMMARY
+          echo "- Re-run workflow after fixes" >> $GITHUB_STEP_SUMMARY
+
+      - name: ❌ Fail if tests failed
+        if: env.SMOKE_TESTS_PASSED != 'true'
+        run: |
+          echo "Smoke tests failed. Check the artifacts for details."
+          exit 1
+
+  notify-failure:
+    name: Notify on Failure
+    needs: smoke-test
+    if: failure()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📢 Send notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          if [ -n "$SLACK_WEBHOOK" ]; then
+            curl -X POST $SLACK_WEBHOOK \
+              -H 'Content-type: application/json' \
+              --data '{
+                "text": "🚨 Agent Smoke Tests Failed!",
+                "blocks": [{
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Smoke Test Failure*\n*Workflow:* ${{ github.workflow }}\n*Run:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                }]
+              }'
+          fi

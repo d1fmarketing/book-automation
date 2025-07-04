@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Machine Dashboard - Ebook Automation Pipeline</title>
+    <meta name="description" content="Control panel for the automated ebook generation pipeline">
+    
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f9fafb;
+            --white: #ffffff;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--white);
+            border-right: 1px solid #e5e7eb;
+            padding: 2rem 0;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 0 1.5rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .logo .emoji {
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--gray);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .nav-link.active {
+            background: #ede9fe;
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h2 {
+            font-size: 2rem;
+            color: var(--dark);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--gray);
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: var(--light);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.success { background: #d1fae5; color: var(--secondary); }
+        .stat-icon.info { background: #dbeafe; color: var(--info); }
+        .stat-icon.warning { background: #fed7aa; color: var(--accent); }
+        .stat-icon.danger { background: #fee2e2; color: var(--danger); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive { color: var(--secondary); }
+        .stat-change.negative { color: var(--danger); }
+
+        /* Pipeline Status */
+        .pipeline-section {
+            background: var(--white);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .pipeline-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .pipeline-step {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .pipeline-step.active {
+            border-color: var(--primary);
+            background: #f3f4f6;
+        }
+
+        .pipeline-step.completed {
+            border-color: var(--secondary);
+            background: #f0fdf4;
+        }
+
+        .step-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: var(--light);
+        }
+
+        .pipeline-step.active .step-icon {
+            background: var(--primary);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .pipeline-step.completed .step-icon {
+            background: var(--secondary);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .step-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-status {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Recent Ebooks */
+        .ebooks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .ebook-card {
+            background: var(--white);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .ebook-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .ebook-cover {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .ebook-info {
+            padding: 1rem;
+        }
+
+        .ebook-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ebook-meta {
+            font-size: 0.75rem;
+            color: var(--gray);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--light);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-badge.online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1><span class="emoji">💰</span> Money Machine</h1>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#dashboard" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#pipeline" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            Pipeline
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#ebooks" class="nav-link">
+                            <span class="nav-icon">📚</span>
+                            Ebooks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#analytics" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#settings" class="nav-link">
+                            <span class="nav-icon">⚡</span>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h2>Dashboard Overview</h2>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="scanTopics()">
+                        <span>🔍</span> Scan Topics
+                    </button>
+                    <button class="btn btn-primary" onclick="generateEbook()">
+                        <span>✨</span> Generate Ebook
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Ebooks</span>
+                        <div class="stat-icon success">📚</div>
+                    </div>
+                    <div class="stat-value" id="totalEbooks">24</div>
+                    <div class="stat-change positive">
+                        <span>↑</span> 3 this week
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Revenue (Month)</span>
+                        <div class="stat-icon info">💰</div>
+                    </div>
+                    <div class="stat-value" id="monthlyRevenue">$1,248</div>
+                    <div class="stat-change positive">
+                        <span>↑</span> 12.5% from last month
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">API Quota</span>
+                        <div class="stat-icon warning">🔋</div>
+                    </div>
+                    <div class="stat-value" id="apiQuota">78%</div>
+                    <div class="stat-change">
+                        <span>Perplexity: 450/500</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">System Status</span>
+                        <div class="stat-icon success">🟢</div>
+                    </div>
+                    <div class="stat-value">
+                        <span class="status-badge online">
+                            <span class="status-dot"></span>
+                            Online
+                        </span>
+                    </div>
+                    <div class="stat-change">
+                        <span>All systems operational</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline Status -->
+            <section class="pipeline-section">
+                <div class="section-header">
+                    <h3 class="section-title">Pipeline Status</h3>
+                    <button class="btn btn-secondary" onclick="refreshPipeline()">
+                        <span>🔄</span> Refresh
+                    </button>
+                </div>
+                <div class="pipeline-steps">
+                    <div class="pipeline-step completed" id="step-scan">
+                        <div class="step-icon">🔍</div>
+                        <div class="step-name">Topic Scan</div>
+                        <div class="step-status">Completed</div>
+                    </div>
+                    <div class="pipeline-step completed" id="step-research">
+                        <div class="step-icon">🔬</div>
+                        <div class="step-name">Research</div>
+                        <div class="step-status">Completed</div>
+                    </div>
+                    <div class="pipeline-step active" id="step-generate">
+                        <div class="step-icon">✍️</div>
+                        <div class="step-name">Generate</div>
+                        <div class="step-status">In Progress...</div>
+                    </div>
+                    <div class="pipeline-step" id="step-qa">
+                        <div class="step-icon">✅</div>
+                        <div class="step-name">QA Check</div>
+                        <div class="step-status">Pending</div>
+                    </div>
+                    <div class="pipeline-step" id="step-publish">
+                        <div class="step-icon">🚀</div>
+                        <div class="step-name">Publish</div>
+                        <div class="step-status">Pending</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Ebooks -->
+            <section class="pipeline-section">
+                <div class="section-header">
+                    <h3 class="section-title">Recent Ebooks</h3>
+                    <button class="btn btn-secondary" onclick="viewAllEbooks()">
+                        View All
+                    </button>
+                </div>
+                <div class="ebooks-grid" id="ebooksGrid">
+                    <!-- Ebooks will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Revenue Chart -->
+            <section class="pipeline-section">
+                <div class="section-header">
+                    <h3 class="section-title">Revenue Trend</h3>
+                    <select class="btn btn-secondary">
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                        <option>Last 3 months</option>
+                    </select>
+                </div>
+                <canvas id="revenueChart" height="100"></canvas>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // WebSocket connection for real-time updates
+        let ws = null;
+
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:3002');
+            
+            ws.onopen = () => {
+                console.log('Connected to dashboard server');
+                updateSystemStatus('online');
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleRealtimeUpdate(data);
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                updateSystemStatus('offline');
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                updateSystemStatus('offline');
+                // Reconnect after 5 seconds
+                setTimeout(connectWebSocket, 5000);
+            };
+        }
+
+        function handleRealtimeUpdate(data) {
+            switch(data.type) {
+                case 'pipeline-status':
+                    updatePipelineStatus(data.status);
+                    break;
+                case 'stats-update':
+                    updateStats(data.stats);
+                    break;
+                case 'new-ebook':
+                    addNewEbook(data.ebook);
+                    break;
+            }
+        }
+
+        function updateSystemStatus(status) {
+            const statusEl = document.querySelector('.status-badge');
+            if (status === 'online') {
+                statusEl.className = 'status-badge online';
+                statusEl.innerHTML = '<span class="status-dot"></span> Online';
+            } else {
+                statusEl.className = 'status-badge offline';
+                statusEl.innerHTML = '<span class="status-dot"></span> Offline';
+            }
+        }
+
+        function updatePipelineStatus(status) {
+            // Update pipeline steps based on status
+            const steps = ['scan', 'research', 'generate', 'qa', 'publish'];
+            steps.forEach((step, index) => {
+                const stepEl = document.getElementById(`step-${step}`);
+                if (index < status.currentStep) {
+                    stepEl.className = 'pipeline-step completed';
+                } else if (index === status.currentStep) {
+                    stepEl.className = 'pipeline-step active';
+                } else {
+                    stepEl.className = 'pipeline-step';
+                }
+            });
+        }
+
+        function updateStats(stats) {
+            if (stats.totalEbooks) {
+                document.getElementById('totalEbooks').textContent = stats.totalEbooks;
+            }
+            if (stats.monthlyRevenue) {
+                document.getElementById('monthlyRevenue').textContent = `$${stats.monthlyRevenue}`;
+            }
+            if (stats.apiQuota) {
+                document.getElementById('apiQuota').textContent = `${stats.apiQuota}%`;
+            }
+        }
+
+        // Action functions
+        async function scanTopics() {
+            if (confirm('Start scanning for trending topics?')) {
+                try {
+                    const response = await fetch('/api/scan-topics', { method: 'POST' });
+                    const result = await response.json();
+                    alert(`Found ${result.topics.length} trending topics!`);
+                } catch (error) {
+                    alert('Error scanning topics: ' + error.message);
+                }
+            }
+        }
+
+        async function generateEbook() {
+            const topic = prompt('Enter ebook topic (or leave empty for auto-select):');
+            if (topic !== null) {
+                try {
+                    const response = await fetch('/api/generate-ebook', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ topic })
+                    });
+                    const result = await response.json();
+                    alert('Ebook generation started! Check pipeline status.');
+                } catch (error) {
+                    alert('Error generating ebook: ' + error.message);
+                }
+            }
+        }
+
+        function refreshPipeline() {
+            // Request pipeline status update
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ action: 'get-pipeline-status' }));
+            }
+        }
+
+        function viewAllEbooks() {
+            window.location.href = '#ebooks';
+        }
+
+        // Load recent ebooks
+        async function loadRecentEbooks() {
+            try {
+                // For demo, using mock data
+                const mockEbooks = [
+                    { id: 1, title: 'AI Prompts for Business', date: '2025-01-03', revenue: '$124' },
+                    { id: 2, title: 'Passive Income Guide', date: '2025-01-02', revenue: '$89' },
+                    { id: 3, title: 'Crypto Trading Basics', date: '2025-01-01', revenue: '$156' }
+                ];
+                
+                const grid = document.getElementById('ebooksGrid');
+                grid.innerHTML = mockEbooks.map(ebook => `
+                    <div class="ebook-card" onclick="viewEbook(${ebook.id})">
+                        <div class="ebook-cover">📘</div>
+                        <div class="ebook-info">
+                            <div class="ebook-title">${ebook.title}</div>
+                            <div class="ebook-meta">
+                                <span>${ebook.date}</span>
+                                <span>${ebook.revenue}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading ebooks:', error);
+            }
+        }
+
+        function viewEbook(id) {
+            window.open(`/ebook/${id}`, '_blank');
+        }
+
+        // Initialize revenue chart
+        function initRevenueChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [65, 78, 90, 81, 156, 155, 240],
+                        borderColor: '#7c3aed',
+                        backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            connectWebSocket();
+            loadRecentEbooks();
+            initRevenueChart();
+            
+            // Handle navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    // Handle section switching here
+                });
+            });
+        });
+    </script>
+</body>
+</html>

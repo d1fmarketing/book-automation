@@ -1,0 +1,19 @@
+{
+  "title": "Test Debug Book",
+  "author": "Debug Author",
+  "description": "A test book for debugging the pipeline",
+  "language": "en",
+  "theme": "business",
+  "chapters": [
+    {
+      "number": 1,
+      "title": "Introduction to Testing",
+      "description": "Test chapter for debugging",
+      "sections": [
+        "Basic Content",
+        "Lists and Links",
+        "Blockquotes and Tables"
+      ]
+    }
+  ]
+}

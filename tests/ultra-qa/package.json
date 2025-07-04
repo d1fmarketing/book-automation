@@ -1,0 +1,21 @@
+{
+  "name": "ultra-qa-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive quality assurance tests for ebook automation",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js",
+    "test:html": "node index.js --suites html",
+    "test:pdf": "node index.js --suites pdf",
+    "test:content": "node index.js --suites content",
+    "test:fast": "node index.js --suites html,content --fail-fast"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "html-validator": "^5.1.18",
+    "jsdom": "^19.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

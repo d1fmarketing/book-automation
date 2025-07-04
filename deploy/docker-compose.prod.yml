@@ -1,0 +1,245 @@
+version: '3.8'
+
+services:
+  # Redis for job queues
+  redis:
+    image: redis:7-alpine
+    container_name: ebook-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ebook-network
+
+  # PostgreSQL for state and metadata
+  postgres:
+    image: postgres:15-alpine
+    container_name: ebook-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ebook_pipeline}
+      POSTGRES_USER: ${DB_USER:-ebook_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ebook_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ebook-network
+
+  # Main application
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: ebook-app
+    restart: always
+    environment:
+      NODE_ENV: production
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://${DB_USER:-ebook_user}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-ebook_pipeline}
+      API_PORT: ${API_PORT:-3000}
+      # API Keys from env
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY}
+      IDEOGRAM_API_KEY: ${IDEOGRAM_API_KEY}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      # S3 Configuration
+      S3_BACKUP_ENABLED: ${S3_BACKUP_ENABLED:-false}
+      S3_BACKUP_BUCKET: ${S3_BACKUP_BUCKET}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      # GitHub Configuration
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_REPO: ${GITHUB_REPO}
+      GITHUB_BASE_BRANCH: ${GITHUB_BASE_BRANCH:-main}
+      # Monitoring
+      METRICS_ENABLED: ${METRICS_ENABLED:-true}
+      METRICS_PORT: ${METRICS_PORT:-9090}
+      # Notifications
+      QUOTA_ALERT_WEBHOOK: ${QUOTA_ALERT_WEBHOOK}
+      ERROR_WEBHOOK: ${ERROR_WEBHOOK}
+    ports:
+      - "${API_PORT:-3000}:3000"
+      - "${METRICS_PORT:-9090}:9090"
+    volumes:
+      - app-data:/app/build
+      - ./config:/app/config:ro
+      - ./pipelines:/app/pipelines:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ebook-network
+
+  # Worker pool
+  workers:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: ebook-workers
+    restart: always
+    command: node scripts/start-workers.js
+    environment:
+      NODE_ENV: production
+      WORKER_MODE: true
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://${DB_USER:-ebook_user}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-ebook_pipeline}
+      # Worker configuration
+      MAX_WORKERS: ${MAX_WORKERS:-8}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+      # API Keys
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY}
+      IDEOGRAM_API_KEY: ${IDEOGRAM_API_KEY}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+    volumes:
+      - app-data:/app/build
+      - ./config:/app/config:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    deploy:
+      mode: replicated
+      replicas: ${WORKER_REPLICAS:-2}
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    networks:
+      - ebook-network
+
+  # Backup scheduler
+  backup:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: ebook-backup
+    restart: always
+    command: node scripts/backup-scheduler.js
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER:-ebook_user}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-ebook_pipeline}
+      S3_BACKUP_ENABLED: ${S3_BACKUP_ENABLED:-false}
+      S3_BACKUP_BUCKET: ${S3_BACKUP_BUCKET}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - app-data:/app/build:ro
+      - backup-data:/app/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ebook-network
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ebook-prometheus
+    restart: always
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - ebook-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ebook-grafana
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: false
+      GF_SERVER_ROOT_URL: ${GRAFANA_URL:-http://localhost:3001}
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - ebook-network
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ebook-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-cache:/var/cache/nginx
+    depends_on:
+      - app
+      - grafana
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ebook-network
+
+networks:
+  ebook-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  postgres-data:
+  app-data:
+  backup-data:
+  prometheus-data:
+  grafana-data:
+  nginx-cache:

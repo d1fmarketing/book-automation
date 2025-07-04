@@ -103,7 +103,7 @@ async function saveAndReturnTopics(topics) {
   return topics;
 }
 
-function getFallbackTopics() {
+async function getFallbackTopics() {
   // Fallback topics if scanner fails
   const topics = [
     {

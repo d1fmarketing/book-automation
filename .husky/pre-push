@@ -2,7 +2,24 @@
 . "$(dirname "$0")/_/husky.sh"
 
 # Pre-push hook: Last line of defense against continuity errors
-echo "🛡️  Running pre-push continuity check..."
+echo "🛡️  Running pre-push checks..."
+
+# Check GitHub authentication first
+echo "📡 Verifying GitHub authentication..."
+if command -v node >/dev/null 2>&1 && [ -f "scripts/auto-github-auth.js" ]; then
+    if ! node scripts/auto-github-auth.js >/dev/null 2>&1; then
+        echo "❌ GitHub authentication failed!"
+        echo "   Run: ./scripts/github-auth-helper.sh fix"
+        echo ""
+        echo "⚠️  To bypass (NOT RECOMMENDED):"
+        echo "   git push --no-verify"
+        exit 1
+    fi
+    echo "✅ GitHub authentication OK"
+fi
+
+echo ""
+echo "🔍 Running continuity check..."
 
 # Check if Python is available
 if ! command -v python3 >/dev/null 2>&1; then

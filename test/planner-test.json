@@ -1,0 +1,157 @@
+{
+  "id": "outline-1751643820477",
+  "timestamp": "2025-07-04T15:43:40.477Z",
+  "title": "The Complete Guide to AI Business Guide",
+  "subtitle": "Discover Practical, actionable strategies with real-world examples for Business owners and entrepreneurs",
+  "author": "AI Author",
+  "genre": "business",
+  "targetAudience": "Business owners and entrepreneurs",
+  "audienceLevel": "intermediate",
+  "theme": "AI Business Guide",
+  "keywords": [
+    "AI Business Guide",
+    "Understanding AI Business Guide",
+    "Implementing AI Business Guide",
+    "Optimizing AI Business Guide",
+    "Case Studies in AI Business Guide"
+  ],
+  "targetWordCount": 35000,
+  "chapterCount": 5,
+  "bookType": "business",
+  "publishDate": "2025-07-04",
+  "analysis": {
+    "primaryTheme": "AI Business Guide",
+    "subThemes": [
+      "Understanding AI Business Guide",
+      "Implementing AI Business Guide",
+      "Optimizing AI Business Guide",
+      "Case Studies in AI Business Guide"
+    ],
+    "targetAudience": {
+      "primary": "Business owners and entrepreneurs",
+      "secondary": [
+        "Freelancers",
+        "Small business teams",
+        "Startup founders"
+      ],
+      "level": "intermediate"
+    },
+    "marketPosition": {
+      "uniqueAngle": "Practical, actionable strategies with real-world examples",
+      "competingBooks": [
+        "Similar business automation books"
+      ],
+      "gap": "Focus on small business implementation"
+    },
+    "contentType": "business",
+    "estimatedLength": "medium",
+    "monetizationPotential": [
+      "AI tools affiliate links",
+      "Automation software recommendations",
+      "Consulting services"
+    ]
+  },
+  "chapters": [
+    {
+      "number": 1,
+      "id": "chapter-01",
+      "filename": "chapter-01.md",
+      "title": "Introduction to AI Business Guide",
+      "type": "introduction",
+      "summary": "An overview of AI Business Guide and what readers will learn",
+      "keyPoints": [
+        "The Problem",
+        "The Opportunity",
+        "The Solution Overview"
+      ],
+      "exercises": [],
+      "estimatedWords": 2500
+    },
+    {
+      "number": 2,
+      "id": "chapter-02",
+      "filename": "chapter-02.md",
+      "title": "Market Analysis in AI Business Guide",
+      "type": "body",
+      "summary": "Exploring market analysis aspects of AI Business Guide",
+      "keyPoints": [
+        "Understanding Market Analysis",
+        "Applying Market Analysis",
+        "Common mistakes"
+      ],
+      "exercises": [
+        "Practice market analysis"
+      ],
+      "estimatedWords": 7000
+    },
+    {
+      "number": 3,
+      "id": "chapter-03",
+      "filename": "chapter-03.md",
+      "title": "Strategy in AI Business Guide",
+      "type": "body",
+      "summary": "Exploring strategy aspects of AI Business Guide",
+      "keyPoints": [
+        "Understanding Strategy",
+        "Applying Strategy",
+        "Common mistakes"
+      ],
+      "exercises": [
+        "Practice strategy"
+      ],
+      "estimatedWords": 7000
+    },
+    {
+      "number": 4,
+      "id": "chapter-04",
+      "filename": "chapter-04.md",
+      "title": "Future Trends",
+      "type": "conclusion",
+      "summary": "Future Trends for your AI Business Guide journey",
+      "keyPoints": [
+        "Review key concepts",
+        "Plan next steps",
+        "Continue learning"
+      ],
+      "exercises": [],
+      "estimatedWords": 2000
+    },
+    {
+      "number": 5,
+      "id": "chapter-05",
+      "filename": "chapter-05.md",
+      "title": "Action Plan",
+      "type": "conclusion",
+      "summary": "Action Plan for your AI Business Guide journey",
+      "keyPoints": [
+        "Review key concepts",
+        "Plan next steps",
+        "Continue learning"
+      ],
+      "exercises": [],
+      "estimatedWords": 2000
+    }
+  ],
+  "guidelines": [
+    "Write for Business owners and entrepreneurs at intermediate level",
+    "Maintain a business style throughout",
+    "Include practical examples and real-world applications",
+    "Ensure each chapter builds on previous knowledge",
+    "Emphasize the unique angle: Practical, actionable strategies with real-world examples",
+    "Include hands-on exercises in each body chapter"
+  ],
+  "resources": {
+    "tools": [
+      "Online AI Business Guide communities",
+      "AI Business Guide practice tools",
+      "Professional AI Business Guide software"
+    ],
+    "references": [],
+    "furtherReading": [
+      "Advanced AI Business Guide techniques",
+      "AI Business Guide case studies",
+      "Industry reports on AI Business Guide"
+    ]
+  },
+  "outputDir": "test"
+}

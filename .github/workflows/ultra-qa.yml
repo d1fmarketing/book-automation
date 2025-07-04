@@ -1,0 +1,143 @@
+name: Ultra-QA Tests
+
+on:
+  workflow_call:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'tests/ultra-qa/**'
+      - 'scripts/run-ultra-qa.sh'
+      - '.github/workflows/ultra-qa.yml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ultra-qa:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: 🚀 Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: tests/ultra-qa/package-lock.json
+    
+    - name: 📦 Install test dependencies
+      run: |
+        cd tests/ultra-qa
+        npm ci || npm install
+    
+    - name: 🏗️ Generate test book
+      run: |
+        # Create a minimal test book for QA
+        mkdir -p build/test-book/{chapters,html,assets/images}
+        
+        # Create metadata
+        echo '{
+          "title": "Test Book",
+          "author": "QA Bot",
+          "description": "Test book for Ultra-QA"
+        }' > build/test-book/metadata.json
+        
+        # Create test chapters
+        for i in {1..5}; do
+          echo "# Chapter $i: Test Chapter
+          
+          This is test content for chapter $i. Lorem ipsum dolor sit amet, 
+          consectetur adipiscing elit. This paragraph contains enough words 
+          to make the tests meaningful.
+          
+          ## Section 1
+          
+          More content here with proper structure and formatting.
+          
+          ## Section 2
+          
+          Final section with conclusion." > build/test-book/chapters/chapter-0$i.md
+        done
+        
+        # Create minimal HTML
+        echo '<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="description" content="Test book for Ultra-QA">
+          <meta name="author" content="QA Bot">
+          <title>Test Book</title>
+        </head>
+        <body>
+          <main>
+            <h1>Test Book</h1>
+            <p>This is a test book with multiple chapters.</p>
+            <h2>Chapter 1</h2>
+            <p>Content goes here.</p>
+          </main>
+        </body>
+        </html>' > build/test-book/html/index.html
+        
+        # Create dummy PDF
+        echo "%PDF-1.4" > build/test-book/build/dist/ebook.pdf
+        mkdir -p build/test-book/build/dist
+    
+    - name: 🧪 Run Ultra-QA tests
+      run: |
+        ./scripts/run-ultra-qa.sh build/test-book test-results/ultra-qa html,content
+    
+    - name: 📊 Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ultra-qa-results
+        path: |
+          test-results/ultra-qa/
+        retention-days: 30
+    
+    - name: 📈 Publish test results
+      if: always()
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        files: test-results/ultra-qa/junit.xml
+        check_name: Ultra-QA Test Results
+        comment_mode: always
+    
+    - name: 💬 Comment PR
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const results = JSON.parse(fs.readFileSync('test-results/ultra-qa/results.json', 'utf8'));
+          
+          const { summary } = results;
+          const passRate = summary.total > 0 ? (summary.passed / summary.total * 100).toFixed(1) : 0;
+          
+          const comment = `## 🧪 Ultra-QA Test Results
+          
+          | Metric | Value |
+          |--------|-------|
+          | Total Tests | ${summary.total} |
+          | ✅ Passed | ${summary.passed} |
+          | ❌ Failed | ${summary.failed} |
+          | 📈 Pass Rate | ${passRate}% |
+          | ⏱️ Duration | ${(summary.duration / 1000).toFixed(1)}s |
+          
+          ${summary.failed > 0 ? '### ❌ Failures\n' + 
+            Object.entries(results.suites)
+              .filter(([_, suite]) => suite.failures && suite.failures.length > 0)
+              .map(([name, suite]) => 
+                suite.failures.map(f => `- **${name}/${f.test}**: ${f.message}`).join('\n')
+              ).join('\n')
+            : '✨ All tests passed!'}
+          
+          [View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
