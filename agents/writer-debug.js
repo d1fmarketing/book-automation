@@ -52,9 +52,10 @@ class WriterDebug {
         content += `In this chapter, we covered the essential aspects of ${chapter.title.toLowerCase()}. `;
         content += `Remember these key takeaways as you move forward.\n`;
         
-        // Save the chapter
+        // Save the chapter with zero-padded numbering
         const outputDir = options.outputDir || path.dirname(outline.path || 'build');
-        const chapterPath = path.join(outputDir, `chapter-${chapterNumber}.md`);
+        const paddedNumber = String(chapterNumber).padStart(2, '0');
+        const chapterPath = path.join(outputDir, `chapter-${paddedNumber}.md`);
         
         await fs.mkdir(outputDir, { recursive: true });
         await fs.writeFile(chapterPath, content);

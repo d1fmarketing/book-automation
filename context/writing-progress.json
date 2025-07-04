@@ -843,5 +843,25 @@
         "title": "Chapter 1: Test Quick Pipeline Part 1"
       }
     }
+  },
+  "Test Duplicate Fix": {
+    "title": "Test Duplicate Fix",
+    "chapters": {
+      "1": {
+        "completed": "2025-07-04T18:40:11.519Z",
+        "wordCount": 932,
+        "title": "Chapter 1: Test Duplicate Fix Part 1"
+      }
+    }
+  },
+  "Test No Duplicates": {
+    "title": "Test No Duplicates",
+    "chapters": {
+      "1": {
+        "completed": "2025-07-04T18:41:26.193Z",
+        "wordCount": 932,
+        "title": "Chapter 1: Test No Duplicates Part 1"
+      }
+    }
   }
 }

@@ -99,15 +99,7 @@ Environment:
             if (result.success) {
                 console.log(`✅ Chapter saved to: ${result.path}`);
                 
-                // Ensure it's saved in the expected location for orchestrator
-                if (options.outputDir && result.path) {
-                    const expectedPath = path.join(options.outputDir, `chapter-${options.chapter}.md`);
-                    if (result.path !== expectedPath) {
-                        await fs.mkdir(options.outputDir, { recursive: true });
-                        await fs.copyFile(result.path, expectedPath);
-                        console.log(`📋 Copied to: ${expectedPath}`);
-                    }
-                }
+                // No need to create duplicate files - the writer already saves with proper naming
                 
                 return { success: true };
             } else {

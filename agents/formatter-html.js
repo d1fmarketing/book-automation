@@ -314,11 +314,33 @@ class FormatterHTML {
             };
         }
         
-        // Load chapters from root directory
-        const chapterFiles = await this.getChapterFiles(bookDir);
+        // Load chapters - prefer chapters subdirectory
+        const chaptersDir = path.join(bookDir, 'chapters');
+        let chapterDir = bookDir;
+        
+        try {
+            await fs.stat(chaptersDir);
+            chapterDir = chaptersDir;
+        } catch {
+            // Use root directory if chapters subdirectory doesn't exist
+        }
+        
+        const chapterFiles = await this.getChapterFiles(chapterDir);
+        const seenContent = new Map(); // Track content to avoid duplicates
         
         for (const file of chapterFiles) {
-            const content = await fs.readFile(path.join(bookDir, file), 'utf8');
+            const content = await fs.readFile(path.join(chapterDir, file), 'utf8');
+            
+            // Create content hash to detect duplicates
+            const contentHash = crypto.createHash('md5').update(content).digest('hex');
+            
+            // Skip if we've already seen this content
+            if (seenContent.has(contentHash)) {
+                console.log(`⚠️  Skipping duplicate chapter: ${file}`);
+                continue;
+            }
+            seenContent.set(contentHash, file);
+            
             const chapter = this.parseChapter(content, file);
             data.chapters.push(chapter);
         }

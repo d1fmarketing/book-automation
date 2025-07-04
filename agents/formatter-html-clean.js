@@ -130,16 +130,40 @@ class CleanHTMLFormatter {
     }
 
     async loadChapters(bookDir) {
-        const files = await fs.readdir(bookDir);
+        // Look for chapters in both root and chapters subdirectory
+        const chaptersDir = path.join(bookDir, 'chapters');
+        let chapterDir = bookDir;
+        
+        try {
+            // Check if chapters subdirectory exists
+            await fs.stat(chaptersDir);
+            chapterDir = chaptersDir;
+        } catch {
+            // Use root directory if chapters subdirectory doesn't exist
+        }
+        
+        const files = await fs.readdir(chapterDir);
         const chapterFiles = files
             .filter(f => f.match(/^chapter-\d+\.md$/))
             .sort();
         
         const chapters = [];
+        const seenContent = new Map(); // Track content to avoid duplicates
         
         for (const file of chapterFiles) {
-            const content = await fs.readFile(path.join(bookDir, file), 'utf8');
+            const content = await fs.readFile(path.join(chapterDir, file), 'utf8');
             const number = parseInt(file.match(/chapter-(\d+)/)[1]);
+            
+            // Create content hash to detect duplicates
+            const crypto = require('crypto');
+            const contentHash = crypto.createHash('md5').update(content).digest('hex');
+            
+            // Skip if we've already seen this content
+            if (seenContent.has(contentHash)) {
+                console.log(`⚠️  Skipping duplicate chapter: ${file}`);
+                continue;
+            }
+            seenContent.set(contentHash, file);
             
             // Extract title from first heading
             const titleMatch = content.match(/^#\s+(.+)$/m);
