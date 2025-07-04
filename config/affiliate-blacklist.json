@@ -1,0 +1,25 @@
+{
+  "domains": [
+    "competitor1.com",
+    "competitor2.net",
+    "scamsite.org",
+    "blacklisted-merchant.com"
+  ],
+  "products": [
+    "B000SCAM01",
+    "B000FAKE02",
+    "BADPRODUCT123"
+  ],
+  "keywords": [
+    "illegal",
+    "scam",
+    "fraud",
+    "pyramid scheme",
+    "get rich quick"
+  ],
+  "competitors": [
+    "CompetitorBrand",
+    "RivalProduct",
+    "AlternativeService"
+  ]
+}

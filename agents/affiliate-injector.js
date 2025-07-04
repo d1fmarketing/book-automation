@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Affiliate Injector Agent
+ * Affiliate Injector Agent v1.1
  * 
  * Intelligently inserts relevant affiliate links into ebook content.
- * Supports multiple affiliate networks with caching and rate limiting.
+ * Supports multiple affiliate networks with caching, rate limiting, and blacklist.
  * 
  * Usage:
  *   agentcli call affiliate.inject --content="path/to/content.md" --niche="business"
@@ -14,9 +14,8 @@
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
-const { exec } = require('child_process');
-const { promisify } = require('util');
-const execAsync = promisify(exec);
+const axios = require('axios');
+const { getRateLimiter } = require('../src/middleware/RateLimiter');
 
 // Affiliate network configurations
 const AFFILIATE_NETWORKS = {
@@ -99,15 +98,78 @@ class AffiliateInjector {
         this.cloakLinks = options.cloakLinks !== false;
         this.trackingEnabled = options.tracking !== false;
         this.customProducts = options.customProducts || {};
+        this.maxLinks = options.maxLinks || 10;
+        
+        // Blacklist configuration
+        this.blacklist = {
+            domains: new Set(options.blacklistDomains || []),
+            products: new Set(options.blacklistProducts || []),
+            keywords: new Set(options.blacklistKeywords || []),
+            competitors: new Set(options.blacklistCompetitors || [])
+        };
+        
+        // Rate limiting
+        this.rateLimiter = null;
         this.lastRequestTime = {};
+        
+        // Load blacklist from file if provided
+        if (options.blacklistFile) {
+            this.loadBlacklist(options.blacklistFile);
+        }
+    }
+    
+    async initialize() {
+        if (!this.rateLimiter) {
+            this.rateLimiter = getRateLimiter();
+        }
+    }
+    
+    async loadBlacklist(blacklistFile) {
+        try {
+            const content = await fs.readFile(blacklistFile, 'utf8');
+            const blacklistData = JSON.parse(content);
+            
+            if (blacklistData.domains) {
+                blacklistData.domains.forEach(d => this.blacklist.domains.add(d));
+            }
+            if (blacklistData.products) {
+                blacklistData.products.forEach(p => this.blacklist.products.add(p));
+            }
+            if (blacklistData.keywords) {
+                blacklistData.keywords.forEach(k => this.blacklist.keywords.add(k));
+            }
+            if (blacklistData.competitors) {
+                blacklistData.competitors.forEach(c => this.blacklist.competitors.add(c));
+            }
+            
+            console.log(`📋 Loaded blacklist with ${this.getTotalBlacklistItems()} items`);
+        } catch (error) {
+            console.error(`⚠️  Failed to load blacklist: ${error.message}`);
+        }
+    }
+    
+    getTotalBlacklistItems() {
+        return this.blacklist.domains.size + 
+               this.blacklist.products.size + 
+               this.blacklist.keywords.size + 
+               this.blacklist.competitors.size;
     }
 
     async injectIntoContent(contentPath, options = {}) {
         console.log(`💰 Injecting affiliate links into: ${contentPath}`);
         
         try {
+            await this.initialize();
+            
             // Read content
             const content = await fs.readFile(contentPath, 'utf8');
+            
+            // Check for blacklisted content
+            const blacklistViolations = this.checkBlacklistViolations(content);
+            if (blacklistViolations.length > 0) {
+                console.warn(`⚠️  Found ${blacklistViolations.length} blacklist violations`);
+                blacklistViolations.forEach(v => console.warn(`   - ${v}`));
+            }
             
             // Parse content structure
             const structure = this.parseContent(content);
@@ -115,28 +177,38 @@ class AffiliateInjector {
             // Find affiliate opportunities
             const opportunities = await this.findOpportunities(structure, options);
             
+            // Filter out blacklisted opportunities
+            const filteredOpportunities = this.filterBlacklisted(opportunities);
+            console.log(`🔍 Found ${opportunities.length} opportunities, ${filteredOpportunities.length} after filtering`);
+            
             // Generate affiliate links
-            const links = await this.generateLinks(opportunities);
+            const links = await this.generateLinks(filteredOpportunities);
+            
+            // Limit number of links
+            const limitedLinks = links.slice(0, this.maxLinks);
+            if (links.length > this.maxLinks) {
+                console.log(`🔗 Limited to ${this.maxLinks} links (had ${links.length})`);
+            }
             
             // Inject links into content
-            const enhanced = await this.injectLinks(content, links, structure);
+            const enhanced = await this.injectLinks(content, limitedLinks, structure);
             
             // Add disclosure if needed
-            const finalContent = this.addDisclosure(enhanced, links);
+            const finalContent = this.addDisclosure(enhanced, limitedLinks);
             
             // Save enhanced content
             const outputPath = options.outputPath || contentPath.replace('.md', '-affiliate.md');
             await fs.writeFile(outputPath, finalContent);
             
             // Generate report
-            const report = this.generateReport(links, opportunities);
+            const report = this.generateReport(limitedLinks, opportunities, blacklistViolations);
             
-            console.log(`✅ Injected ${links.length} affiliate links`);
+            console.log(`✅ Injected ${limitedLinks.length} affiliate links`);
             console.log(`💵 Estimated earnings potential: ${report.earningsPotential}`);
             
             return {
                 success: true,
-                linksInjected: links.length,
+                linksInjected: limitedLinks.length,
                 outputPath,
                 report
             };
@@ -148,6 +220,65 @@ class AffiliateInjector {
                 error: error.message
             };
         }
+    }
+    
+    checkBlacklistViolations(content) {
+        const violations = [];
+        const contentLower = content.toLowerCase();
+        
+        // Check for blacklisted keywords
+        for (const keyword of this.blacklist.keywords) {
+            if (contentLower.includes(keyword.toLowerCase())) {
+                violations.push(`Blacklisted keyword: "${keyword}"`);
+            }
+        }
+        
+        // Check for competitor mentions
+        for (const competitor of this.blacklist.competitors) {
+            if (contentLower.includes(competitor.toLowerCase())) {
+                violations.push(`Competitor mention: "${competitor}"`);
+            }
+        }
+        
+        // Check existing links for blacklisted domains
+        const linkMatches = content.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g);
+        for (const match of linkMatches) {
+            const url = match[2];
+            try {
+                const urlObj = new URL(url);
+                if (this.blacklist.domains.has(urlObj.hostname)) {
+                    violations.push(`Blacklisted domain in existing link: ${urlObj.hostname}`);
+                }
+            } catch {
+                // Ignore invalid URLs
+            }
+        }
+        
+        return violations;
+    }
+    
+    filterBlacklisted(opportunities) {
+        return opportunities.filter(opp => {
+            const textLower = opp.text.toLowerCase();
+            
+            // Check blacklisted keywords in opportunity text
+            for (const keyword of this.blacklist.keywords) {
+                if (textLower.includes(keyword.toLowerCase())) {
+                    console.log(`   ⛔ Filtered opportunity containing blacklisted keyword: "${keyword}"`);
+                    return false;
+                }
+            }
+            
+            // Check competitor mentions
+            for (const competitor of this.blacklist.competitors) {
+                if (textLower.includes(competitor.toLowerCase())) {
+                    console.log(`   ⛔ Filtered opportunity mentioning competitor: "${competitor}"`);
+                    return false;
+                }
+            }
+            
+            return true;
+        });
     }
 
     parseContent(content) {
@@ -246,7 +377,10 @@ class AffiliateInjector {
         
         // Calculate how many links to inject
         const totalParagraphs = structure.paragraphs.length;
-        const targetLinks = Math.ceil(totalParagraphs * strategy.density);
+        const targetLinks = Math.min(
+            Math.ceil(totalParagraphs * strategy.density),
+            this.maxLinks
+        );
         
         console.log(`📊 Found ${totalParagraphs} paragraphs, targeting ${targetLinks} affiliate links`);
         
@@ -325,13 +459,21 @@ class AffiliateInjector {
             
             if (products.length === 0) continue;
             
+            // Filter out blacklisted products
+            const allowedProducts = products.filter(p => !this.blacklist.products.has(p.id));
+            
+            if (allowedProducts.length === 0) {
+                console.log(`   ⛔ All products blacklisted for opportunity`);
+                continue;
+            }
+            
             // Select best product
-            const product = products[0]; // In production, use AI to match best product
+            const product = allowedProducts[0]; // In production, use AI to match best product
             
             // Generate affiliate link
             const link = await this.createAffiliateLink(product, opp);
             
-            if (link) {
+            if (link && !this.isBlacklistedUrl(link.url)) {
                 links.push({
                     ...link,
                     opportunity: opp,
@@ -341,6 +483,19 @@ class AffiliateInjector {
         }
         
         return links;
+    }
+    
+    isBlacklistedUrl(url) {
+        try {
+            const urlObj = new URL(url);
+            if (this.blacklist.domains.has(urlObj.hostname)) {
+                console.log(`   ⛔ Blacklisted domain: ${urlObj.hostname}`);
+                return true;
+            }
+        } catch {
+            // Invalid URL
+        }
+        return false;
     }
 
     determineProductType(text) {
@@ -462,16 +617,26 @@ class AffiliateInjector {
         const config = AFFILIATE_NETWORKS[network];
         if (!config.rateLimit) return;
         
-        const now = Date.now();
-        const lastRequest = this.lastRequestTime[network] || 0;
-        const timeSinceLastRequest = now - lastRequest;
-        
-        if (timeSinceLastRequest < config.rateLimit) {
-            const waitTime = config.rateLimit - timeSinceLastRequest;
-            await this.sleep(waitTime);
+        // Use rate limiter if available
+        if (this.rateLimiter) {
+            const canProceed = await this.rateLimiter.checkLimit(network, 'request');
+            if (!canProceed.allowed) {
+                await this.sleep(canProceed.retryAfter || config.rateLimit);
+            }
+            await this.rateLimiter.recordUsage(network, { requests: 1 });
+        } else {
+            // Fallback to simple rate limiting
+            const now = Date.now();
+            const lastRequest = this.lastRequestTime[network] || 0;
+            const timeSinceLastRequest = now - lastRequest;
+            
+            if (timeSinceLastRequest < config.rateLimit) {
+                const waitTime = config.rateLimit - timeSinceLastRequest;
+                await this.sleep(waitTime);
+            }
+            
+            this.lastRequestTime[network] = Date.now();
         }
-        
-        this.lastRequestTime[network] = Date.now();
     }
 
     addTracking(url, opportunity) {
@@ -596,13 +761,14 @@ class AffiliateInjector {
         return content;
     }
 
-    generateReport(links, opportunities) {
+    generateReport(links, opportunities, blacklistViolations) {
         const report = {
             totalOpportunities: opportunities.length,
             linksInjected: links.length,
             conversionRate: (links.length / opportunities.length * 100).toFixed(1) + '%',
             linksByType: {},
             linksByNetwork: {},
+            blacklistViolations: blacklistViolations.length,
             estimatedEarnings: 0
         };
         
@@ -649,6 +815,18 @@ class AffiliateInjector {
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+    
+    async saveBlacklist(blacklistFile) {
+        const blacklistData = {
+            domains: Array.from(this.blacklist.domains),
+            products: Array.from(this.blacklist.products),
+            keywords: Array.from(this.blacklist.keywords),
+            competitors: Array.from(this.blacklist.competitors)
+        };
+        
+        await fs.writeFile(blacklistFile, JSON.stringify(blacklistData, null, 2));
+        console.log(`💾 Saved blacklist with ${this.getTotalBlacklistItems()} items`);
+    }
 
     async processEbookDirectory(ebookDir, options = {}) {
         console.log(`💰 Processing entire ebook directory: ${ebookDir}`);
@@ -671,11 +849,15 @@ class AffiliateInjector {
         
         // Generate summary report
         const totalLinks = results.reduce((sum, r) => sum + (r.linksInjected || 0), 0);
+        const totalViolations = results.reduce((sum, r) => sum + (r.report?.blacklistViolations || 0), 0);
+        
         const report = {
             timestamp: new Date().toISOString(),
             filesProcessed: results.length,
             totalLinksInjected: totalLinks,
+            totalBlacklistViolations: totalViolations,
             averageLinksPerFile: (totalLinks / results.length).toFixed(1),
+            blacklistSize: this.getTotalBlacklistItems(),
             results
         };
         
@@ -684,6 +866,7 @@ class AffiliateInjector {
         
         console.log(`\n✅ Affiliate injection complete`);
         console.log(`📊 Total links injected: ${totalLinks}`);
+        console.log(`⛔ Blacklist violations: ${totalViolations}`);
         console.log(`📄 Report saved to: ${reportPath}`);
         
         return report;
@@ -695,6 +878,43 @@ if (require.main === module) {
     const args = process.argv.slice(2);
     const options = {};
     
+    if (args.length === 0 || args.includes('--help')) {
+        console.log(`
+Affiliate Injector v1.1 - Intelligent Affiliate Link Management
+
+Usage:
+  affiliate-injector.js --content="path/to/content.md" [options]
+  affiliate-injector.js --ebook-dir="path/to/ebook" [options]
+
+Options:
+  --networks="amazon,shareasale"     Affiliate networks to use
+  --strategy="natural"               Placement strategy (natural, aggressive, conservative)
+  --niche="business"                 Content niche (business, tech, health, finance)
+  --max-links=10                     Maximum links per file
+  --blacklist-file="blacklist.json"  Load blacklist from file
+  --no-cloak                         Disable link cloaking
+  --no-tracking                      Disable UTM tracking
+
+Blacklist Management:
+  --add-blacklist-domain="example.com"     Add domain to blacklist
+  --add-blacklist-product="B000123"       Add product ID to blacklist
+  --add-blacklist-keyword="competitor"    Add keyword to blacklist
+  --save-blacklist="blacklist.json"       Save current blacklist
+
+Examples:
+  # Process single file
+  affiliate-injector.js --content="chapter-01.md" --niche="business"
+  
+  # Process entire ebook with blacklist
+  affiliate-injector.js --ebook-dir="build/my-book" --blacklist-file="blacklist.json"
+  
+  # Add to blacklist and save
+  affiliate-injector.js --add-blacklist-domain="competitor.com" --save-blacklist="blacklist.json"
+        `);
+        process.exit(0);
+    }
+    
+    // Parse arguments
     args.forEach(arg => {
         if (arg.startsWith('--')) {
             const [key, value] = arg.slice(2).split('=');
@@ -702,25 +922,47 @@ if (require.main === module) {
         }
     });
     
-    if (!options.content && !options['ebook-dir']) {
-        console.error('Usage: affiliate-injector.js --content="path/to/content.md" [--niche="business"] [--strategy="natural"]');
-        console.error('   or: affiliate-injector.js --ebook-dir="path/to/ebook" [--networks="amazon,shareasale"]');
-        console.error('\nNetworks: amazon, shareasale, clickbank, gumroad');
-        console.error('Strategies: natural, aggressive, conservative');
-        console.error('Niches: business, tech, health, finance');
-        process.exit(1);
-    }
+    // Build blacklist arrays
+    const blacklistDomains = [];
+    const blacklistProducts = [];
+    const blacklistKeywords = [];
+    const blacklistCompetitors = [];
+    
+    Object.keys(options).forEach(key => {
+        if (key.startsWith('add-blacklist-domain')) {
+            blacklistDomains.push(options[key]);
+        } else if (key.startsWith('add-blacklist-product')) {
+            blacklistProducts.push(options[key]);
+        } else if (key.startsWith('add-blacklist-keyword')) {
+            blacklistKeywords.push(options[key]);
+        } else if (key.startsWith('add-blacklist-competitor')) {
+            blacklistCompetitors.push(options[key]);
+        }
+    });
     
     const injector = new AffiliateInjector({
         networks: options.networks ? options.networks.split(',') : ['amazon', 'shareasale'],
         strategy: options.strategy || 'natural',
         niche: options.niche || 'business',
-        cloakLinks: options.cloak !== 'false',
-        tracking: options.tracking !== 'false'
+        cloakLinks: !options['no-cloak'],
+        tracking: !options['no-tracking'],
+        maxLinks: options['max-links'] ? parseInt(options['max-links']) : 10,
+        blacklistFile: options['blacklist-file'],
+        blacklistDomains,
+        blacklistProducts,
+        blacklistKeywords,
+        blacklistCompetitors
     });
     
     (async () => {
         try {
+            // Handle blacklist management commands
+            if (options['save-blacklist']) {
+                await injector.saveBlacklist(options['save-blacklist']);
+                console.log('✅ Blacklist saved');
+            }
+            
+            // Process content
             if (options.content) {
                 const result = await injector.injectIntoContent(options.content, options);
                 console.log('\nResult:', JSON.stringify(result, null, 2));
@@ -729,8 +971,12 @@ if (require.main === module) {
                 console.log('\nSummary:', JSON.stringify({
                     filesProcessed: report.filesProcessed,
                     totalLinksInjected: report.totalLinksInjected,
+                    totalBlacklistViolations: report.totalBlacklistViolations,
                     averageLinksPerFile: report.averageLinksPerFile
                 }, null, 2));
+            } else if (!options['save-blacklist']) {
+                console.error('No content or ebook directory specified');
+                process.exit(1);
             }
         } catch (error) {
             console.error('Fatal error:', error);
