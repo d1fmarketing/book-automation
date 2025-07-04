@@ -1,0 +1,207 @@
+name: Manifest Gate - Engenheiro Bravo
+
+on:
+  workflow_run:
+    workflows: ["Build eBook"]
+    types:
+      - completed
+  workflow_call:
+    inputs:
+      manifest_path:
+        description: 'Path to run manifest'
+        required: false
+        default: 'build/run-manifest.json'
+        type: string
+
+jobs:
+  validate-manifest:
+    name: Validate Pipeline Manifest
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Check manifest exists
+      id: check-manifest
+      run: |
+        if [ ! -f "${{ inputs.manifest_path || 'build/run-manifest.json' }}" ]; then
+          echo "❌ Manifest not found!"
+          exit 1
+        fi
+        echo "✅ Manifest found"
+        
+    - name: Validate manifest content
+      id: validate
+      run: |
+        node -e "
+        const fs = require('fs');
+        const manifestPath = '${{ inputs.manifest_path || 'build/run-manifest.json' }}';
+        
+        console.log('🔍 Validating manifest:', manifestPath);
+        
+        try {
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+          
+          // Required steps in exact order
+          const requiredSteps = [
+            'plan.outline',
+            'research.perplexity',
+            'write.chapter',
+            'style.polish',
+            'img.illustrate',
+            'format.html',
+            'qa.fact',
+            'aff.inject',
+            'qa.html'
+          ];
+          
+          console.log('\n📋 Manifest Summary:');
+          console.log('Topic:', manifest.topic);
+          console.log('Steps completed:', manifest.steps.length);
+          console.log('Final flag:', manifest.final);
+          
+          // Check all required steps are present
+          const missingSteps = requiredSteps.filter(step => !manifest.steps.includes(step));
+          
+          if (missingSteps.length > 0) {
+            console.error('\n❌ Missing required steps:', missingSteps);
+            process.exit(1);
+          }
+          
+          console.log('✅ All required steps found');
+          
+          // Check for PDF generation attempts
+          const manifestStr = JSON.stringify(manifest);
+          if (manifestStr.toLowerCase().includes('pdf') || manifestStr.includes('.pdf')) {
+            console.error('\n❌ PDF generation detected in manifest!');
+            console.error('This pipeline generates HTML/EPUB only.');
+            process.exit(1);
+          }
+          
+          // Check QA scores
+          if (!manifest.qa || typeof manifest.qa.lighthouse !== 'number') {
+            console.error('\n❌ QA scores missing');
+            process.exit(1);
+          }
+          
+          const lighthouseScore = manifest.qa.lighthouse * 100;
+          console.log('\n📊 QA Scores:');
+          console.log('Lighthouse:', lighthouseScore + '/100');
+          console.log('Devices passed:', manifest.qa.devicesPass || 0);
+          
+          if (lighthouseScore < 90) {
+            console.error('\n❌ Lighthouse score too low:', lighthouseScore, '(required: 90+)');
+            process.exit(1);
+          }
+          
+          console.log('✅ QA scores meet threshold');
+          
+          // Check final flag
+          if (!manifest.final) {
+            console.error('\n❌ Manifest not marked as final');
+            process.exit(1);
+          }
+          
+          console.log('✅ Manifest marked as final');
+          
+          // Check for errors
+          if (manifest.errors && manifest.errors.length > 0) {
+            console.log('\n⚠️  Pipeline had', manifest.errors.length, 'errors (retries handled)');
+          }
+          
+          console.log('\n✅ MANIFEST VALIDATION PASSED!');
+          
+          // Output for next job
+          console.log('::set-output name=topic::' + manifest.topic);
+          console.log('::set-output name=lighthouse_score::' + lighthouseScore);
+          console.log('::set-output name=steps_count::' + manifest.steps.length);
+          
+        } catch (error) {
+          console.error('❌ Manifest validation failed:', error.message);
+          process.exit(1);
+        }
+        "
+        
+    - name: Block if PDF detected
+      run: |
+        # Check for any PDF generation attempts
+        if grep -r "build:pdf\|generate-pdf\|.pdf" build/run-manifest.json 2>/dev/null; then
+          echo "❌ PDF generation detected in manifest!"
+          exit 1
+        fi
+        
+        # Check for PDF files
+        if find build -name "*.pdf" 2>/dev/null | grep -q .; then
+          echo "❌ PDF files found in build directory!"
+          exit 1
+        fi
+        
+        echo "✅ No PDF generation detected"
+        
+    - name: Generate validation report
+      if: always()
+      run: |
+        cat > manifest-validation-report.md << EOF
+        # Manifest Validation Report
+        
+        **Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        **Workflow**: ${{ github.workflow }}
+        **Run**: ${{ github.run_id }}
+        
+        ## Results
+        
+        - Manifest found: ${{ steps.check-manifest.outcome == 'success' && '✅' || '❌' }}
+        - Validation passed: ${{ steps.validate.outcome == 'success' && '✅' || '❌' }}
+        - Topic: ${{ steps.validate.outputs.topic || 'N/A' }}
+        - Lighthouse Score: ${{ steps.validate.outputs.lighthouse_score || 'N/A' }}/100
+        - Steps Completed: ${{ steps.validate.outputs.steps_count || 'N/A' }}/9
+        
+        ## Required Steps Checklist
+        
+        - [ ] plan.outline
+        - [ ] research.perplexity
+        - [ ] write.chapter
+        - [ ] style.polish
+        - [ ] img.illustrate
+        - [ ] format.html
+        - [ ] qa.fact
+        - [ ] aff.inject
+        - [ ] qa.html
+        
+        EOF
+        
+    - name: Upload validation report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: manifest-validation-report
+        path: manifest-validation-report.md
+        
+  deployment-gate:
+    name: Deployment Gate
+    needs: validate-manifest
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - name: Check deployment approval
+      run: |
+        echo "✅ Manifest validation passed"
+        echo "✅ All quality gates passed"
+        echo "✅ Ready for deployment"
+        
+        # In production, this would trigger deployment workflow
+        echo "::notice::Pipeline validated and ready for deployment"
+        
+    - name: Prevent deployment if failed
+      if: failure()
+      run: |
+        echo "❌ Deployment blocked - manifest validation failed"
+        echo "::error::Cannot deploy without valid manifest"
+        exit 1

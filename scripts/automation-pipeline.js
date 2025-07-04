@@ -21,8 +21,34 @@ const HostingerDeploy = require('../agents/hostinger-deploy');
 const RedisTopicBuffer = require('../utils/redis-topic-buffer');
 const { callAgentWithRetry } = require('../utils/agentcli-retry-wrapper');
 
+// Import orchestrator for engenheiro bravo mode
+const PipelineOrchestrator = require('./orchestrator');
+
 // Enhanced automation pipeline with all agents
 async function runAutomationPipeline(options = {}) {
+  // Use orchestrator mode if enabled (engenheiro bravo)
+  if (options.orchestrator || process.env.USE_ORCHESTRATOR === 'true') {
+    console.log('🔥 ENGENHEIRO BRAVO MODE ACTIVATED\n');
+    
+    let topic = options.topic;
+    if (!topic) {
+      // Get topic from research if not provided
+      const topics = await researchTrendingTopics();
+      if (topics.length === 0) {
+        console.log('⚠️  No new topics found');
+        return null;
+      }
+      topic = topics[0].title;
+    }
+    
+    const orchestrator = new PipelineOrchestrator(topic, {
+      maxAttempts: options.maxAttempts || 10
+    });
+    
+    return await orchestrator.run();
+  }
+  
+  // Original pipeline mode (legacy)
   const startTime = Date.now();
   console.log('🚀 MONEY MACHINE - ENHANCED AUTOMATION PIPELINE\n');
   console.log('=' .repeat(60));
@@ -272,8 +298,8 @@ async function runAutomationPipeline(options = {}) {
     
     console.log(`✅ Affiliate links injected: ${affiliateReport.totalLinksInjected} total`);
     
-    // 10. GENERATE FINAL PDF
-    console.log('\n📄 PHASE 10: Generating professional PDF...');
+    // 10. GENERATE HTML EBOOK (NO PDF!)
+    console.log('\n📄 PHASE 10: Generating HTML ebook...');
     console.log('-'.repeat(40));
     
     const metadata = {
@@ -288,19 +314,10 @@ async function runAutomationPipeline(options = {}) {
       JSON.stringify(metadata, null, 2)
     );
     
-    // Generate PDF using the ultra preset
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
-    const execAsync = promisify(exec);
+    // HTML generation is handled by formatter-html agent
+    console.log('✅ HTML ebook ready for deployment');
     
-    try {
-      await execAsync(`node scripts/generate-pdf-ultra.js --book-dir="${outline.outputDir}"`);
-      console.log('✅ PDF generated successfully');
-    } catch (error) {
-      console.error('⚠️  PDF generation failed:', error.message);
-    }
-    
-    const pdfPath = path.join(outline.outputDir, 'final', `${outline.metadata.title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+    const htmlPath = path.join(outline.outputDir, 'html', 'index.html');
     
     // 11. PUBLISH TO PLATFORMS
     let publishResults = null;
@@ -312,7 +329,7 @@ async function runAutomationPipeline(options = {}) {
       trackAgent('publish.gumroad');
       
       publishResults = await publishEbook({
-        pdfPath,
+        htmlPath,
         topic: selectedTopic,
         metadata,
         price: config.pricePoint
@@ -535,6 +552,12 @@ if (require.main === module) {
     console.log('🏃 DRY RUN MODE - No actual publishing or deployment');
     options.autoPublish = false;
     options.deploy = false;
+  }
+  
+  // Enable orchestrator mode with --bravo flag
+  if (options.bravo || process.env.ENGENHEIRO_BRAVO === 'true') {
+    options.orchestrator = true;
+    console.log('🔥 ENGENHEIRO BRAVO MODE ENABLED');
   }
   
   if (count > 1) {

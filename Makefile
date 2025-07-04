@@ -12,6 +12,7 @@ rebuild:
 clean:
 	@echo "🧹 Running safe cleanup..."
 	@./scripts/clean-build.sh -y
+	@find build dist -type f -name '*.pdf' -delete 2>/dev/null || true
 
 .PHONY: clean-dry
 clean-dry:
@@ -23,21 +24,15 @@ clean-interactive:
 	@echo "🧹 Interactive cleanup..."
 	@./scripts/clean-build.sh
 
-# Atalho direto
-.PHONY: pdf
-pdf:
-	npm run build:pdf
+# HTML ebook generation
+.PHONY: html
+html:
+	npm run build:html
 
-# PDF com verificação QA
-.PHONY: pdf-qa
-pdf-qa:
-	npm run build:pdf
-	node scripts/pdf-qa-loop-real.js
-
-# PDF sem QA (desenvolvimento rápido)
-.PHONY: pdf-fast
-pdf-fast:
-	SKIP_PDF_QA=1 npm run build:pdf
+# Run QA on HTML
+.PHONY: qa
+qa:
+	npm run qa:html
 
 # Grammar checking commands
 .PHONY: grammar-server
@@ -47,6 +42,31 @@ grammar-server:
 .PHONY: grammar
 grammar:
 	npm run grammar
+
+# Engenheiro Bravo commands
+.PHONY: bravo
+bravo:
+	@echo "🔥 Starting Engenheiro Bravo pipeline..."
+	ENGENHEIRO_BRAVO=true npm run money:generate
+
+.PHONY: bravo-watch
+bravo-watch:
+	@echo "🐕 Starting pipeline watchdog..."
+	npm run money:bravo:watch
+
+.PHONY: bravo-pm2
+bravo-pm2:
+	@echo "🚀 Starting pipeline with PM2..."
+	npm run money:bravo:pm2
+
+.PHONY: manifest
+manifest:
+	@echo "📋 Checking manifest status..."
+	@if [ -f build/run-manifest.json ]; then \
+		cat build/run-manifest.json | jq .; \
+	else \
+		echo "No manifest found"; \
+	fi
 
 .PHONY: grammar-check
 grammar-check:

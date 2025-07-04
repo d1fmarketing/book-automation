@@ -223,64 +223,24 @@ Write the complete chapter content in Markdown format. Make it engaging, valuabl
     }
 
     async callClaude(prompt) {
-        // Fallback implementation without agentcli
-        // Generate chapter content based on the prompt
+        const tempFile = path.join('/tmp', `writer-${Date.now()}.txt`);
+        await fs.writeFile(tempFile, prompt);
         
-        // Extract chapter info from prompt
-        const chapterMatch = prompt.match(/CHAPTER (\d+): ([^\n]+)/);
-        const chapterNum = chapterMatch ? chapterMatch[1] : '1';
-        const chapterTitle = chapterMatch ? chapterMatch[2] : 'Introduction';
-        
-        // Generate structured content
-        let content = `## Overview\n\n`;
-        content += `In this chapter, we'll explore ${chapterTitle.toLowerCase()}. This is a crucial topic that every business owner needs to understand.\n\n`;
-        
-        // Main sections
-        content += `## Understanding the Fundamentals\n\n`;
-        content += `When starting a business, one of the most important lessons is that success rarely comes overnight. The brutal truth is that most businesses fail not because of bad ideas, but because of poor execution and unrealistic expectations.\n\n`;
-        
-        content += `### The Reality Check\n\n`;
-        content += `- **90% of startups fail** within the first 5 years\n`;
-        content += `- **Cash flow problems** are the #1 killer of small businesses\n`;
-        content += `- **Customer acquisition** costs are always higher than expected\n`;
-        content += `- **Time to profitability** is typically 2-3x longer than projected\n\n`;
-        
-        content += `## Key Lessons from Successful Entrepreneurs\n\n`;
-        content += `### 1. Focus on Revenue, Not Vanity Metrics\n\n`;
-        content += `Many new entrepreneurs get caught up in metrics that don't matter. Website visitors, social media followers, and app downloads mean nothing if they don't convert to paying customers.\n\n`;
-        
-        content += `### 2. Your First Product Will Not Be Perfect\n\n`;
-        content += `The pursuit of perfection kills more businesses than competition ever will. Launch with a minimum viable product (MVP) and iterate based on real customer feedback.\n\n`;
-        
-        content += `### 3. Sales Solve Everything\n\n`;
-        content += `When in doubt, focus on sales. A business with strong sales can survive almost any challenge. Without sales, even the best product will fail.\n\n`;
-        
-        content += `## Practical Implementation\n\n`;
-        content += `Here's how to apply these lessons to your business:\n\n`;
-        content += `1. **Set realistic timelines** - Whatever you think it will take, multiply by 3\n`;
-        content += `2. **Track the right metrics** - Revenue, customer acquisition cost, lifetime value\n`;
-        content += `3. **Talk to customers daily** - Their feedback is worth more than any consultant\n`;
-        content += `4. **Build a cash buffer** - Have at least 6 months of runway\n\n`;
-        
-        content += `## Action Steps\n\n`;
-        content += `1. Review your current business metrics and identify vanity metrics to stop tracking\n`;
-        content += `2. Calculate your true customer acquisition cost including all hidden expenses\n`;
-        content += `3. Set up weekly customer feedback calls\n`;
-        content += `4. Create a realistic cash flow projection for the next 12 months\n\n`;
-        
-        content += `## Conclusion\n\n`;
-        content += `The brutal truths of entrepreneurship are hard to accept but essential to understand. By facing these realities head-on, you'll be better prepared to build a sustainable, profitable business.\n\n`;
-        
-        content += `Remember: Success in business isn't about avoiding failures—it's about learning from them quickly and adapting your approach.\n`;
-        
-        // Add some variation based on chapter number
-        if (parseInt(chapterNum) > 1) {
-            content = content.replace(/Introduction/g, chapterTitle);
-            content = content.replace(/starting a business/g, 'growing your business');
-            content = content.replace(/new entrepreneurs/g, 'business owners');
+        try {
+            const command = `agentcli call claude.opus --model="${this.model}" --temperature=0.7 --max-tokens=8000 --file="${tempFile}"`;
+            const { stdout, stderr } = await execAsync(command, {
+                maxBuffer: 20 * 1024 * 1024 // 20MB buffer for long chapters
+            });
+            
+            if (stderr) {
+                console.warn('Writer warning:', stderr);
+            }
+            
+            return stdout.trim();
+            
+        } finally {
+            await fs.unlink(tempFile).catch(() => {});
         }
-        
-        return content;
     }
 
     async enhanceContent(content, chapter, context) {

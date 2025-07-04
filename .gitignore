@@ -4,6 +4,8 @@ dist/
 release/
 output/
 *.pdf
+build/**/*.pdf
+dist/**/*.pdf
 *.epub
 *.mobi
 *.azw3

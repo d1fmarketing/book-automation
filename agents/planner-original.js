@@ -522,62 +522,20 @@ Ensure the chapters flow logically and build upon each other. Include ${metadata
     }
 
     async callClaude(prompt) {
-        // Fallback implementation without agentcli
-        // Generate a structured outline based on the topic
-        const topic = prompt.match(/topic for a book outline: "([^"]+)"/)?.[1] || 'Unknown Topic';
+        const tempFile = path.join('/tmp', `planner-${Date.now()}.txt`);
+        await fs.writeFile(tempFile, prompt);
         
-        // Simple AI-like response generation
-        const analysis = {
-            primaryTheme: topic,
-            subThemes: [
-                `Understanding ${topic}`,
-                `Implementing ${topic}`, 
-                `Optimizing ${topic}`,
-                `Case Studies in ${topic}`
-            ],
-            targetAudience: {
-                primary: "Business owners and entrepreneurs",
-                secondary: ["Freelancers", "Small business teams", "Startup founders"],
-                level: "intermediate"
-            },
-            marketPosition: {
-                uniqueAngle: "Practical, actionable strategies with real-world examples",
-                competingBooks: ["Similar business automation books"],
-                gap: "Focus on small business implementation"
-            },
-            contentType: "business",
-            estimatedLength: "medium",
-            monetizationPotential: [
-                "AI tools affiliate links",
-                "Automation software recommendations",
-                "Consulting services"
-            ]
-        };
-        
-        // Return JSON response if analysis requested
-        if (prompt.includes('Provide a JSON analysis')) {
-            return JSON.stringify(analysis, null, 2);
-        }
-        
-        // Generate chapter titles if outline requested
-        if (prompt.includes('Generate a complete book outline')) {
-            const chapters = [
-                { title: "Introduction: The AI Revolution for Small Business", type: "introduction" },
-                { title: "Chapter 1: Understanding AI and Automation Fundamentals", type: "body" },
-                { title: "Chapter 2: Identifying Automation Opportunities in Your Business", type: "body" },
-                { title: "Chapter 3: Essential AI Tools for Small Business", type: "body" },
-                { title: "Chapter 4: Implementing Your First Automation Workflow", type: "body" },
-                { title: "Chapter 5: Scaling and Optimizing Your AI Systems", type: "body" },
-                { title: "Chapter 6: Measuring ROI and Success Metrics", type: "body" },
-                { title: "Chapter 7: Common Pitfalls and How to Avoid Them", type: "body" },
-                { title: "Chapter 8: Future-Proofing Your Business with AI", type: "body" },
-                { title: "Conclusion: Your AI-Powered Business Transformation", type: "conclusion" }
-            ];
+        try {
+            const command = `agentcli call claude.opus --model="${this.model}" --temperature=0.5 --file="${tempFile}"`;
+            const { stdout } = await execAsync(command, {
+                maxBuffer: 10 * 1024 * 1024
+            });
             
-            return chapters.map((ch, i) => `${i + 1}. ${ch.title}`).join('\n');
+            return stdout.trim();
+            
+        } finally {
+            await fs.unlink(tempFile).catch(() => {});
         }
-        
-        return "Generated outline based on: " + topic;
     }
 }
 
