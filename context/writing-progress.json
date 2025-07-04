@@ -833,5 +833,15 @@
         "title": "Chapter 5: The Complete Guide to Building AI-Powered SaaS Products Part 5"
       }
     }
+  },
+  "Test Quick Pipeline": {
+    "title": "Test Quick Pipeline",
+    "chapters": {
+      "1": {
+        "completed": "2025-07-04T18:01:17.660Z",
+        "wordCount": 932,
+        "title": "Chapter 1: Test Quick Pipeline Part 1"
+      }
+    }
   }
 }

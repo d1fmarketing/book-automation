@@ -232,7 +232,7 @@ class RefurbishTrigger {
     
     async cleanup() {
         if (this.queueManager) {
-            await this.queueManager.close();
+            await this.queueManager.shutdown();
         }
     }
 }
