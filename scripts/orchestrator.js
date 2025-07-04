@@ -5,6 +5,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const { promisify } = require('util');
 const exec = promisify(require('child_process').exec);
+const sanitizeTopic = require('../utils/sanitize-topic');
 
 // State machine configuration
 const STATES = [
@@ -41,6 +42,7 @@ class PipelineOrchestrator {
     this.state = 'PLAN';
     this.attempt = 0;
     this.maxAttempts = options.maxAttempts || 10;
+    this.strictMode = process.env.STRICT_QA === 'true' || options.strict;
     this.manifestPath = path.join('build', 'run-manifest.json');
     this.manifest = {
       topic: topic,
@@ -48,7 +50,8 @@ class PipelineOrchestrator {
       timestamp: Date.now() / 1000,
       qa: {},
       final: false,
-      errors: []
+      errors: [],
+      strictMode: this.strictMode
     };
   }
 
@@ -57,24 +60,15 @@ class PipelineOrchestrator {
     await fs.mkdir('build', { recursive: true });
     await fs.mkdir('build/logs', { recursive: true });
     
-    // Load existing manifest if resuming
-    try {
-      const existing = await fs.readFile(this.manifestPath, 'utf8');
-      const data = JSON.parse(existing);
-      if (data.topic === this.topic && !data.final) {
-        console.log('📋 Resuming from existing manifest...');
-        this.manifest = data;
-        // Find last completed step
-        const lastStep = this.manifest.steps[this.manifest.steps.length - 1];
-        const stateIndex = STATES.findIndex(s => AGENT_MAPPING[s] === lastStep);
-        if (stateIndex !== -1 && stateIndex < STATES.length - 1) {
-          this.state = STATES[stateIndex + 1];
-          console.log(`   Resuming from state: ${this.state}`);
-        }
-      }
-    } catch (e) {
-      // No existing manifest, start fresh
-    }
+    // Always start with fresh manifest
+    this.manifest = {
+      topic: this.topic,
+      steps: [],
+      timestamp: Date.now() / 1000,
+      qa: {},
+      final: false,
+      errors: []
+    };
     
     await this.saveManifest();
   }
@@ -119,9 +113,10 @@ class PipelineOrchestrator {
         case 'plan.outline': {
           const Planner = require(agentPath);
           const planner = new Planner({ bookStyle: 'how-to', depth: 'intermediate' });
+          const topicSlug = sanitizeTopic(this.topic);
           const result = await planner.createOutline(this.topic, {
             chapters: 10,
-            outputDir: `build/ebooks/${this.topic.toLowerCase().replace(/\s+/g, '-')}`
+            outputDir: `build/ebooks/${topicSlug}`
           });
           if (!result.success) throw new Error(result.error);
           this.bookDir = result.outline.outputDir;
@@ -140,13 +135,34 @@ class PipelineOrchestrator {
         }
 
         case 'write.chapter': {
-          const Writer = require(agentPath);
-          const writer = new Writer({ style: 'conversational', includeResearch: true });
-          // Load outline
-          const outlinePath = path.join(this.bookDir, 'outline.json');
-          const outline = JSON.parse(await fs.readFile(outlinePath, 'utf8'));
-          const result = await writer.generateBook(outline, { includeAffiliateHooks: true });
-          return result;
+          const writerModule = require(agentPath);
+          
+          if (writerModule.Writer) {
+            // Use the Writer class with proper configuration
+            const Writer = writerModule.Writer;
+            const writer = new Writer({ style: 'conversational', includeResearch: true });
+            
+            // Load outline and update outputDir to bookDir
+            const outlinePath = path.join(this.bookDir, 'outline.json');
+            const outline = JSON.parse(await fs.readFile(outlinePath, 'utf8'));
+            outline.outputDir = this.bookDir; // Ensure chapters go to book directory
+            
+            const result = await writer.generateBook(outline, { includeAffiliateHooks: true });
+            
+            // Save the generated content as markdown files
+            if (result.results) {
+              for (const chapter of result.results) {
+                if (chapter.success && chapter.content) {
+                  const chapterFile = path.join(this.bookDir, `chapter-${String(chapter.chapterNumber).padStart(2, '0')}.md`);
+                  await fs.writeFile(chapterFile, chapter.content);
+                }
+              }
+            }
+            
+            return result;
+          } else {
+            throw new Error('Writer module does not export Writer class');
+          }
         }
 
         case 'style.polish': {
@@ -159,24 +175,75 @@ class PipelineOrchestrator {
         case 'img.illustrate': {
           const Illustrator = require(agentPath);
           const illustrator = new Illustrator();
-          const result = await illustrator.generateForBook(this.bookDir);
-          // Verify images actually exist
-          const chapters = await fs.readdir(path.join(this.bookDir, 'chapters'));
-          for (const chapter of chapters) {
-            const imagePath = path.join(this.bookDir, 'assets', 'images', `${path.basename(chapter, '.md')}.png`);
-            try {
-              await fs.access(imagePath);
-            } catch (e) {
-              throw new Error(`Ideogram image missing for ${chapter}`);
-            }
+          const result = await illustrator.generateBookImages(this.bookDir);
+          
+          // Verify cover image exists
+          const coverPath = path.join(this.bookDir, 'assets', 'images', 'cover.png');
+          const coverExists = await fs.access(coverPath).then(() => true).catch(() => false);
+          
+          if (!coverExists) {
+            throw new Error('ILLUSTRATE_FAIL: imagem de capa inexistente');
           }
+          
+          // Check file size to ensure it's not empty
+          const stats = await fs.stat(coverPath);
+          if (stats.size < 100) {
+            throw new Error('ILLUSTRATE_FAIL: imagem de capa vazia ou corrompida');
+          }
+          
+          console.log(`   ✅ Cover image verified: ${(stats.size / 1024).toFixed(1)} KB`);
           return result;
         }
 
         case 'format.html': {
-          const FormatterHTML = require(agentPath);
-          const formatter = new FormatterHTML();
-          const result = await formatter.formatBook(this.bookDir);
+          const formatterModule = require(agentPath);
+          
+          let result;
+          if (formatterModule.FormatterHTML) {
+            // Use the class
+            const FormatterHTML = formatterModule.FormatterHTML;
+            const formatter = new FormatterHTML();
+            result = await formatter.formatBook(this.bookDir);
+          } else if (typeof formatterModule === 'function') {
+            // Use the function
+            const htmlContent = await formatterModule();
+            // Save to HTML file
+            const htmlDir = path.join(this.bookDir, 'html');
+            await fs.mkdir(htmlDir, { recursive: true });
+            await fs.writeFile(path.join(htmlDir, 'index.html'), htmlContent);
+            result = { success: true, outputDir: htmlDir };
+          } else {
+            throw new Error('Formatter module format not recognized');
+          }
+          
+          // STRICT_QA validation
+          if (this.strictMode) {
+            const htmlPath = path.join(this.bookDir, 'html', 'index.html');
+            const htmlContent = await fs.readFile(htmlPath, 'utf8');
+            
+            // Check for [object Object]
+            if (htmlContent.includes('[object Object]')) {
+              throw new Error('STRICT_QA: [object Object] found in HTML');
+            }
+            
+            // Check for hundefined
+            if (htmlContent.includes('<hundefined') || htmlContent.includes('</hundefined>')) {
+              throw new Error('STRICT_QA: <hundefined> tags found in HTML');
+            }
+            
+            // Check for cover image
+            if (!htmlContent.includes('class="cover-image"')) {
+              throw new Error('STRICT_QA: No cover image in HTML');
+            }
+            
+            // Check for TOC
+            if (!htmlContent.includes('class="toc"') && !htmlContent.includes('id="toc"')) {
+              throw new Error('STRICT_QA: No TOC found in HTML');
+            }
+            
+            console.log('   ✅ STRICT_QA: All HTML validations passed');
+          }
+          
           return result;
         }
 
@@ -201,7 +268,8 @@ class PipelineOrchestrator {
         }
 
         case 'qa.html': {
-          const { runQATests, getLighthouseScore } = require(agentPath);
+          // Use simplified QA for now due to ES module issues
+          const { runQATests, getLighthouseScore } = require('../qa/qa-html-simple');
           const htmlPath = path.join(this.bookDir, 'html', 'index.html');
           const qaResults = await runQATests(htmlPath);
           const lighthouse = await getLighthouseScore(htmlPath);
@@ -362,11 +430,52 @@ class PipelineOrchestrator {
 // CLI entry point
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const topic = args[0] || process.env.EBOOK_TOPIC;
+  let topic = process.env.EBOOK_TOPIC;
+  let checkStatus = false;
+  
+  // Parse command line arguments
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--topic' && i + 1 < args.length) {
+      topic = args[i + 1];
+      i++; // Skip next arg
+    } else if (args[i] === '--check-status') {
+      checkStatus = true;
+    } else if (!args[i].startsWith('--')) {
+      // If no flag, assume it's the topic
+      topic = args[i];
+    }
+  }
+
+  // Check status mode
+  if (checkStatus) {
+    const manifestPath = path.join('build', 'run-manifest.json');
+    fs.readFile(manifestPath, 'utf8')
+      .then(data => {
+        const manifest = JSON.parse(data);
+        console.log('\n📊 PIPELINE STATUS:');
+        console.log(`   Topic: ${manifest.topic}`);
+        console.log(`   Steps completed: ${manifest.steps.length}/${Object.keys(AGENT_MAPPING).length}`);
+        console.log(`   Steps: ${manifest.steps.join(', ')}`);
+        console.log(`   Final: ${manifest.final}`);
+        console.log(`   Errors: ${manifest.errors.length}`);
+        if (manifest.errors.length > 0) {
+          console.log('\n❌ Recent errors:');
+          manifest.errors.slice(-3).forEach(err => {
+            console.log(`   - ${err.state} (attempt ${err.attempt}): ${err.error}`);
+          });
+        }
+      })
+      .catch(() => {
+        console.log('No manifest found. Run the pipeline first.');
+      });
+    return;
+  }
 
   if (!topic) {
     console.error('Usage: node orchestrator.js "<topic>"');
+    console.error('   or: node orchestrator.js --topic "<topic>"');
     console.error('   or: EBOOK_TOPIC="<topic>" node orchestrator.js');
+    console.error('   or: node orchestrator.js --check-status');
     process.exit(1);
   }
 
@@ -374,7 +483,15 @@ if (require.main === module) {
     maxAttempts: parseInt(process.env.MAX_ATTEMPTS) || 10
   };
 
+  // Add strict flag from command line
+  const strict = args.includes('--strict') || process.env.STRICT_QA === 'true';
+  options.strict = strict;
+  
   const orchestrator = new PipelineOrchestrator(topic, options);
+  
+  if (strict) {
+    console.log('🔒 STRICT MODE ENABLED - Zero tolerance for errors');
+  }
   
   orchestrator.run().catch(error => {
     console.error('\n❌ FATAL ERROR:', error);

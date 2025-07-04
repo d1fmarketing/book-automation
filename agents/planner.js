@@ -112,9 +112,10 @@ class Planner {
             };
             
             // Validate outline
-            const validation = this.validateOutline(outline);
-            if (!validation.valid) {
-                throw new Error(`Outline validation failed: ${validation.errors.join(', ')}`);
+            const validation = this.validateOutline(outline) || { valid: true, errors: [] };
+            if (!validation || !validation.valid) {
+                const errors = validation?.errors || ['Unknown validation error'];
+                throw new Error('Outline validation failed: ' + errors.join(', '));
             }
             
             // Save outline
@@ -159,7 +160,7 @@ class Planner {
     async analyzeTopic(topic, research) {
         const prompt = `Analyze this topic for a book outline: "${topic}"
 
-${research ? `RESEARCH INSIGHTS:\n${research.summary}\n\nKey Points:\n${research.bullets.join('\n')}\n` : ''}
+${research && research.summary ? `RESEARCH INSIGHTS:\n${research.summary}\n\nKey Points:\n${research.bullets ? research.bullets.join('\n') : 'No key points available'}\n` : ''}
 
 Provide a JSON analysis with:
 {
@@ -271,7 +272,7 @@ CONTENT REQUIREMENTS:
 - Example types: ${depth.examples}
 - Technical level: ${depth.terminology}
 
-${research ? `\nRESEARCH TO INCORPORATE:\n${research.bullets.join('\n')}\n` : ''}
+${research && research.bullets ? `\nRESEARCH TO INCORPORATE:\n${research.bullets.join('\n')}\n` : ''}
 
 Create a JSON array of chapters with this structure for each:
 [
@@ -298,6 +299,8 @@ Ensure the chapters flow logically and build upon each other. Include ${metadata
             return chapters.map((chapter, index) => ({
                 ...chapter,
                 number: index + 1,
+                id: `chapter-${String(index + 1).padStart(2, '0')}`,
+                filename: `chapter-${String(index + 1).padStart(2, '0')}.md`,
                 type: this.determineChapterType(index, chapters.length),
                 estimatedWords: chapter.estimatedWords || Math.floor(metadata.targetWordCount / metadata.chapterCount),
                 exercises: this.includeExercises ? (chapter.exercises || []) : [],
@@ -322,6 +325,8 @@ Ensure the chapters flow logically and build upon each other. Include ${metadata
         // Introduction
         chapters.push({
             number: 1,
+            id: 'chapter-01',
+            filename: 'chapter-01.md',
             title: `Introduction to ${topic}`,
             type: 'introduction',
             summary: `An overview of ${topic} and what readers will learn`,
@@ -333,8 +338,11 @@ Ensure the chapters flow logically and build upon each other. Include ${metadata
         // Body chapters
         const bodyCount = metadata.chapterCount - 3; // minus intro and 2 conclusion chapters
         structure.body.slice(0, bodyCount).forEach((theme, index) => {
+            const chapterNum = index + 2;
             chapters.push({
-                number: index + 2,
+                number: chapterNum,
+                id: `chapter-${String(chapterNum).padStart(2, '0')}`,
+                filename: `chapter-${String(chapterNum).padStart(2, '0')}.md`,
                 title: `${theme} in ${topic}`,
                 type: 'body',
                 summary: `Exploring ${theme.toLowerCase()} aspects of ${topic}`,
@@ -346,8 +354,11 @@ Ensure the chapters flow logically and build upon each other. Include ${metadata
         
         // Conclusion chapters
         structure.conclusion.slice(0, 2).forEach((theme, index) => {
+            const chapterNum = chapters.length + 1;
             chapters.push({
-                number: chapters.length + 1,
+                number: chapterNum,
+                id: `chapter-${String(chapterNum).padStart(2, '0')}`,
+                filename: `chapter-${String(chapterNum).padStart(2, '0')}.md`,
                 title: theme,
                 type: 'conclusion',
                 summary: `${theme} for your ${topic} journey`,
@@ -409,6 +420,10 @@ Ensure the chapters flow logically and build upon each other. Include ${metadata
     validateOutline(outline) {
         const errors = [];
         
+        if (!outline) {
+            return { valid: false, errors: ['Outline is null or undefined'] };
+        }
+        
         if (!outline.title || outline.title.length < 3) {
             errors.push('Title too short');
         }
@@ -456,7 +471,7 @@ Ensure the chapters flow logically and build upon each other. Include ${metadata
     }
 
     async saveOutline(outline, options) {
-        const filename = options.filename || `outline-${this.sanitizeTitle(outline.title)}.json`;
+        const filename = options.filename || 'outline.json';
         const dir = options.outputDir || 'outlines';
         
         await fs.mkdir(dir, { recursive: true });

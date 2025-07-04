@@ -1,0 +1,157 @@
+# Premium Pipeline Configuration
+# High-quality pipeline with all checks and enhancements
+
+version: '2.0'
+name: premium-ebook-pipeline
+description: Premium pipeline for commercial-grade ebooks
+extends: default.yaml
+
+# Premium settings
+settings:
+  parallel:
+    chapters: 2  # Less parallel for quality
+    research: 1
+  quality:
+    min_score: 95
+    require_human_review: true
+
+# Enhanced stages
+stages:
+  - id: research
+    override: true
+    config:
+      maxResults: 20  # More research
+      includeAcademic: true
+      includePaid: true
+    timeout: 300000  # 5 minutes
+
+  - id: write
+    override: true
+    parallel_max: 2  # Less parallel for consistency
+    config:
+      style: professional
+      includeResearch: true
+      includeCitations: true
+      minWords: 2500
+      maxWords: 4000
+    retries: 5  # More retries
+
+  - id: polish
+    override: true
+    runs: 2  # Run twice
+    config:
+      brandVoice: professional
+      grammarCheck: true
+      readabilityTarget: 8  # 8th grade level
+
+  - id: illustrate
+    override: true
+    config:
+      style: premium
+      generateCover: true
+      chaptersWithImages: all
+      imageQuality: high
+      uniqueImages: true
+    timeout: 300000
+
+  - id: expert_review
+    name: Expert Review
+    agent: expert-reviewer
+    depends_on: [polish]
+    config:
+      reviewType: technical
+      requireApproval: true
+    timeout: 600000  # 10 minutes
+    manual: true  # Requires human
+
+  - id: format
+    override: true
+    config:
+      template: premium
+      features:
+        toc: true
+        darkMode: true
+        readingProgress: true
+        search: true
+        annotations: true
+        bookmarks: true
+        printOptimized: true
+
+  - id: fact_check
+    override: true
+    config:
+      strictMode: true
+      maxIssues: 0  # Zero tolerance
+      requireSources: true
+      verifyQuotes: true
+
+  - id: accessibility
+    name: Accessibility Check
+    agent: accessibility-checker
+    depends_on: [format]
+    config:
+      wcagLevel: AAA
+      includeAltText: true
+      checkContrast: true
+    required: true
+
+  - id: plagiarism
+    name: Plagiarism Check
+    agent: plagiarism-checker
+    depends_on: [write]
+    config:
+      threshold: 5  # Max 5% similarity
+      checkInternet: true
+      checkBooks: true
+    required: true
+
+  - id: seo_optimize
+    name: SEO Optimization
+    agent: seo-optimizer
+    depends_on: [format]
+    config:
+      targetKeywords: auto
+      optimizeMetadata: true
+      generateSchema: true
+
+# Strict success criteria
+success_criteria:
+  min_chapters: 10
+  min_words_per_chapter: 2000
+  max_errors: 0
+  lighthouse_score: 95
+  accessibility_score: 100
+  plagiarism_score: 95
+  readability_score: 8
+
+# Enhanced notifications
+notifications:
+  on_stage_complete:
+    - type: webhook
+      url: "{{ env.WEBHOOK_URL }}"
+      payload:
+        stage: "{{ stage_id }}"
+        status: "{{ status }}"
+        duration: "{{ duration }}"
+  on_manual_required:
+    - type: email
+      to: "{{ env.REVIEWER_EMAIL }}"
+      subject: "Manual review required for: {{ topic }}"
+      template: review-request
+
+# Quality gates
+quality_gates:
+  - after: write
+    check: word_count
+    min: 20000
+    message: "Book too short"
+    
+  - after: fact_check
+    check: accuracy_score
+    min: 95
+    message: "Too many factual issues"
+    
+  - after: qa_html
+    check: lighthouse_score
+    min: 95
+    message: "Quality standards not met"

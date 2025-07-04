@@ -291,6 +291,17 @@ class QueueManager extends EventEmitter {
     }
 
     /**
+     * Get a specific queue instance
+     */
+    getQueue(queueName) {
+        const queue = this.queues[queueName];
+        if (!queue) {
+            throw new Error(`Queue "${queueName}" not found`);
+        }
+        return queue;
+    }
+
+    /**
      * Get queue statistics
      */
     async getQueueStats(queueName) {

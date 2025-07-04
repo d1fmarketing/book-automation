@@ -17,6 +17,9 @@ const marked = require('marked');
 const hljs = require('highlight.js');
 const crypto = require('crypto');
 
+// Use the clean formatter to prevent [object Object] errors
+const CleanHTMLFormatter = require('./formatter-html-clean');
+
 // Template configurations
 const TEMPLATES = {
     professional: {
@@ -135,10 +138,15 @@ class FormatterHTML {
         
         // Custom heading renderer with anchors
         this.renderer.heading = (text, level, raw) => {
-            const slug = this.slugify(raw);
+            // Validate level is 1-6
+            if (!level || level < 1 || level > 6) {
+                level = 3; // Default to h3 if invalid
+            }
+            const slug = this.slugify(raw || text);
+            const safeText = text || '';
             return `<h${level} id="${slug}">
-                ${text}
-                <a href="#${slug}" class="heading-anchor" aria-label="Link to ${text}">
+                ${safeText}
+                <a href="#${slug}" class="heading-anchor" aria-label="Link to ${safeText}">
                     <span aria-hidden="true">#</span>
                 </a>
             </h${level}>`;
@@ -228,6 +236,16 @@ class FormatterHTML {
         console.log(`📄 Format: ${this.format}`);
         console.log('');
         
+        // Use clean formatter to prevent [object Object] errors
+        if (options.useCleanFormatter !== false) {
+            console.log('🧹 Using clean formatter to prevent rendering errors');
+            const cleanFormatter = new CleanHTMLFormatter({
+                template: this.template,
+                features: this.features
+            });
+            return await cleanFormatter.formatBook(bookDir);
+        }
+        
         try {
             // Load book data
             const bookData = await this.loadBookData(bookDir);
@@ -296,12 +314,11 @@ class FormatterHTML {
             };
         }
         
-        // Load chapters
-        const chaptersDir = path.join(bookDir, 'chapters');
-        const chapterFiles = await this.getChapterFiles(chaptersDir);
+        // Load chapters from root directory
+        const chapterFiles = await this.getChapterFiles(bookDir);
         
         for (const file of chapterFiles) {
-            const content = await fs.readFile(path.join(chaptersDir, file), 'utf8');
+            const content = await fs.readFile(path.join(bookDir, file), 'utf8');
             const chapter = this.parseChapter(content, file);
             data.chapters.push(chapter);
         }
@@ -327,14 +344,14 @@ class FormatterHTML {
         return data;
     }
 
-    async getChapterFiles(chaptersDir) {
+    async getChapterFiles(bookDir) {
         try {
-            const files = await fs.readdir(chaptersDir);
+            const files = await fs.readdir(bookDir);
             return files
-                .filter(f => f.endsWith('.md'))
+                .filter(f => f.match(/^chapter-\d+.*\.md$/))
                 .sort((a, b) => {
-                    const numA = parseInt(a.match(/\d+/) || '0');
-                    const numB = parseInt(b.match(/\d+/) || '0');
+                    const numA = parseInt(a.match(/chapter-(\d+)/)?.[1] || '0');
+                    const numB = parseInt(b.match(/chapter-(\d+)/)?.[1] || '0');
                     return numA - numB;
                 });
         } catch {
@@ -372,8 +389,13 @@ class FormatterHTML {
         }
         
         // Parse content and generate TOC
-        chapter.html = marked.parse(chapter.content);
-        chapter.toc = this.extractTOC(chapter.content);
+        if (chapter.content) {
+            chapter.html = marked.parse(chapter.content);
+            chapter.toc = this.extractTOC(chapter.content);
+        } else {
+            chapter.html = '';
+            chapter.toc = [];
+        }
         
         return chapter;
     }
@@ -405,6 +427,22 @@ class FormatterHTML {
         const outputPath = path.join(outputDir, 'index.html');
         
         await fs.writeFile(outputPath, html);
+        
+        // Validate content
+        if (!html.includes('<section class="chapter"') && !html.includes('<article class="chapter"')) {
+            throw new Error('FORMAT_FAIL: nenhum <section class="chapter"> ou <article class="chapter">');
+        }
+        
+        if (!html.includes('<img')) {
+            throw new Error('FORMAT_FAIL: nenhuma imagem embutida');
+        }
+        
+        if (!html.includes('<nav id="toc"') && !html.includes('<nav class="toc"')) {
+            throw new Error('FORMAT_FAIL: nenhum TOC (table of contents)');
+        }
+        
+        const sizeKB = Buffer.byteLength(html) / 1024;
+        console.log(`   ✅ HTML gerado: ${sizeKB.toFixed(1)} KB`);
         
         return {
             files: ['index.html'],
@@ -498,7 +536,7 @@ class FormatterHTML {
         <main class="main-content">
             <!-- Cover -->
             <section class="cover-page" id="cover">
-                ${images['cover'] ? `<img src="${images['cover']}" alt="Book cover" class="cover-image">` : ''}
+                ${images['cover.png'] || images['cover.jpg'] || images['cover.svg'] ? `<img src="${images['cover.png'] || images['cover.jpg'] || images['cover.svg']}" alt="Book cover" class="cover-image">` : ''}
                 <h1 class="cover-title">${metadata.title}</h1>
                 ${metadata.subtitle ? `<p class="cover-subtitle">${metadata.subtitle}</p>` : ''}
                 <p class="cover-author">by ${metadata.author}</p>
@@ -1478,14 +1516,22 @@ class FormatterHTML {
 
     generateTOC(chapters) {
         const tocItems = [];
+        const seenIds = new Set();
         
         chapters.forEach((chapter, index) => {
             const chapterNum = chapter.frontmatter.chap || index + 1;
+            const chapterId = `chapter-${chapterNum}`;
+            
+            // Skip if already seen (de-duplication)
+            if (seenIds.has(chapterId)) {
+                return;
+            }
+            seenIds.add(chapterId);
             
             // Add chapter
             tocItems.push(`
                 <li class="toc-item" data-level="1">
-                    <a href="#chapter-${chapterNum}" class="toc-link">
+                    <a href="#${chapterId}" class="toc-link">
                         Chapter ${chapterNum}: ${chapter.frontmatter.title || 'Untitled'}
                     </a>
                 </li>
@@ -1493,7 +1539,8 @@ class FormatterHTML {
             
             // Add sub-sections
             chapter.toc.forEach(item => {
-                if (item.level <= 3) {
+                if (item.level <= 3 && item.slug && !seenIds.has(item.slug)) {
+                    seenIds.add(item.slug);
                     tocItems.push(`
                         <li class="toc-item" data-level="${item.level}">
                             <a href="#${item.slug}" class="toc-link">${item.text}</a>
@@ -1679,7 +1726,8 @@ class FormatterHTML {
     }
 
     slugify(text) {
-        return text
+        if (!text) return '';
+        return String(text)
             .toLowerCase()
             .replace(/[^\w\s-]/g, '')
             .replace(/\s+/g, '-')
@@ -1750,4 +1798,32 @@ if (require.main === module) {
     })();
 }
 
-module.exports = FormatterHTML;
+// Export function for pipeline integration
+async function formatterHTMLAgent() {
+    const formatter = new FormatterHTML({
+        template: 'professional',
+        format: 'single'
+    });
+    
+    // Format the book
+    const bookDir = 'build/ebooks/whats-one-brutal-truth-you-learned-after-starting-your-busin';
+    const result = await formatter.formatBook(bookDir);
+    
+    if (!result.success) {
+        throw new Error(`Formatter failed: ${result.error}`);
+    }
+    
+    // Read the generated HTML and return it as a string
+    const fs = require('fs').promises;
+    const path = require('path');
+    const htmlPath = path.join(result.outputDir, 'index.html');
+    const htmlContent = await fs.readFile(htmlPath, 'utf8');
+    
+    return htmlContent;
+}
+
+// Export the agent function as default
+module.exports = formatterHTMLAgent;
+
+// Also export the class for direct usage
+module.exports.FormatterHTML = FormatterHTML;

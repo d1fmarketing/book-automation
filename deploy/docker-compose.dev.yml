@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  # Redis for job queues
+  redis:
+    image: redis:7-alpine
+    container_name: ebook-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - ebook-dev-network
+
+  # PostgreSQL for development
+  postgres:
+    image: postgres:15-alpine
+    container_name: ebook-postgres-dev
+    environment:
+      POSTGRES_DB: ebook_pipeline_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ebook-dev-network
+
+  # Development app with hot reload
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.dev
+    container_name: ebook-app-dev
+    environment:
+      NODE_ENV: development
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://dev_user:dev_password@postgres:5432/ebook_pipeline_dev
+      # Load API keys from local .env
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY}
+      IDEOGRAM_API_KEY: ${IDEOGRAM_API_KEY}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+    ports:
+      - "3000:3000"
+      - "9090:9090"
+      - "9229:9229"  # Node.js debugger
+    volumes:
+      - ../src:/app/src:ro
+      - ../scripts:/app/scripts:ro
+      - ../agents:/app/agents:ro
+      - ../config:/app/config:ro
+      - ../pipelines:/app/pipelines:ro
+      - ../build:/app/build
+      - ../node_modules:/app/node_modules
+    depends_on:
+      - redis
+      - postgres
+    command: npm run dev
+    networks:
+      - ebook-dev-network
+
+  # Monitoring tools for development
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: ebook-redis-commander
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - ebook-dev-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ebook-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8082:80"
+    depends_on:
+      - postgres
+    networks:
+      - ebook-dev-network
+
+  # Admin Dashboard
+  admin:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.dev
+    container_name: ebook-admin
+    working_dir: /app/admin
+    command: node server.js
+    environment:
+      NODE_ENV: development
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://dev_user:dev_password@postgres:5432/ebook_pipeline_dev
+      JWT_SECRET: dev-secret
+      ADMIN_PASSWORD: admin123
+    ports:
+      - "4000:4000"
+    volumes:
+      - ../admin:/app/admin:ro
+      - ../src:/app/src:ro
+      - ../node_modules:/app/node_modules
+    depends_on:
+      - redis
+      - postgres
+      - app
+    networks:
+      - ebook-dev-network
+
+networks:
+  ebook-dev-network:
+    driver: bridge
+
+volumes:
+  redis-dev-data:
+  postgres-dev-data:

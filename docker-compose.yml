@@ -1,43 +1,107 @@
 version: '3.8'
 
 services:
-  pipeline:
-    build: .
-    container_name: book-automation-pipeline
+  # Redis for BullMQ
+  redis:
+    image: redis:7-alpine
+    container_name: ebook-redis
+    ports:
+      - "6379:6379"
     volumes:
-      - ./chapters:/app/chapters
-      - ./assets:/app/assets
-      - ./build:/app/build
-      - ./context:/app/context
-      - ./.env:/app/.env:ro
-    environment:
-      - IDEOGRAM_API_KEY=${IDEOGRAM_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - NODE_ENV=production
-    networks:
-      - book-network
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  mcp-browser:
-    build: ./src/mcp/puppeteer
-    container_name: mcp-browser-service
+  # Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ebook-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  # Grafana for dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ebook-grafana
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
-    networks:
-      - book-network
-    profiles:
-      - mcp
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=ebook123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=redis-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # BullMQ Dashboard (Bull Board)
+  bull-board:
+    image: deadly0/bull-board:latest
+    container_name: ebook-bull-board
+    ports:
+      - "3100:3000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  # Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: ebook-node-exporter
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+    command:
+      - '--path.rootfs=/host'
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+  # Redis Exporter for Redis metrics
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: ebook-redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+volumes:
+  redis-data:
+  prometheus-data:
+  grafana-data:
 
 networks:
-  book-network:
-    driver: bridge
-
-# Usage:
-# docker-compose up          # Run pipeline
-# docker-compose up -d       # Run in background
-# docker-compose logs -f     # Follow logs
-# docker-compose down        # Stop all services
-#
-# With MCP profile:
-# docker-compose --profile mcp up   # Run with MCP browser service
+  default:
+    name: ebook-network

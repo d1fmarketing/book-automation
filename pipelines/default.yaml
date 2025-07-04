@@ -1,0 +1,163 @@
+# Default Pipeline Configuration
+# Defines the standard ebook generation pipeline
+
+version: '2.0'
+name: default-ebook-pipeline
+description: Standard pipeline for generating ebooks with all quality checks
+
+# Global settings
+settings:
+  parallel:
+    chapters: 4
+    research: 2
+  timeouts:
+    default: 300000  # 5 minutes
+    chapter: 180000  # 3 minutes per chapter
+  retries:
+    default: 3
+    backoff: exponential
+  cache:
+    enabled: true
+    ttl: 86400  # 24 hours
+
+# Pipeline stages
+stages:
+  - id: plan
+    name: Book Planning
+    agent: planner
+    config:
+      bookStyle: how-to
+      depth: intermediate
+      chapters: 10
+    timeout: 60000
+    cache: false
+    required: true
+
+  - id: research
+    name: Deep Research
+    agent: deep-research
+    depends_on: [plan]
+    config:
+      maxResults: 10
+      freshness: recent
+    timeout: 120000
+    cache: true
+    cache_key: "research-{{ topic | slugify }}"
+    required: true
+
+  - id: write
+    name: Chapter Writing
+    agent: writer
+    depends_on: [research]
+    parallel: true
+    parallel_max: 4
+    foreach: chapters
+    config:
+      style: conversational
+      includeResearch: true
+      minWords: 1500
+      maxWords: 3000
+    timeout: 180000
+    retries: 2
+    required: true
+
+  - id: polish
+    name: Tone Polishing
+    agent: tone-polisher
+    depends_on: [write]
+    config:
+      brandVoice: conversational
+      preserveData: true
+    timeout: 120000
+    cache: false
+    condition: "{{ settings.polish_enabled | default(true) }}"
+
+  - id: illustrate
+    name: Image Generation
+    agent: illustrator
+    depends_on: [write]
+    parallel_with: [polish]
+    config:
+      style: professional
+      generateCover: true
+      chaptersWithImages: 3
+    timeout: 120000
+    retries: 2
+    condition: "{{ settings.illustrations_enabled | default(true) }}"
+
+  - id: format
+    name: HTML Formatting
+    agent: formatter-html
+    depends_on: [polish, illustrate]
+    config:
+      template: professional
+      features:
+        toc: true
+        darkMode: true
+        readingProgress: true
+        search: false
+    timeout: 60000
+    required: true
+
+  - id: fact_check
+    name: Fact Checking
+    agent: fact-checker
+    depends_on: [format]
+    parallel_with: [affiliate]
+    config:
+      strictMode: true
+      maxIssues: 5
+    timeout: 90000
+    condition: "{{ settings.fact_check_enabled | default(true) }}"
+
+  - id: affiliate
+    name: Affiliate Links
+    agent: affiliate-injector
+    depends_on: [format]
+    parallel_with: [fact_check]
+    config:
+      networks: [amazon, shareasale]
+      strategy: natural
+      maxLinks: 10
+    timeout: 60000
+    condition: "{{ settings.affiliate_enabled | default(false) }}"
+
+  - id: qa_html
+    name: HTML Quality Assurance
+    agent: qa-html
+    depends_on: [fact_check, affiliate]
+    config:
+      lighthouse: 90
+      accessibility: true
+      mobileCheck: true
+    timeout: 120000
+    required: true
+    fail_fast: true
+
+# Success criteria
+success_criteria:
+  min_chapters: 8
+  min_words_per_chapter: 1000
+  max_errors: 0
+  lighthouse_score: 85
+
+# Notifications
+notifications:
+  on_success:
+    - type: console
+      message: "✅ Book generated successfully: {{ book_dir }}"
+  on_failure:
+    - type: console
+      message: "❌ Pipeline failed at stage: {{ failed_stage }}"
+    - type: file
+      path: "build/logs/pipeline-error-{{ timestamp }}.log"
+
+# Metrics to track
+metrics:
+  - total_duration
+  - stage_durations
+  - api_calls_count
+  - tokens_used
+  - total_cost
+  - cache_hit_rate
+  - error_count

@@ -29,6 +29,17 @@ clean-interactive:
 html:
 	npm run build:html
 
+# Engenheiro Bravo - Pipeline completo com zero tolerância
+.PHONY: bravo
+bravo:
+	@echo "🚀 Executando Pipeline Engenheiro Bravo"
+	@echo "   Zero tolerância - todos os 9 agentes obrigatórios"
+	@rm -rf build/
+	@npm run check:env
+	@node scripts/orchestrator.js "Como fazer dinheiro com IA"
+	@node scripts/assert-agents.js
+	@echo "✅ Pipeline completo com sucesso!"
+
 # Run QA on HTML
 .PHONY: qa
 qa:
@@ -83,3 +94,23 @@ grammar-report:
 .PHONY: test-grammar
 test-grammar:
 	node scripts/test-grammar.js
+
+# Ultra-QA comprehensive testing
+.PHONY: ultra-qa
+ultra-qa:
+	@echo "🚀 Running Ultra-QA tests..."
+	@./scripts/run-ultra-qa.sh build/ebooks/latest test-results/ultra-qa
+
+.PHONY: ultra-qa-html
+ultra-qa-html:
+	@echo "🧪 Running HTML validation tests..."
+	@./scripts/run-ultra-qa.sh build/ebooks/latest test-results/ultra-qa html
+
+.PHONY: ultra-qa-fast
+ultra-qa-fast:
+	@echo "⚡ Running fast Ultra-QA tests..."
+	@./scripts/run-ultra-qa.sh build/ebooks/latest test-results/ultra-qa html,content --fail-fast
+
+.PHONY: test-all
+test-all: test-grammar ultra-qa
+	@echo "✅ All tests completed"

@@ -1,0 +1,63 @@
+# Fast Pipeline Configuration
+# Optimized for speed - skips some quality checks
+
+version: '2.0'
+name: fast-ebook-pipeline
+description: Fast pipeline for rapid prototyping and development
+extends: default.yaml
+
+# Override settings for speed
+settings:
+  parallel:
+    chapters: 8  # More parallel workers
+    research: 4
+  cache:
+    enabled: true
+    aggressive: true  # Use cache more aggressively
+
+# Override specific stages
+stages:
+  - id: research
+    override: true
+    cache: true
+    cache_ttl: 604800  # 7 days cache
+    timeout: 60000  # Shorter timeout
+
+  - id: write
+    override: true
+    parallel_max: 8  # More parallel chapters
+    config:
+      minWords: 1000  # Lower minimum
+      maxWords: 2000  # Lower maximum
+
+  - id: polish
+    override: true
+    enabled: false  # Skip polishing
+
+  - id: illustrate
+    override: true
+    config:
+      generateCover: true
+      chaptersWithImages: 0  # Only cover image
+
+  - id: fact_check
+    override: true
+    enabled: false  # Skip fact checking
+
+  - id: affiliate
+    override: true
+    enabled: false  # Skip affiliate injection
+
+  - id: qa_html
+    override: true
+    config:
+      lighthouse: 70  # Lower threshold
+      accessibility: false
+      mobileCheck: false
+
+# Relaxed success criteria
+success_criteria:
+  min_chapters: 5
+  min_words_per_chapter: 800
+  max_errors: 3
+  lighthouse_score: 70
