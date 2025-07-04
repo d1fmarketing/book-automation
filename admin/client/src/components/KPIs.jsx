@@ -27,20 +27,29 @@ function KPIs() {
   }, [token, setStatus])
 
   const getTotalJobs = (queues) => {
+    if (!queues || typeof queues !== 'object') return 0
     return Object.values(queues).reduce((total, queue) => {
-      return total + queue.waiting + queue.active + queue.delayed
+      if (!queue || typeof queue !== 'object') return total
+      const waiting = queue.waiting || 0
+      const active = queue.active || 0
+      const delayed = queue.delayed || 0
+      return total + waiting + active + delayed
     }, 0)
   }
 
   const getFailedJobs = (queues) => {
+    if (!queues || typeof queues !== 'object') return 0
     return Object.values(queues).reduce((total, queue) => {
-      return total + queue.failed
+      if (!queue || typeof queue !== 'object') return total
+      return total + (queue.failed || 0)
     }, 0)
   }
 
   const getActiveWorkers = (workers) => {
+    if (!workers || typeof workers !== 'object') return 0
     return Object.values(workers).reduce((total, worker) => {
-      return total + worker.active
+      if (!worker || typeof worker !== 'object') return total
+      return total + (worker.active || 0)
     }, 0)
   }
 

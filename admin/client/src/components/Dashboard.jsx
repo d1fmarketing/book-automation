@@ -11,7 +11,10 @@ import RefurbishQueue from './RefurbishQueue'
 import { connectWebSocket, disconnectWebSocket, socket } from '../services/websocket'
 
 function Dashboard() {
+  console.log('Dashboard component rendering...')
+  
   useEffect(() => {
+    console.log('Dashboard useEffect running...')
     // Connect to WebSocket
     connectWebSocket()
 

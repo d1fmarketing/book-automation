@@ -2,7 +2,9 @@ import React from 'react'
 import Dashboard from './components/Dashboard'
 
 function App() {
-  // Autenticação removida - acesso direto ao dashboard
+  console.log('App component rendering...')
+  
+  // Acesso direto ao dashboard
   return <Dashboard />
 }
 

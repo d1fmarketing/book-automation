@@ -2,6 +2,40 @@
 
 A comprehensive automation pipeline for generating professional-quality eBooks from Markdown chapters, with AI-powered image generation, context management, and multi-format output support. All generation tasks run through Agent CLI remote endpoints - NO local LLMs or SDKs.
 
+## 🎛️ Admin Dashboard
+
+The project includes a web-based admin dashboard for monitoring and controlling the pipeline:
+
+- **Auto Port Selection**: Dashboard automatically finds an available port if default (4000) is busy
+- **Real-time Monitoring**: WebSocket updates for job progress and system status
+- **Queue Management**: View and control all processing queues
+- **Cost Tracking**: Monitor API usage and costs in real-time
+
+### Starting the Dashboard
+
+```bash
+cd admin
+npm run dev
+
+# Dashboard will print the actual port being used:
+# 🎛️ Admin Dashboard running at http://localhost:4000
+# Or if port 4000 is busy:
+# ⚠️  Port 4000 is in use, finding alternative...
+# ✅ Using port 4001 instead
+```
+
+### Health Check
+
+```bash
+# Check if dashboard is running
+node admin/scripts/ping-dashboard.js
+
+# Output:
+# ✅ Dashboard is healthy!
+#    Port: 4000
+#    Status: 200
+```
+
 ## 🟥 AGENT CLI ONLY - NO LOCAL LLMs, NO SDKs
 
 ### 🔒 Hard Rules

@@ -18,23 +18,31 @@ export function connectWebSocket() {
 
   // Log events
   socket.on('log', (message) => {
-    useStore.getState().addLog(message)
+    if (message) {
+      useStore.getState().addLog(message)
+    }
   })
 
   // Error events
   socket.on('error', (error) => {
-    useStore.getState().addError(error)
+    if (error) {
+      useStore.getState().addError(error)
+    }
   })
 
   // Ebook ready
   socket.on('ebook', (path) => {
-    useStore.getState().setEbookPath(path)
+    if (path) {
+      useStore.getState().setEbookPath(path)
+    }
   })
 
   // Pipeline events
   socket.on('pipeline:started', (data) => {
-    useStore.getState().setCurrentPipeline(data)
-    useStore.getState().setEbookPath(null) // Clear previous
+    if (data) {
+      useStore.getState().setCurrentPipeline(data)
+      useStore.getState().setEbookPath(null) // Clear previous
+    }
   })
 
   socket.on('pipeline:completed', (data) => {
@@ -57,6 +65,24 @@ export function connectWebSocket() {
   socket.on('job:failed', (data) => {
     // Already handled by error event
   })
+  
+  // Status updates
+  socket.on('status:update', (data) => {
+    if (data && typeof data === 'object') {
+      const store = useStore.getState()
+      
+      // Ensure data has expected structure
+      const status = {
+        queues: data.queues || {},
+        workers: data.workers || {},
+        connections: data.connections || 0,
+        rateLimits: data.rateLimits || {},
+        costs: data.costs || {}
+      }
+      
+      store.setStatus(status)
+    }
+  })
 
   return socket
 }
@@ -73,3 +99,5 @@ export function sendCommand(action, payload) {
     socket.emit('command', { action, payload })
   }
 }
+
+export { socket }

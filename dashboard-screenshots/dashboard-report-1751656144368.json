@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-07-04T19:09:04.368Z",
+  "analysis": {
+    "hasRoot": true,
+    "rootHTML": "",
+    "visibleText": "",
+    "textLength": 0,
+    "reactElementsCount": 0,
+    "htmlSnippet": "\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/src/main.jsx\"></script>\n\n<vite-error-overlay></vite-error-overlay>",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "rootDisplay": "block",
+    "rootVisibility": "visible",
+    "hasVisibleContent": false
+  },
+  "consoleLogs": [
+    "[debug] [vite] connecting...",
+    "[debug] [vite] connected.",
+    "[error] Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "[error] Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "consoleErrors": [],
+  "screenshotPath": "/Users/d1f/Desktop/Ebooks/book-automation/dashboard-screenshots/dashboard-1751656144183.png"
+}

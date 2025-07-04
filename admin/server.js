@@ -110,6 +110,24 @@ function setupQueueHooks() {
 
 // ===== ROTAS API =====
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
+// Root endpoint for ping checks
+app.get('/', (req, res) => {
+    res.json({ 
+        name: 'Ebook Pipeline Admin Dashboard',
+        version: '1.0.0',
+        status: 'running'
+    });
+});
+
 // Status geral
 app.get('/api/status', async (req, res) => {
     try {
@@ -456,13 +474,62 @@ global.adminError = broadcastError;
 
 // ===== START SERVER =====
 
+async function checkPort(port) {
+    return new Promise((resolve) => {
+        const testServer = require('net').createServer();
+        testServer.once('error', (err) => {
+            if (err.code === 'EADDRINUSE') {
+                resolve(false);
+            }
+        });
+        testServer.once('listening', () => {
+            testServer.close();
+            resolve(true);
+        });
+        testServer.listen(port);
+    });
+}
+
+async function findAvailablePort(startPort) {
+    let port = startPort;
+    while (port < startPort + 100) {
+        if (await checkPort(port)) {
+            return port;
+        }
+        port++;
+    }
+    throw new Error(`No available ports found between ${startPort} and ${startPort + 100}`);
+}
+
 async function start() {
     try {
         await initServices();
         
-        server.listen(PORT, () => {
-            console.log(`🎛️ Admin Dashboard rodando em http://localhost:${PORT}`);
-            console.log(`🔌 WebSocket pronto em ws://localhost:${PORT}`);
+        // Check if port is available
+        const isPortAvailable = await checkPort(PORT);
+        let actualPort = PORT;
+        
+        if (!isPortAvailable) {
+            console.log(`⚠️  Port ${PORT} is in use, finding alternative...`);
+            actualPort = await findAvailablePort(PORT + 1);
+            console.log(`✅ Using port ${actualPort} instead`);
+        }
+        
+        server.listen(actualPort, () => {
+            console.log(`🎛️ Admin Dashboard rodando em http://localhost:${actualPort}`);
+            console.log(`🔌 WebSocket pronto em ws://localhost:${actualPort}`);
+            if (actualPort !== PORT) {
+                console.log(`⚠️  Note: Default port ${PORT} was busy, using ${actualPort}`);
+            }
+        });
+        
+        server.on('error', (err) => {
+            if (err.code === 'EADDRINUSE') {
+                console.error(`❌ Port ${actualPort} is also in use. Please free up ports or increase search range.`);
+            } else {
+                console.error(`❌ Server error:`, err);
+            }
+            process.exit(1);
         });
         
     } catch (error) {
